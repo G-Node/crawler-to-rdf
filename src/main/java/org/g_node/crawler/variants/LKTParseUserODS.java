@@ -19,18 +19,22 @@ public class LKTParseUserODS implements CrawlerTemplate {
 
     public final String nameCommandLine = "lkt";
     public final String nameVerbose = "LMU Kay Thurley main metadata crawler";
-    public final ArrayList<String> parsableFileTypes = new ArrayList<String>(Arrays.asList("ODS"));
+    public final ArrayList<String> parsableFileTypes = new ArrayList<>(Collections.singletonList("ODS"));
 
-    public String returnNameCommandLine(){
+    public String returnNameCommandLine() {
         return nameCommandLine;
     }
 
-    public String returnNameVerbose(){
+    public String returnNameVerbose() {
         return nameVerbose;
     }
 
-    public ArrayList<String> returnParsableFileTypes(){
+    public ArrayList<String> returnParsableFileTypes() {
         return parsableFileTypes;
+    }
+
+    public void parseFile(String inputFile) {
+
     }
 
 }
