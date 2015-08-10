@@ -8,9 +8,11 @@
 
 package org.g_node.crawler.variants;
 
+import java.io.File;
 import java.util.*;
 
 import org.g_node.crawler.CrawlerTemplate;
+import org.jopendocument.dom.spreadsheet.*;
 
 /**
  * Parser for the main ODS metadata file used in the lab of Kay Thurley
@@ -34,7 +36,19 @@ public class LKTParseUserODS implements CrawlerTemplate {
     }
 
     public void parseFile(String inputFile) {
+        File ODSfile = new File(inputFile);
+        try {
 
+            System.out.println("File has # sheets: "+ SpreadSheet.createFromFile(ODSfile).getSheetCount());
+
+            final Sheet sheet = SpreadSheet.createFromFile(ODSfile).getSheet(0);
+
+            System.out.println("Sheet name:"+ sheet.getName() +", RowCount: "+ sheet.getRowCount() +", ColCount: "+ sheet.getColumnCount() );
+
+
+        } catch(Exception exp) {
+            System.out.println("ODS parser error: "+ exp.getMessage());
+        }
     }
 
 }

@@ -8,10 +8,10 @@
 
 package org.g_node;
 
-import java.io.File;
 import java.nio.file.*;
 
 import org.apache.commons.cli.*;
+import org.g_node.crawler.variants.LKTParseUserODS;
 
 /**
  * Main application class used to parse command line input and pass
@@ -24,6 +24,7 @@ public class App
         HelpFormatter printHelp = new HelpFormatter();
         CommandLineParser parser = new DefaultParser();
         Options useOptions = constructOptions();
+
         try {
             CommandLine cmd = parser.parse(useOptions, args);
 
@@ -56,15 +57,16 @@ public class App
             if(cmd.hasOption("n")) {
                 System.out.println("Ontology file: "+ cmd.getOptionValue("n"));
             }
+
+            LKTParseUserODS x = new LKTParseUserODS();
+            x.parseFile(cmd.getOptionValue("i"));
+
         }
 
         catch (ParseException exp) {
             printHelp.printHelp("Help", useOptions);
             System.err.println("Parser error: " + exp.getMessage());
         }
-
-
-
 
     }
 
