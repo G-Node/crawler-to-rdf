@@ -6,16 +6,21 @@
 // modification, are permitted under the terms of the BSD License. See
 // LICENSE file in the root of the Project.
 
-package org.g_node;
+package org.g_node.crawler;
+
+import java.util.ArrayList;
 
 /**
- * Main application class used to parse command line input and pass
- * information to the appropriate modules.
+ * Created by msonntag on 10.08.15.
  */
-public class App
-{
-    public static void main( String[] args )
-    {
-        System.out.println( "Hello World!" );
-    }
+public interface CrawlerTemplate {
+
+    public String returnNameCommandLine();
+
+    public String returnNameVerbose();
+
+    public ArrayList<String> returnParsableFileTypes();
+
 }
+
+
