@@ -11,7 +11,7 @@ package org.g_node.crawler;
 import java.util.ArrayList;
 
 /**
- * Created by msonntag on 10.08.15.
+ * Interface for the main file crawler
  */
 public interface CrawlerTemplate {
 
@@ -20,6 +20,8 @@ public interface CrawlerTemplate {
     public String returnNameVerbose();
 
     public ArrayList<String> returnParsableFileTypes();
+
+    public void parseFile(String inputFile);
 
 }
 

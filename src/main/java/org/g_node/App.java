@@ -11,7 +11,8 @@ package org.g_node;
 import java.nio.file.*;
 
 import org.apache.commons.cli.*;
-import org.g_node.crawler.variants.LKTParseUserODS;
+import org.g_node.cmdparse.CmdParseLib;
+import org.g_node.crawler.variants.LKTLogbook;
 
 /**
  * Main application class used to parse command line input and pass
@@ -23,7 +24,7 @@ public class App
     {
         HelpFormatter printHelp = new HelpFormatter();
         CommandLineParser parser = new DefaultParser();
-        Options useOptions = constructOptions();
+        Options useOptions = CmdParseLib.constructOptions();
 
         try {
             CommandLine cmd = parser.parse(useOptions, args);
@@ -58,8 +59,8 @@ public class App
                 System.out.println("Ontology file: "+ cmd.getOptionValue("n"));
             }
 
-            LKTParseUserODS x = new LKTParseUserODS();
-            x.parseFile(cmd.getOptionValue("i"));
+            LKTLogbook parseLogBook = new LKTLogbook();
+            parseLogBook.parseFile(cmd.getOptionValue("i"));
 
         }
 
@@ -68,58 +69,6 @@ public class App
             System.err.println("Parser error: " + exp.getMessage());
         }
 
-    }
-
-    private static Options constructOptions(){
-        final Options options = new Options();
-
-        Option opHelp = new Option("h", "help", false, "Print this message");
-
-        Option opCr = Option.builder("c")
-                .longOpt("crawler")
-                .desc("Shorthand of the required data crawler")
-                .required()
-                .hasArg()
-                .valueSeparator()
-                .build();
-
-        Option opIn = Option.builder("i")
-                .longOpt("in-file")
-                .desc("Input file thats supposed to be parsed")
-                .required()
-                .hasArg()
-                .valueSeparator()
-                .build();
-
-        Option opOut = Option.builder("o")
-                .longOpt("out-file")
-                .desc("Optional: Path and name of the output file. Files with the same name will be overwritten. Default file name uses format 'YYYYMMDDHHmm'")
-                .hasArg()
-                .valueSeparator()
-                .build();
-
-        Option opFormat = Option.builder("f")
-                .longOpt("out-format")
-                .desc("Optional: format of the RDF file that will be written. Default setting is the Turtle (ttl) format")
-                .hasArg()
-                .valueSeparator()
-                .build();
-
-        Option opOnt = Option.builder("n")
-                .longOpt("ont-file")
-                .desc("Optional: one or more onotology files can be provided to check if the created RDF files satisfy a required ontology")
-                .hasArg()
-                .valueSeparator()
-                .build();
-
-        options.addOption(opHelp);
-        options.addOption(opCr);
-        options.addOption(opIn);
-        options.addOption(opOut);
-        options.addOption(opFormat);
-        options.addOption(opOnt);
-
-        return options;
     }
 
 }
