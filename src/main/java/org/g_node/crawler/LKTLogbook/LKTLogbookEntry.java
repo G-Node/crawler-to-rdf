@@ -6,7 +6,7 @@
 // modification, are permitted under the terms of the BSD License. See
 // LICENSE file in the root of the Project.
 
-package org.g_node.crawler.variants;
+package org.g_node.crawler.LKTLogbook;
 
 /**
  * Object containing all information parsed from the individual data rows of an ODS sheet
@@ -17,6 +17,7 @@ public class LKTLogbookEntry {
     private String experiment;
     private String paradigm;
     private String experimentDate;
+    private String experimenter;
     private String firstName;
     private String lastName;
     private String commentExperiment;
@@ -127,5 +128,13 @@ public class LKTLogbookEntry {
         }
 
         return isValid;
+    }
+
+    public String getExperimenter() {
+        return experimenter;
+    }
+
+    public void setExperimenter(String experimenter) {
+        this.experimenter = experimenter;
     }
 }

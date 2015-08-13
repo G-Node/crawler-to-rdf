@@ -6,11 +6,12 @@
 // modification, are permitted under the terms of the BSD License. See
 // LICENSE file in the root of the Project.
 
-package org.g_node.crawler.variants;
+package org.g_node.crawler.LKTLogbook;
 
 import java.io.File;
 import java.util.*;
 
+import org.apache.commons.cli.*;
 import org.g_node.crawler.CrawlerTemplate;
 import org.jopendocument.dom.spreadsheet.*;
 
@@ -19,20 +20,72 @@ import org.jopendocument.dom.spreadsheet.*;
  */
 public class LKTLogbook implements CrawlerTemplate {
 
-    public final String nameCommandLine = "lkt";
+    public final String nameRegistry = "lkt";
     public final String nameVerbose = "LMU Kay Thurley main metadata crawler";
     public final ArrayList<String> parsableFileTypes = new ArrayList<>(Collections.singletonList("ODS"));
 
-    public String returnNameCommandLine() {
-        return nameCommandLine;
+    public String getNameRegistry() {
+        return nameRegistry;
     }
 
-    public String returnNameVerbose() {
+    public String getNameVerbose() {
         return nameVerbose;
     }
 
-    public ArrayList<String> returnParsableFileTypes() {
+    public ArrayList<String> getParsableFileTypes() {
         return parsableFileTypes;
+    }
+
+    public Options getCLIOptions() {
+        Options options = new Options();
+
+        Option opHelp = new Option("h", "help", false, "Print this message");
+
+        Option opCr = Option.builder("c")
+                .longOpt("crawler")
+                .desc("Shorthand of the required data crawler.")
+                .required()
+                .hasArg()
+                .valueSeparator()
+                .build();
+
+        Option opIn = Option.builder("i")
+                .longOpt("in-file")
+                .desc("Input file that's supposed to be parsed")
+                .required()
+                .hasArg()
+                .valueSeparator()
+                .build();
+
+        Option opOut = Option.builder("o")
+                .longOpt("out-file")
+                .desc("Optional: Path and name of the output file. Files with the same name will be overwritten. Default file name uses format 'YYYYMMDDHHmm'")
+                .hasArg()
+                .valueSeparator()
+                .build();
+
+        Option opFormat = Option.builder("f")
+                .longOpt("out-format")
+                .desc("Optional: format of the RDF file that will be written. Default setting is the Turtle (ttl) format")
+                .hasArg()
+                .valueSeparator()
+                .build();
+
+        Option opOnt = Option.builder("n")
+                .longOpt("ont-file")
+                .desc("Optional: one or more onotology files can be provided to check if the created RDF files satisfy a required ontology")
+                .hasArg()
+                .valueSeparator()
+                .build();
+
+        options.addOption(opHelp);
+        options.addOption(opCr);
+        options.addOption(opIn);
+        options.addOption(opOut);
+        options.addOption(opFormat);
+        options.addOption(opOnt);
+
+        return options;
     }
 
     public void parseFile(String inputFile) {
@@ -63,11 +116,19 @@ public class LKTLogbook implements CrawlerTemplate {
                 currSheet.setSpecies(sheet.getCellAt("C7").getTextValue());
                 currSheet.setScientificName(sheet.getCellAt("C8").getTextValue());
 
-                System.out.println("Remaining row number: "+ (sheet.getRowCount()-14));
+                //System.out.println("Remaining row number: "+ (sheet.getRowCount()-14));
+
+                System.out.println("ParserFlag: "+ sheet.getCellAt("A2").getValue());
+                System.out.println("ParserFlag: "+ sheet.getCellAt("A2").getTextValue());
+                System.out.println("ParserFlag: "+ sheet.getCellAt("A2").getStyleName());
+                System.out.println("ParserFlag: "+ sheet.getCellAt("A2").getValueType().getName());
+                System.out.println("ParseFlag: "+ sheet.getCellAt("A2").getElement().getName());
+                System.out.println("ParseFlag: " + sheet.getCellAt("A2").getElement().getNamespace());
+                System.out.println("ParseFlag: " + sheet.getCellAt("A2").getElement().getNamespaceURI());
+                System.out.println("ParseFlag: " + sheet.getCellAt("A2").getElement().getQualifiedName());
 
                 String currCell;
-                Boolean invalid;
-                for (int j = 15; j < sheet.getRowCount(); j++) {
+                for (int j = 24; j < sheet.getRowCount(); j++) {
 
                     LKTLogbookEntry currEntry = new LKTLogbookEntry();
 
@@ -104,7 +165,6 @@ public class LKTLogbook implements CrawlerTemplate {
                     currCell = sheet.getCellAt("K" + j).getTextValue();
                     currEntry.setWeight(currCell);
 
-
                     if(currEntry.checkValidEntry()) {
                         currSheet.addEntry(currEntry);
                     }
@@ -113,12 +173,12 @@ public class LKTLogbook implements CrawlerTemplate {
                 allSheets.add(currSheet);
             }
 
-            allSheets.stream().forEach(s ->
+/*            allSheets.stream().forEach(s ->
             {
                 System.out.println("AnimalID: " + s.getAnimalID() + ", AnimalSex: " + s.getAnimalSex());
                 s.getEntries().stream().forEach(e -> System.out.println("CurrRow: " + e.getProject() + " " + e.getExperiment() + " " + e.getExperimentDate()));
             });
-
+*/
         } catch(Exception exp) {
             System.out.println("ODS parser error: "+ exp.getMessage());
         }

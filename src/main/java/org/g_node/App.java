@@ -12,7 +12,8 @@ import java.nio.file.*;
 
 import org.apache.commons.cli.*;
 import org.g_node.cmdparse.CmdParseLib;
-import org.g_node.crawler.variants.LKTLogbook;
+import org.g_node.crawler.*;
+import org.g_node.crawler.LKTLogbook.LKTLogbook;
 
 /**
  * Main application class used to parse command line input and pass
@@ -22,6 +23,10 @@ public class App
 {
     public static void main( String[] args )
     {
+        // Register all available crawlers
+        CrawlerRegistry cr = new CrawlerRegistry();
+        cr.register(new LKTLogbook());
+
         HelpFormatter printHelp = new HelpFormatter();
         CommandLineParser parser = new DefaultParser();
         Options useOptions = CmdParseLib.constructOptions();
@@ -43,8 +48,10 @@ public class App
                 }
             }
 
-            if(cmd.hasOption("c")) {
+            if(cmd.hasOption("c") & cr.isRegistered(cmd.getOptionValue("c"))) {
                 System.out.println("Crawler: "+ cmd.getOptionValue("c"));
+            } else {
+                throw new ParseException("Invalid crawler selected, please use one of the following options: "+ cr.registeredKeys().toString());
             }
 
             if(cmd.hasOption("o")) {
@@ -59,8 +66,8 @@ public class App
                 System.out.println("Ontology file: "+ cmd.getOptionValue("n"));
             }
 
-            LKTLogbook parseLogBook = new LKTLogbook();
-            parseLogBook.parseFile(cmd.getOptionValue("i"));
+            CrawlerTemplate getParser = cr.getReference(cmd.getOptionValue("c")).getCrawler();
+            getParser.parseFile(cmd.getOptionValue("i"));
 
         }
 

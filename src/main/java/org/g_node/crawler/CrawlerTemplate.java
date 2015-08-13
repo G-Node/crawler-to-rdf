@@ -10,16 +10,20 @@ package org.g_node.crawler;
 
 import java.util.ArrayList;
 
+import org.apache.commons.cli.Options;
+
 /**
  * Interface for the main file crawler
  */
 public interface CrawlerTemplate {
 
-    public String returnNameCommandLine();
+    public String getNameRegistry();
 
-    public String returnNameVerbose();
+    public String getNameVerbose();
 
-    public ArrayList<String> returnParsableFileTypes();
+    public ArrayList<String> getParsableFileTypes();
+
+    public Options getCLIOptions();
 
     public void parseFile(String inputFile);
 
