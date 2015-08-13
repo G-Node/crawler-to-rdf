@@ -8,6 +8,9 @@
 
 package org.g_node.crawler.LKTLogbook;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+
 /**
  * Object containing all information parsed from the individual data rows of an ODS sheet
  */
@@ -137,19 +140,19 @@ public class LKTLogbookEntry {
         this.weight = weight;
     }
 
-    public boolean checkValidEntry() {
-        boolean isValid = true;
+    public ArrayList<String> isValidEntry() {
+        ArrayList<String> errorMessage = new ArrayList<>();
 
         if(getProject() == null || getProject().equals("")){
-            isValid = false;
+            errorMessage.add("Project entry is missing");
         }
         if(getExperiment() == null || getExperiment().equals("")){
-            isValid = false;
+            errorMessage.add("Experiment entry is missing");
         }
         if(getExperimentDate() == null || getExperimentDate().equals("")){
-            isValid = false;
+            errorMessage.add("Experiment date entry is missing");
         }
 
-        return isValid;
+        return errorMessage;
     }
 }

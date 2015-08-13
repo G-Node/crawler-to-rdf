@@ -123,85 +123,103 @@ public class LKTLogbook implements CrawlerTemplate {
         File ODSFile = new File(inputFile);
         try {
 
+            // TODO remove later
             System.out.println("File has # sheets: " + SpreadSheet.createFromFile(ODSFile).getSheetCount());
 
             if(!(SpreadSheet.createFromFile(ODSFile).getSheetCount() > 0)) {
-                System.err.println("Provided labbook "+ inputFile +" does not contain valid data sheets");
-                return;
-            }
+                hasParserError = true;
+                parserErrorMessages.add("Provided labbook " + inputFile + " does not contain valid data sheets");
+            } else {
 
-            ArrayList<LKTLogbookSheet> allSheets = new ArrayList<>();
+                ArrayList<LKTLogbookSheet> allSheets = new ArrayList<>();
+                Sheet sheet;
+                LKTLogbookSheet currLKTLSheet;
+                ArrayList<String> parseSheetMessage;
+                ArrayList<String> parseEntryMessage;
 
-            for (int i = 0; i < SpreadSheet.createFromFile(ODSFile).getSheetCount(); i++) {
+                for (int i = 0; i < SpreadSheet.createFromFile(ODSFile).getSheetCount(); i++) {
 
-                Sheet sheet = SpreadSheet.createFromFile(ODSFile).getSheet(i);
-                System.out.println("Sheet name:" + sheet.getName() + ", RowCount: " + sheet.getRowCount() + ", ColCount: " + sheet.getColumnCount());
+                    sheet = SpreadSheet.createFromFile(ODSFile).getSheet(i);
 
-                LKTLogbookSheet currSheet = new LKTLogbookSheet();
+                    // TODO remove later
+                    System.out.println("Sheet name:" + sheet.getName() + ", RowCount: " + sheet.getRowCount() + ", ColCount: " + sheet.getColumnCount());
 
-                currSheet.setAnimalID(sheet.getCellAt("C2").getTextValue());
-                currSheet.setAnimalSex(sheet.getCellAt("C3").getTextValue());
-                currSheet.setDateOfBirth(sheet.getCellAt("C4").getTextValue());
-                currSheet.setDateOfWithdrawal(sheet.getCellAt("C5").getTextValue());
-                currSheet.setPermitNumber(sheet.getCellAt("C6").getTextValue());
-                currSheet.setSpecies(sheet.getCellAt("C7").getTextValue());
-                currSheet.setScientificName(sheet.getCellAt("C8").getTextValue());
+                    currLKTLSheet = new LKTLogbookSheet();
 
-                ArrayList<String> parseMessage = currSheet.isValidSheet();
-                if(!parseMessage.isEmpty()) {
-                    System.out.println("Parser error sheet: " + sheet.getName());
-                    parseMessage.forEach(c -> System.out.println("\t" + c.toString()));
+                    currLKTLSheet.setAnimalID(sheet.getCellAt("C2").getTextValue());
+                    currLKTLSheet.setAnimalSex(sheet.getCellAt("C3").getTextValue());
+                    currLKTLSheet.setDateOfBirth(sheet.getCellAt("C4").getTextValue());
+                    currLKTLSheet.setDateOfWithdrawal(sheet.getCellAt("C5").getTextValue());
+                    currLKTLSheet.setPermitNumber(sheet.getCellAt("C6").getTextValue());
+                    currLKTLSheet.setSpecies(sheet.getCellAt("C7").getTextValue());
+                    currLKTLSheet.setScientificName(sheet.getCellAt("C8").getTextValue());
 
-                    hasParserError = true;
-                    parserErrorMessages.addAll(parseMessage);
-                }
-
-                String[] handleName;
-                for (int j = 24; j < sheet.getRowCount(); j++) {
-
-                    LKTLogbookEntry currEntry = new LKTLogbookEntry();
-
-                    currEntry.setProject(sheet.getCellAt("B" + j).getTextValue());
-
-                    currEntry.setExperiment(sheet.getCellAt("C" + j).getTextValue());
-
-                    currEntry.setParadigm(sheet.getCellAt("D" + j).getTextValue());
-
-                    currEntry.setExperimentDate(sheet.getCellAt("E" + j).getTextValue());
-
-                    // [TODO] solve this better, add middle name
-                    handleName = sheet.getCellAt("F" + j).getTextValue().trim().split("\\s+");
-
-                    currEntry.setFirstName(handleName[0]);
-                    currEntry.setLastName(handleName[handleName.length - 1]);
-
-                    currEntry.setCommentExperiment(sheet.getCellAt("G" + j).getTextValue());
-
-                    currEntry.setCommentAnimal(sheet.getCellAt("H" + j).getTextValue());
-
-                    currEntry.setFeed(sheet.getCellAt("I" + j).getTextValue());
-
-                    currEntry.setIsOnDiet(sheet.getCellAt("J" + j).getTextValue());
-
-                    currEntry.setIsInitialWeight(sheet.getCellAt("K" + j).getTextValue());
-
-                    currEntry.setWeight(sheet.getCellAt("L" + j).getTextValue());
-
-                    if(currEntry.checkValidEntry()) {
-                        currSheet.addEntry(currEntry);
-                    } else {
+                    parseSheetMessage = currLKTLSheet.isValidSheet();
+                    if (!parseSheetMessage.isEmpty()) {
                         hasParserError = true;
+                        parserErrorMessages.add("Parser error at sheet " + sheet.getName());
+                        parserErrorMessages.addAll(parseSheetMessage);
                     }
+
+                    String[] handleName;
+                    for (int j = 24; j < sheet.getRowCount(); j++) {
+
+                        LKTLogbookEntry currEntry = new LKTLogbookEntry();
+
+                        currEntry.setProject(sheet.getCellAt("B" + j).getTextValue());
+
+                        currEntry.setExperiment(sheet.getCellAt("C" + j).getTextValue());
+
+                        currEntry.setParadigm(sheet.getCellAt("D" + j).getTextValue());
+
+                        currEntry.setExperimentDate(sheet.getCellAt("E" + j).getTextValue());
+
+                        // [TODO] solve this better, add middle name
+                        handleName = sheet.getCellAt("F" + j).getTextValue().trim().split("\\s+");
+
+                        currEntry.setFirstName(handleName[0]);
+                        currEntry.setLastName(handleName[handleName.length - 1]);
+
+                        currEntry.setCommentExperiment(sheet.getCellAt("G" + j).getTextValue());
+
+                        currEntry.setCommentAnimal(sheet.getCellAt("H" + j).getTextValue());
+
+                        currEntry.setFeed(sheet.getCellAt("I" + j).getTextValue());
+
+                        currEntry.setIsOnDiet(sheet.getCellAt("J" + j).getTextValue());
+
+                        currEntry.setIsInitialWeight(sheet.getCellAt("K" + j).getTextValue());
+
+                        currEntry.setWeight(sheet.getCellAt("L" + j).getTextValue());
+
+                        parseEntryMessage = currEntry.isValidEntry();
+                        if (parseEntryMessage.isEmpty()) {
+                            currLKTLSheet.addEntry(currEntry);
+                        } else {
+                            // TODO this sucks because there are rows that only contain format but no text...
+                            // TODO these rows should simply be ignored...
+                            hasParserError = true;
+                            parserErrorMessages.add("Parser error in sheet " + sheet.getName() + " at row " + j);
+                            parserErrorMessages.addAll(parseEntryMessage);
+                        }
+                    }
+
+                    allSheets.add(currLKTLSheet);
                 }
 
-                allSheets.add(currSheet);
-            }
+                if(!hasParserError) {
+                    // TODO remove later
+                    allSheets.stream().forEach(s ->
+                    {
+                        System.out.println("AnimalID: " + s.getAnimalID() + ", AnimalSex: " + s.getAnimalSex());
+                        s.getEntries().stream().forEach(e -> System.out.println("CurrRow: " + e.getProject() + " " + e.getExperiment() + " " + e.getExperimentDate()));
+                    });
+                } else {
 
-            allSheets.stream().forEach(s ->
-            {
-                System.out.println("AnimalID: " + s.getAnimalID() + ", AnimalSex: " + s.getAnimalSex());
-                s.getEntries().stream().forEach(e -> System.out.println("CurrRow: " + e.getProject() + " " + e.getExperiment() + " " + e.getExperimentDate()));
-            });
+                    parserErrorMessages.forEach(m -> System.out.println(m));
+
+                }
+            }
 
         } catch(Exception exp) {
             System.out.println("ODS parser error: "+ exp.getMessage());
