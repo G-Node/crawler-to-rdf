@@ -8,7 +8,7 @@
 
 package org.g_node.crawler.LKTLogbook;
 
-import java.util.ArrayList;
+import java.util.*;
 
 /**
  * Object containing all information parsed from an ODS sheet
@@ -25,7 +25,7 @@ public class LKTLogbookSheet {
     private ArrayList<LKTLogbookEntry> entries;
 
     public LKTLogbookSheet() {
-        entries = new ArrayList<LKTLogbookEntry>();
+        entries = new ArrayList<>();
     }
 
     public void setAnimalID(String animalID) {
@@ -95,4 +95,28 @@ public class LKTLogbookSheet {
     public void addEntry(LKTLogbookEntry entry) {
         this.entries.add(entry);
     }
+
+    public ArrayList<String> isValidSheet() {
+
+        ArrayList<String> validationMessage = new ArrayList<>();
+
+        if (animalID.isEmpty() || Objects.equals(animalID, "")) {
+            validationMessage.add("Invalid animalID");
+        }
+        if (animalSex.isEmpty() || Objects.equals(animalSex, "")) {
+            validationMessage.add("Invalid animalSex");
+        }
+        if (dateOfBirth.isEmpty() || Objects.equals(dateOfBirth, "")) {
+            validationMessage.add("Invalid dateOfBirth");
+        }
+        if (dateOfWithdrawal.isEmpty() || Objects.equals(dateOfWithdrawal, "")) {
+            validationMessage.add("Invalid dateOfWithdrawal");
+        }
+        if (permitNumber.isEmpty() || Objects.equals(permitNumber, "")) {
+            validationMessage.add("Invalid permitNumber");
+        }
+
+        return validationMessage;
+    }
+
 }

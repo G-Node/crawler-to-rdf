@@ -17,14 +17,14 @@ public class LKTLogbookEntry {
     private String experiment;
     private String paradigm;
     private String experimentDate;
-    private String experimenter;
     private String firstName;
+    private String middleName;
     private String lastName;
     private String commentExperiment;
     private String commentAnimal;
     private String feed;
-    private String diet;
-    private String initialWeight;
+    private boolean isOnDiet;
+    private boolean isInitialWeight;
     private String weight;
 
     public String getProject() {
@@ -67,6 +67,14 @@ public class LKTLogbookEntry {
         this.firstName = firstName;
     }
 
+    public String getMiddleName() {
+        return middleName;
+    }
+
+    public void setMiddleName(String middleName) {
+        this.middleName = middleName;
+    }
+
     public String getLastName() {
         return lastName;
     }
@@ -91,20 +99,34 @@ public class LKTLogbookEntry {
         this.commentAnimal = commentAnimal;
     }
 
-    public String getDiet() {
-        return diet;
+    public String getFeed() {
+        return feed;
     }
 
-    public void setDiet(String diet) {
-        this.diet = diet;
+    public void setFeed(String feed) {
+        this.feed = feed;
     }
 
-    public String getInitialWeight() {
-        return initialWeight;
+    public boolean getIsOnDiet() {
+        return isOnDiet;
     }
 
-    public void setInitialWeight(String initialWeight) {
-        this.initialWeight = initialWeight;
+    public void setIsOnDiet(String isOnDiet) {
+        switch (isOnDiet) {
+            case "y": this.isOnDiet = true;
+            case "n": this.isOnDiet = false;
+        }
+    }
+
+    public boolean getIsInitialWeight() {
+        return isInitialWeight;
+    }
+
+    public void setIsInitialWeight(String isInitialWeight) {
+        switch (isInitialWeight) {
+            case "y": this.isInitialWeight = true;
+            case "n": this.isInitialWeight = false;
+        }
     }
 
     public String getWeight() {
@@ -129,21 +151,5 @@ public class LKTLogbookEntry {
         }
 
         return isValid;
-    }
-
-    public String getExperimenter() {
-        return experimenter;
-    }
-
-    public void setExperimenter(String experimenter) {
-        this.experimenter = experimenter;
-    }
-
-    public String getFeed() {
-        return feed;
-    }
-
-    public void setFeed(String feed) {
-        this.feed = feed;
     }
 }

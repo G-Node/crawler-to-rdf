@@ -21,9 +21,12 @@ import org.jopendocument.dom.spreadsheet.*;
  */
 public class LKTLogbook implements CrawlerTemplate {
 
-    public final String nameRegistry = "lkt";
-    public final String nameVerbose = "LMU Kay Thurley main metadata crawler";
-    public final ArrayList<String> parsableFileTypes = new ArrayList<>(Collections.singletonList("ODS"));
+    private final String nameRegistry = "lkt";
+    private final String nameVerbose = "LMU Kay Thurley main metadata crawler";
+    private final ArrayList<String> parsableFileTypes = new ArrayList<>(Collections.singletonList("ODS"));
+
+    public boolean hasParserError = false;
+    public ArrayList<String> parserErrorMessages = new ArrayList<>();
 
     public String getNameRegistry() {
         return nameRegistry;
@@ -116,6 +119,7 @@ public class LKTLogbook implements CrawlerTemplate {
     }
 
     public void parseFile(String inputFile) {
+
         File ODSFile = new File(inputFile);
         try {
 
@@ -143,6 +147,15 @@ public class LKTLogbook implements CrawlerTemplate {
                 currSheet.setSpecies(sheet.getCellAt("C7").getTextValue());
                 currSheet.setScientificName(sheet.getCellAt("C8").getTextValue());
 
+                ArrayList<String> parseMessage = currSheet.isValidSheet();
+                if(!parseMessage.isEmpty()) {
+                    System.out.println("Parser error sheet: " + sheet.getName());
+                    parseMessage.forEach(c -> System.out.println("\t" + c.toString()));
+
+                    hasParserError = true;
+                    parserErrorMessages.addAll(parseMessage);
+                }
+
                 String[] handleName;
                 for (int j = 24; j < sheet.getRowCount(); j++) {
 
@@ -168,14 +181,16 @@ public class LKTLogbook implements CrawlerTemplate {
 
                     currEntry.setFeed(sheet.getCellAt("I" + j).getTextValue());
 
-                    currEntry.setDiet(sheet.getCellAt("J" + j).getTextValue());
+                    currEntry.setIsOnDiet(sheet.getCellAt("J" + j).getTextValue());
 
-                    currEntry.setInitialWeight(sheet.getCellAt("K" + j).getTextValue());
+                    currEntry.setIsInitialWeight(sheet.getCellAt("K" + j).getTextValue());
 
                     currEntry.setWeight(sheet.getCellAt("L" + j).getTextValue());
 
                     if(currEntry.checkValidEntry()) {
                         currSheet.addEntry(currEntry);
+                    } else {
+                        hasParserError = true;
                     }
                 }
 
