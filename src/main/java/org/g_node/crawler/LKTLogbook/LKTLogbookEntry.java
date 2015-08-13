@@ -21,7 +21,8 @@ public class LKTLogbookEntry {
     private String firstName;
     private String lastName;
     private String commentExperiment;
-    private String logEntry;
+    private String commentAnimal;
+    private String feed;
     private String diet;
     private String initialWeight;
     private String weight;
@@ -82,12 +83,12 @@ public class LKTLogbookEntry {
         this.commentExperiment = commentExperiment;
     }
 
-    public String getLogEntry() {
-        return logEntry;
+    public String getCommentAnimal() {
+        return commentAnimal;
     }
 
-    public void setLogEntry(String logEntry) {
-        this.logEntry = logEntry;
+    public void setCommentAnimal(String commentAnimal) {
+        this.commentAnimal = commentAnimal;
     }
 
     public String getDiet() {
@@ -136,5 +137,13 @@ public class LKTLogbookEntry {
 
     public void setExperimenter(String experimenter) {
         this.experimenter = experimenter;
+    }
+
+    public String getFeed() {
+        return feed;
+    }
+
+    public void setFeed(String feed) {
+        this.feed = feed;
     }
 }

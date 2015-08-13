@@ -8,9 +8,9 @@
 
 package org.g_node.crawler;
 
-import java.util.ArrayList;
+import java.util.*;
 
-import org.apache.commons.cli.Options;
+import org.apache.commons.cli.*;
 
 /**
  * Interface for the main file crawler
@@ -23,7 +23,9 @@ public interface CrawlerTemplate {
 
     public ArrayList<String> getParsableFileTypes();
 
-    public Options getCLIOptions();
+    public Options getCLIOptions(Set<String> regCrawlers);
+
+    public boolean checkCLIOptions(CommandLine cmd);
 
     public void parseFile(String inputFile);
 

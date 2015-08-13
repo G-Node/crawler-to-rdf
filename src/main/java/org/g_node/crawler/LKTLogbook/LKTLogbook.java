@@ -9,6 +9,7 @@
 package org.g_node.crawler.LKTLogbook;
 
 import java.io.File;
+import java.nio.file.*;
 import java.util.*;
 
 import org.apache.commons.cli.*;
@@ -36,14 +37,14 @@ public class LKTLogbook implements CrawlerTemplate {
         return parsableFileTypes;
     }
 
-    public Options getCLIOptions() {
+    public Options getCLIOptions(final Set<String> regCrawlers) {
         Options options = new Options();
 
         Option opHelp = new Option("h", "help", false, "Print this message");
 
         Option opCr = Option.builder("c")
                 .longOpt("crawler")
-                .desc("Shorthand of the required data crawler.")
+                .desc("Shorthand of the required data crawler. \nAvailable crawlers: "+ regCrawlers.toString())
                 .required()
                 .hasArg()
                 .valueSeparator()
@@ -88,6 +89,32 @@ public class LKTLogbook implements CrawlerTemplate {
         return options;
     }
 
+    public boolean checkCLIOptions(final CommandLine cmd) {
+        // TODO find better name
+        boolean correctCLI = true;
+        if(cmd.hasOption("i")) {
+            System.out.println("Input file: "+ cmd.getOptionValue("i"));
+            if(!Files.exists(Paths.get(cmd.getOptionValue("i"))) &&
+                    (!Files.exists(Paths.get(cmd.getOptionValue("i")).toAbsolutePath())))  {
+                System.out.println("\nProvided input is not a valid file");
+                correctCLI = false;
+            }
+        }
+
+        if(cmd.hasOption("o")) {
+            System.out.println("Output file: "+ cmd.getOptionValue("o"));
+        }
+
+        if(cmd.hasOption("f")) {
+            System.out.println("Use output format: "+ cmd.getOptionValue("f"));
+        }
+
+        if(cmd.hasOption("n")) {
+            System.out.println("Ontology file: "+ cmd.getOptionValue("n"));
+        }
+        return correctCLI;
+    }
+
     public void parseFile(String inputFile) {
         File ODSFile = new File(inputFile);
         try {
@@ -116,54 +143,36 @@ public class LKTLogbook implements CrawlerTemplate {
                 currSheet.setSpecies(sheet.getCellAt("C7").getTextValue());
                 currSheet.setScientificName(sheet.getCellAt("C8").getTextValue());
 
-                //System.out.println("Remaining row number: "+ (sheet.getRowCount()-14));
-
-                System.out.println("ParserFlag: "+ sheet.getCellAt("A2").getValue());
-                System.out.println("ParserFlag: "+ sheet.getCellAt("A2").getTextValue());
-                System.out.println("ParserFlag: "+ sheet.getCellAt("A2").getStyleName());
-                System.out.println("ParserFlag: "+ sheet.getCellAt("A2").getValueType().getName());
-                System.out.println("ParseFlag: "+ sheet.getCellAt("A2").getElement().getName());
-                System.out.println("ParseFlag: " + sheet.getCellAt("A2").getElement().getNamespace());
-                System.out.println("ParseFlag: " + sheet.getCellAt("A2").getElement().getNamespaceURI());
-                System.out.println("ParseFlag: " + sheet.getCellAt("A2").getElement().getQualifiedName());
-
-                String currCell;
+                String[] handleName;
                 for (int j = 24; j < sheet.getRowCount(); j++) {
 
                     LKTLogbookEntry currEntry = new LKTLogbookEntry();
 
-                    currCell = sheet.getCellAt("A" + j).getTextValue();
-                    currEntry.setProject(currCell);
+                    currEntry.setProject(sheet.getCellAt("B" + j).getTextValue());
 
-                    currCell = sheet.getCellAt("B" + j).getTextValue();
-                    currEntry.setExperiment(currCell);
+                    currEntry.setExperiment(sheet.getCellAt("C" + j).getTextValue());
 
-                    currCell = sheet.getCellAt("C" + j).getTextValue();
-                    currEntry.setParadigm(currCell);
+                    currEntry.setParadigm(sheet.getCellAt("D" + j).getTextValue());
 
-                    currCell = sheet.getCellAt("D" + j).getTextValue();
-                    currEntry.setExperimentDate(currCell);
+                    currEntry.setExperimentDate(sheet.getCellAt("E" + j).getTextValue());
 
-                    currCell = sheet.getCellAt("E" + j).getTextValue();
-                    currEntry.setFirstName(currCell);
+                    // [TODO] solve this better, add middle name
+                    handleName = sheet.getCellAt("F" + j).getTextValue().trim().split("\\s+");
 
-                    currCell = sheet.getCellAt("F" + j).getTextValue();
-                    currEntry.setLastName(currCell);
+                    currEntry.setFirstName(handleName[0]);
+                    currEntry.setLastName(handleName[handleName.length - 1]);
 
-                    currCell = sheet.getCellAt("G" + j).getTextValue();
-                    currEntry.setCommentExperiment(currCell);
+                    currEntry.setCommentExperiment(sheet.getCellAt("G" + j).getTextValue());
 
-                    currCell = sheet.getCellAt("H" + j).getTextValue();
-                    currEntry.setLogEntry(currCell);
+                    currEntry.setCommentAnimal(sheet.getCellAt("H" + j).getTextValue());
 
-                    currCell = sheet.getCellAt("I" + j).getTextValue();
-                    currEntry.setDiet(currCell);
+                    currEntry.setFeed(sheet.getCellAt("I" + j).getTextValue());
 
-                    currCell = sheet.getCellAt("J" + j).getTextValue();
-                    currEntry.setInitialWeight(currCell);
+                    currEntry.setDiet(sheet.getCellAt("J" + j).getTextValue());
 
-                    currCell = sheet.getCellAt("K" + j).getTextValue();
-                    currEntry.setWeight(currCell);
+                    currEntry.setInitialWeight(sheet.getCellAt("K" + j).getTextValue());
+
+                    currEntry.setWeight(sheet.getCellAt("L" + j).getTextValue());
 
                     if(currEntry.checkValidEntry()) {
                         currSheet.addEntry(currEntry);
@@ -173,12 +182,12 @@ public class LKTLogbook implements CrawlerTemplate {
                 allSheets.add(currSheet);
             }
 
-/*            allSheets.stream().forEach(s ->
+            allSheets.stream().forEach(s ->
             {
                 System.out.println("AnimalID: " + s.getAnimalID() + ", AnimalSex: " + s.getAnimalSex());
                 s.getEntries().stream().forEach(e -> System.out.println("CurrRow: " + e.getProject() + " " + e.getExperiment() + " " + e.getExperimentDate()));
             });
-*/
+
         } catch(Exception exp) {
             System.out.println("ODS parser error: "+ exp.getMessage());
         }

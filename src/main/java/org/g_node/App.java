@@ -29,49 +29,50 @@ public class App
 
         HelpFormatter printHelp = new HelpFormatter();
         CommandLineParser parser = new DefaultParser();
-        Options useOptions = CmdParseLib.constructOptions();
+
+        // Construct the global parser options
+        Options useOptions = CmdParseLib.constructGlobalOptions(cr.registeredKeys());
 
         try {
-            CommandLine cmd = parser.parse(useOptions, args);
+            String useCrawler;
 
-            if(cmd.hasOption("h")) {
-                System.out.println("Help: "+ cmd.getOptionValue("h"));
-                return;
+            // use global parser options, to first check only if a valid parser has been selected,
+            // do not stop at unrecognizable arguments for now.
+            CommandLine initCMD = parser.parse(useOptions, args, true);
+
+            if (initCMD.hasOption("c") & cr.isRegistered(initCMD.getOptionValue("c"))) {
+                useCrawler = initCMD.getOptionValue("c");
+            } else {
+                throw new ParseException("Invalid crawler selected, please use one of the following options: "
+                        + cr.registeredKeys().toString());
             }
 
-            if(cmd.hasOption("i")) {
-                System.out.println("Input file: "+ cmd.getOptionValue("i"));
-                if(!Files.exists(Paths.get(cmd.getOptionValue("i"))) &&
-                        (!Files.exists(Paths.get(cmd.getOptionValue("i")).toAbsolutePath())))  {
-                    System.out.println("\nProvided input is not a valid file");
+            // add new cli parser options specific for the selected crawler
+            cr.getReference(useCrawler).getCrawler().getCLIOptions(cr.registeredKeys()).getOptions().forEach(useOptions::addOption);
+
+            try {
+
+                System.out.println("Crawler: "+ useCrawler);
+
+                CommandLine cmd = parser.parse(useOptions, args);
+
+                if (cmd.hasOption("h")) {
+                    printHelp.printHelp("Help", useOptions);
                     return;
+                }
+
+                CrawlerTemplate currCrawler = cr.getReference(cmd.getOptionValue("c")).getCrawler();
+                if(currCrawler.checkCLIOptions(cmd)) {
+                    currCrawler.parseFile(cmd.getOptionValue("i"));
                 }
             }
 
-            if(cmd.hasOption("c") & cr.isRegistered(cmd.getOptionValue("c"))) {
-                System.out.println("Crawler: "+ cmd.getOptionValue("c"));
-            } else {
-                throw new ParseException("Invalid crawler selected, please use one of the following options: "+ cr.registeredKeys().toString());
+            catch (ParseException exp) {
+                printHelp.printHelp("Help", useOptions);
+                System.err.println("Parser error: " + exp.getMessage());
             }
 
-            if(cmd.hasOption("o")) {
-                System.out.println("Output file: "+ cmd.getOptionValue("o"));
-            }
-
-            if(cmd.hasOption("f")) {
-                System.out.println("Use output format: "+ cmd.getOptionValue("f"));
-            }
-
-            if(cmd.hasOption("n")) {
-                System.out.println("Ontology file: "+ cmd.getOptionValue("n"));
-            }
-
-            CrawlerTemplate getParser = cr.getReference(cmd.getOptionValue("c")).getCrawler();
-            getParser.parseFile(cmd.getOptionValue("i"));
-
-        }
-
-        catch (ParseException exp) {
+        } catch (ParseException exp) {
             printHelp.printHelp("Help", useOptions);
             System.err.println("Parser error: " + exp.getMessage());
         }
