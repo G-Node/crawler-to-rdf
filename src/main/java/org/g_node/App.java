@@ -52,6 +52,9 @@ public class App
 
             try {
 
+
+                // Test commiting stuff to repository
+
                 System.out.println("Crawler: "+ useCrawler);
 
                 CommandLine cmd = parser.parse(useOptions, args);
