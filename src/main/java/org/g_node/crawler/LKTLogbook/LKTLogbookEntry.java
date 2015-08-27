@@ -8,9 +8,6 @@
 
 package org.g_node.crawler.LKTLogbook;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-
 /**
  * Object containing all information parsed from the individual data rows of an ODS sheet
  */
@@ -19,6 +16,7 @@ public class LKTLogbookEntry {
     private String project;
     private String experiment;
     private String paradigm;
+    private String paradigmSpecifics;
     private String experimentDate;
     private String firstName;
     private String middleName;
@@ -29,6 +27,10 @@ public class LKTLogbookEntry {
     private boolean isOnDiet;
     private boolean isInitialWeight;
     private String weight;
+    // required to check if a line is actually empty but parsed due to existing column format
+    // if any of the required fields project, experiment, experimentDate or lastName are not
+    // empty, then the line does not qualify as an empty line any longer
+    private boolean isEmptyLine = true;
 
     public String getProject() {
         return project;
@@ -36,6 +38,7 @@ public class LKTLogbookEntry {
 
     public void setProject(String project) {
         this.project = project;
+        setIsEmptyLine(false);
     }
 
     public String getExperiment() {
@@ -44,6 +47,7 @@ public class LKTLogbookEntry {
 
     public void setExperiment(String experiment) {
         this.experiment = experiment;
+        setIsEmptyLine(false);
     }
 
     public String getParadigm() {
@@ -54,12 +58,21 @@ public class LKTLogbookEntry {
         this.paradigm = paradigm;
     }
 
+    public String getParadigmSpecifics() {
+        return paradigmSpecifics;
+    }
+
+    public void setParadigmSpecifics(String paradigmSpecifics) {
+        this.paradigmSpecifics = paradigmSpecifics;
+    }
+
     public String getExperimentDate() {
         return experimentDate;
     }
 
     public void setExperimentDate(String experimentDate) {
         this.experimentDate = experimentDate;
+        setIsEmptyLine(false);
     }
 
     public String getFirstName() {
@@ -84,6 +97,7 @@ public class LKTLogbookEntry {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+        setIsEmptyLine(false);
     }
 
     public String getCommentExperiment() {
@@ -140,19 +154,31 @@ public class LKTLogbookEntry {
         this.weight = weight;
     }
 
-    public ArrayList<String> isValidEntry() {
-        ArrayList<String> errorMessage = new ArrayList<>();
+    public String isValidEntry() {
+
+        String msg = "";
 
         if(getProject() == null || getProject().equals("")){
-            errorMessage.add("Project entry is missing");
+            msg = msg.concat(" Project ");
         }
         if(getExperiment() == null || getExperiment().equals("")){
-            errorMessage.add("Experiment entry is missing");
+            msg = msg.concat(" Experiment ");
         }
         if(getExperimentDate() == null || getExperimentDate().equals("")){
-            errorMessage.add("Experiment date entry is missing");
+            msg = msg.concat(" Experiment date ");
+        }
+        if(getLastName() == null || getLastName().equals("")){
+            msg = msg.concat(" Name of experimenter ");
         }
 
-        return errorMessage;
+        return msg;
+    }
+
+    public boolean isEmptyLine() {
+        return isEmptyLine;
+    }
+
+    public void setIsEmptyLine(boolean isEmptyLine) {
+        this.isEmptyLine = isEmptyLine;
     }
 }

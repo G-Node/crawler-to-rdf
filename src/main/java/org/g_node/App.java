@@ -8,8 +8,6 @@
 
 package org.g_node;
 
-import java.nio.file.*;
-
 import org.apache.commons.cli.*;
 import org.g_node.cmdparse.CmdParseLib;
 import org.g_node.crawler.*;

@@ -135,7 +135,7 @@ public class LKTLogbook implements CrawlerTemplate {
                 Sheet sheet;
                 LKTLogbookSheet currLKTLSheet;
                 ArrayList<String> parseSheetMessage;
-                ArrayList<String> parseEntryMessage;
+                String parseEntryMessage = "";
 
                 for (int i = 0; i < SpreadSheet.createFromFile(ODSFile).getSheetCount(); i++) {
 
@@ -161,51 +161,57 @@ public class LKTLogbook implements CrawlerTemplate {
                         parserErrorMessages.addAll(parseSheetMessage);
                     }
 
+                    // TODO come up with a more robust solution
+                    // TODO check that line 23 contains the header and that the information start at line 24
+
                     String[] handleName;
                     for (int j = 24; j < sheet.getRowCount(); j++) {
 
                         LKTLogbookEntry currEntry = new LKTLogbookEntry();
 
-                        currEntry.setProject(sheet.getCellAt("B" + j).getTextValue());
+                        currEntry.setProject(sheet.getCellAt("K" + j).getTextValue());
 
-                        currEntry.setExperiment(sheet.getCellAt("C" + j).getTextValue());
+                        currEntry.setExperiment(sheet.getCellAt("L" + j).getTextValue());
 
-                        currEntry.setParadigm(sheet.getCellAt("D" + j).getTextValue());
+                        currEntry.setParadigm(sheet.getCellAt("C" + j).getTextValue());
 
-                        currEntry.setExperimentDate(sheet.getCellAt("E" + j).getTextValue());
+                        currEntry.setParadigmSpecifics(sheet.getCellAt("D" + j).getTextValue());
 
-                        // [TODO] solve this better, add middle name
-                        handleName = sheet.getCellAt("F" + j).getTextValue().trim().split("\\s+");
+                        currEntry.setExperimentDate(sheet.getCellAt("B" + j).getTextValue());
+
+                        // TODO solve this better, add middle name
+                        handleName = sheet.getCellAt("M" + j).getTextValue().trim().split("\\s+");
 
                         currEntry.setFirstName(handleName[0]);
                         currEntry.setLastName(handleName[handleName.length - 1]);
 
-                        currEntry.setCommentExperiment(sheet.getCellAt("G" + j).getTextValue());
+                        currEntry.setCommentExperiment(sheet.getCellAt("H" + j).getTextValue());
 
-                        currEntry.setCommentAnimal(sheet.getCellAt("H" + j).getTextValue());
+                        currEntry.setCommentAnimal(sheet.getCellAt("I" + j).getTextValue());
 
-                        currEntry.setFeed(sheet.getCellAt("I" + j).getTextValue());
+                        currEntry.setFeed(sheet.getCellAt("J" + j).getTextValue());
 
-                        currEntry.setIsOnDiet(sheet.getCellAt("J" + j).getTextValue());
+                        currEntry.setIsOnDiet(sheet.getCellAt("E" + j).getTextValue());
 
-                        currEntry.setIsInitialWeight(sheet.getCellAt("K" + j).getTextValue());
+                        currEntry.setIsInitialWeight(sheet.getCellAt("F" + j).getTextValue());
 
-                        currEntry.setWeight(sheet.getCellAt("L" + j).getTextValue());
+                        currEntry.setWeight(sheet.getCellAt("G" + j).getTextValue());
 
                         parseEntryMessage = currEntry.isValidEntry();
-                        if (parseEntryMessage.isEmpty()) {
+                        if (!currEntry.isEmptyLine() && parseEntryMessage.isEmpty()) {
                             currLKTLSheet.addEntry(currEntry);
-                        } else {
-                            // TODO this sucks because there are rows that only contain format but no text...
-                            // TODO these rows should simply be ignored...
+                        } else if (!currEntry.isEmptyLine() &&
+                                (!currEntry.getProject().isEmpty() || !currEntry.getExperiment().isEmpty() ||
+                                        !currEntry.getExperimentDate().isEmpty() || !currEntry.getLastName().isEmpty() )) {
                             hasParserError = true;
-                            parserErrorMessages.add("Parser error in sheet " + sheet.getName() + " at row " + j);
-                            parserErrorMessages.addAll(parseEntryMessage);
+                            parserErrorMessages.add("Parser error sheet " + sheet.getName() + " row " + j + ", missing value:"+ parseEntryMessage);
                         }
                     }
 
                     allSheets.add(currLKTLSheet);
                 }
+
+                allSheets.forEach(s -> System.out.println("CurrSheet: "+ s.getAnimalID() +" number of entries: "+ s.getEntries().size()));
 
                 if(!hasParserError) {
                     // TODO remove later
@@ -215,14 +221,13 @@ public class LKTLogbook implements CrawlerTemplate {
                         s.getEntries().stream().forEach(e -> System.out.println("CurrRow: " + e.getProject() + " " + e.getExperiment() + " " + e.getExperimentDate()));
                     });
                 } else {
-
-                    parserErrorMessages.forEach(m -> System.out.println(m));
-
+                    // TODO remove later
+                    parserErrorMessages.forEach(System.out::println);
                 }
             }
 
         } catch(Exception exp) {
-            System.out.println("ODS parser error: "+ exp.getMessage());
+            System.err.println("ODS parser error: "+ exp.getMessage());
         }
     }
 
