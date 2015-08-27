@@ -1,15 +1,19 @@
 language: java
 
 branches:
-    only:
-    - master
+  only:
+  - master
 
 before_install:
-    - sudo apt-get update -qq
-    - sudo apt-get install --only-upgrade -y oracle-java8-installer
+  - sudo apt-get update -qq
+  - sudo apt-get install --only-upgrade -y oracle-java8-installer
 
 jdk:
-    - oraclejdk8
+  - oraclejdk8
 
 after_success:
-    - mvn clean test jacoco:report coveralls:jacoco
+  - mvn clean test jacoco:report coveralls:jacoco
+
+notifications:
+  email: false
+
