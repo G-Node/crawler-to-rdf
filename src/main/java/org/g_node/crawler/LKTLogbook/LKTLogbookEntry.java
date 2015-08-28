@@ -8,6 +8,9 @@
 
 package org.g_node.crawler.LKTLogbook;
 
+import java.time.LocalDateTime;
+import java.time.format.*;
+
 /**
  * Object containing all information parsed from the individual data rows of an ODS sheet
  */
@@ -17,7 +20,7 @@ public class LKTLogbookEntry {
     private String experiment;
     private String paradigm;
     private String paradigmSpecifics;
-    private String experimentDate;
+    private LocalDateTime experimentDate;
     private String firstName;
     private String middleName;
     private String lastName;
@@ -32,13 +35,18 @@ public class LKTLogbookEntry {
     // empty, then the line does not qualify as an empty line any longer
     private boolean isEmptyLine = true;
 
+    private final String supportedDateTimePattern = "dd.MM.yyyy HH:mm";
+    private final DateTimeFormatter supportedDateTime = DateTimeFormatter.ofPattern(supportedDateTimePattern);
+
     public String getProject() {
         return project;
     }
 
     public void setProject(String project) {
+        if(project != null && !project.isEmpty()) {
+            setIsEmptyLine(false);
+        }
         this.project = project;
-        setIsEmptyLine(false);
     }
 
     public String getExperiment() {
@@ -46,8 +54,10 @@ public class LKTLogbookEntry {
     }
 
     public void setExperiment(String experiment) {
+        if(experiment != null && !experiment.isEmpty()) {
+            setIsEmptyLine(false);
+        }
         this.experiment = experiment;
-        setIsEmptyLine(false);
     }
 
     public String getParadigm() {
@@ -66,13 +76,21 @@ public class LKTLogbookEntry {
         this.paradigmSpecifics = paradigmSpecifics;
     }
 
-    public String getExperimentDate() {
+    public LocalDateTime getExperimentDate() {
         return experimentDate;
     }
 
-    public void setExperimentDate(String experimentDate) {
-        this.experimentDate = experimentDate;
-        setIsEmptyLine(false);
+    public String setExperimentDate(String experimentDate) {
+        String errMsg = "";
+        if(experimentDate != null && !experimentDate.isEmpty()) {
+            setIsEmptyLine(false);
+        }
+        try {
+            this.experimentDate = LocalDateTime.parse(experimentDate, supportedDateTime);
+        } catch(DateTimeParseException err) {
+            errMsg = "Invalid experiment date format ("+ experimentDate +"). Use format '"+ supportedDateTimePattern +"'";
+        }
+        return errMsg;
     }
 
     public String getFirstName() {
@@ -96,8 +114,10 @@ public class LKTLogbookEntry {
     }
 
     public void setLastName(String lastName) {
+        if(lastName != null && !lastName.isEmpty()) {
+            setIsEmptyLine(false);
+        }
         this.lastName = lastName;
-        setIsEmptyLine(false);
     }
 
     public String getCommentExperiment() {

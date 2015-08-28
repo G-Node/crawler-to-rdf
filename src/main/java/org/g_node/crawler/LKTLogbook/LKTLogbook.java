@@ -175,38 +175,30 @@ public class LKTLogbook implements CrawlerTemplate {
 
                     // TODO come up with a more robust solution
                     // TODO check that line 23 contains the header and that the information start at line 24
-
                     String[] handleName;
+                    String checkExperimentDate;
+
                     for (int j = 24; j < sheet.getRowCount(); j++) {
 
                         LKTLogbookEntry currEntry = new LKTLogbookEntry();
 
                         currEntry.setProject(sheet.getCellAt("K" + j).getTextValue());
-
                         currEntry.setExperiment(sheet.getCellAt("L" + j).getTextValue());
-
                         currEntry.setParadigm(sheet.getCellAt("C" + j).getTextValue());
-
                         currEntry.setParadigmSpecifics(sheet.getCellAt("D" + j).getTextValue());
 
-                        currEntry.setExperimentDate(sheet.getCellAt("B" + j).getTextValue());
+                        checkExperimentDate = currEntry.setExperimentDate(sheet.getCellAt("B" + j).getTextValue());
 
                         // TODO solve this better, add middle name
                         handleName = sheet.getCellAt("M" + j).getTextValue().trim().split("\\s+");
 
                         currEntry.setFirstName(handleName[0]);
                         currEntry.setLastName(handleName[handleName.length - 1]);
-
                         currEntry.setCommentExperiment(sheet.getCellAt("H" + j).getTextValue());
-
                         currEntry.setCommentAnimal(sheet.getCellAt("I" + j).getTextValue());
-
                         currEntry.setFeed(sheet.getCellAt("J" + j).getTextValue());
-
                         currEntry.setIsOnDiet(sheet.getCellAt("E" + j).getTextValue());
-
                         currEntry.setIsInitialWeight(sheet.getCellAt("F" + j).getTextValue());
-
                         currEntry.setWeight(sheet.getCellAt("G" + j).getTextValue());
 
                         parseEntryMessage = currEntry.isValidEntry();
@@ -214,9 +206,11 @@ public class LKTLogbook implements CrawlerTemplate {
                             currLKTLSheet.addEntry(currEntry);
                         } else if (!currEntry.isEmptyLine() &&
                                 (!currEntry.getProject().isEmpty() || !currEntry.getExperiment().isEmpty() ||
-                                        !currEntry.getExperimentDate().isEmpty() || !currEntry.getLastName().isEmpty() )) {
+                                        currEntry.getExperimentDate() != null || !currEntry.getLastName().isEmpty() )) {
                             hasParserError = true;
-                            parserErrorMessages.add("Parser error sheet " + sheet.getName() + " row " + j + ", missing value:"+ parseEntryMessage);
+                            // decide whether an experiment date parser error has happened or if a required value is missing at this line
+                            String msg = !checkExperimentDate.isEmpty() ? " " + checkExperimentDate : ", missing value:" + parseEntryMessage;
+                            parserErrorMessages.add("Parser error sheet " + sheet.getName() + " row " + j + msg);
                         }
                     }
 
@@ -240,6 +234,7 @@ public class LKTLogbook implements CrawlerTemplate {
 
         } catch(Exception exp) {
             System.err.println("ODS parser error: "+ exp.getMessage());
+            exp.printStackTrace();
         }
     }
 
