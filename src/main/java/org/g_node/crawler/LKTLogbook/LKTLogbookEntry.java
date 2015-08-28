@@ -88,7 +88,11 @@ public class LKTLogbookEntry {
         try {
             this.experimentDate = LocalDateTime.parse(experimentDate, supportedDateTime);
         } catch(DateTimeParseException err) {
-            errMsg = "Invalid experiment date format ("+ experimentDate +"). Use format '"+ supportedDateTimePattern +"'";
+            if(experimentDate == null || experimentDate.isEmpty()) {
+                errMsg = "Date of experiment is missing";
+            } else {
+                errMsg = "Invalid experiment date format (" + experimentDate + "). Use format '" + supportedDateTimePattern + "'";
+            }
         }
         return errMsg;
     }
@@ -184,7 +188,7 @@ public class LKTLogbookEntry {
         if(getExperiment() == null || getExperiment().equals("")){
             msg = msg.concat(" Experiment ");
         }
-        if(getExperimentDate() == null || getExperimentDate().equals("")){
+        if(getExperimentDate() == null){
             msg = msg.concat(" Experiment date ");
         }
         if(getLastName() == null || getLastName().equals("")){

@@ -12,6 +12,8 @@ import java.time.LocalDate;
 import java.time.format.*;
 import java.util.*;
 
+// TODO use logfile, write error messages directly to logfile?
+
 /**
  * Object containing all information parsed from an ODS sheet
  */
@@ -59,7 +61,11 @@ public class LKTLogbookSheet {
         try {
             this.dateOfBirth = LocalDate.parse(dateOfBirth, supportedDate);
         } catch(DateTimeParseException err) {
-            errMsg = "Invalid Date of birth format ("+ dateOfBirth +"). Use format '"+ supportedDatePattern +"'";
+            if(dateOfBirth == null || dateOfBirth.isEmpty()) {
+                errMsg = "Date of birth is missing";
+            } else {
+                errMsg = "Invalid Date of birth format (" + dateOfBirth + "). Use format '" + supportedDatePattern + "'";
+            }
         }
 
         return errMsg;
@@ -74,7 +80,11 @@ public class LKTLogbookSheet {
         try {
             this.dateOfWithdrawal = LocalDate.parse(dateOfWithdrawal, supportedDate);
         } catch(DateTimeParseException err) {
-            errMsg = "Invalid Date of withdrawal format ("+ dateOfWithdrawal +"). Use format '"+ supportedDatePattern +"'";
+            if(dateOfWithdrawal == null || dateOfWithdrawal.isEmpty()) {
+                errMsg = "Date of withdrawal is missing";
+            } else {
+                errMsg = "Invalid Date of withdrawal format (" + dateOfWithdrawal + "). Use format '" + supportedDatePattern + "'";
+            }
         }
         return errMsg;
     }
@@ -115,24 +125,22 @@ public class LKTLogbookSheet {
         this.entries.add(entry);
     }
 
+    // TODO redo validity checks
     public ArrayList<String> isValidSheet() {
 
         ArrayList<String> validationMessage = new ArrayList<>();
 
         if (animalID.isEmpty() || Objects.equals(animalID, "")) {
-            validationMessage.add("Invalid animalID");
+            validationMessage.add("Missing animal ID");
         }
         if (animalSex.isEmpty() || Objects.equals(animalSex, "")) {
-            validationMessage.add("Invalid animalSex");
+            validationMessage.add("Missing animal sex");
+        } else if (!Objects.equals(animalSex,"m") && !Objects.equals(animalSex,"f")) {
+            validationMessage.add("Invalid animal sex ("+ getAnimalSex() +")");
         }
-        if (dateOfBirth == null) {
-            validationMessage.add("Invalid dateOfBirth");
-        }
-        if (dateOfWithdrawal == null) {
-            validationMessage.add("Invalid dateOfWithdrawal");
-        }
+
         if (permitNumber.isEmpty() || Objects.equals(permitNumber, "")) {
-            validationMessage.add("Invalid permitNumber");
+            validationMessage.add("Missing permitNumber");
         }
 
         return validationMessage;
