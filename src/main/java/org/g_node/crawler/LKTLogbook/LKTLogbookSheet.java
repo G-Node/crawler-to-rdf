@@ -8,6 +8,8 @@
 
 package org.g_node.crawler.LKTLogbook;
 
+import java.time.LocalDate;
+import java.time.format.*;
 import java.util.*;
 
 /**
@@ -17,12 +19,15 @@ public class LKTLogbookSheet {
 
     private String animalID;
     private String animalSex;
-    private String dateOfBirth;
-    private String dateOfWithdrawal;
+    private LocalDate dateOfBirth;
+    private LocalDate dateOfWithdrawal;
     private String permitNumber;
     private String species;
     private String scientificName;
     private ArrayList<LKTLogbookEntry> entries;
+
+    private final String supportedDatePattern = "dd.MM.yyyy";
+    private final DateTimeFormatter supportedDate = DateTimeFormatter.ofPattern(supportedDatePattern);
 
     public LKTLogbookSheet() {
         entries = new ArrayList<>();
@@ -44,20 +49,34 @@ public class LKTLogbookSheet {
         return animalSex;
     }
 
-    public String getDateOfBirth() {
+    public LocalDate getDateOfBirth() {
         return dateOfBirth;
     }
 
-    public void setDateOfBirth(String dateOfBirth) {
-        this.dateOfBirth = dateOfBirth;
+    public String setDateOfBirth(String dateOfBirth) {
+        String errMsg = "";
+
+        try {
+            this.dateOfBirth = LocalDate.parse(dateOfBirth, supportedDate);
+        } catch(DateTimeParseException err) {
+            errMsg = "Invalid Date of birth format ("+ dateOfBirth +"). Use format '"+ supportedDatePattern +"'";
+        }
+
+        return errMsg;
     }
 
-    public String getDateOfWithdrawal() {
+    public LocalDate getDateOfWithdrawal() {
         return dateOfWithdrawal;
     }
 
-    public void setDateOfWithdrawal(String dateOfWithdrawal) {
-        this.dateOfWithdrawal = dateOfWithdrawal;
+    public String setDateOfWithdrawal(String dateOfWithdrawal) {
+        String errMsg = "";
+        try {
+            this.dateOfWithdrawal = LocalDate.parse(dateOfWithdrawal, supportedDate);
+        } catch(DateTimeParseException err) {
+            errMsg = "Invalid Date of withdrawal format ("+ dateOfWithdrawal +"). Use format '"+ supportedDatePattern +"'";
+        }
+        return errMsg;
     }
 
     public String getPermitNumber() {
@@ -106,10 +125,10 @@ public class LKTLogbookSheet {
         if (animalSex.isEmpty() || Objects.equals(animalSex, "")) {
             validationMessage.add("Invalid animalSex");
         }
-        if (dateOfBirth.isEmpty() || Objects.equals(dateOfBirth, "")) {
+        if (dateOfBirth == null) {
             validationMessage.add("Invalid dateOfBirth");
         }
-        if (dateOfWithdrawal.isEmpty() || Objects.equals(dateOfWithdrawal, "")) {
+        if (dateOfWithdrawal == null) {
             validationMessage.add("Invalid dateOfWithdrawal");
         }
         if (permitNumber.isEmpty() || Objects.equals(permitNumber, "")) {

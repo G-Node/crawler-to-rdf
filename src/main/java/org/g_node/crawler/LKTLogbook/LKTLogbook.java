@@ -135,11 +135,15 @@ public class LKTLogbook implements CrawlerTemplate {
                 Sheet sheet;
                 LKTLogbookSheet currLKTLSheet;
                 ArrayList<String> parseSheetMessage;
-                String parseEntryMessage = "";
+                String parseEntryMessage;
+
+                String checkDB;
+                String checkDW;
 
                 for (int i = 0; i < SpreadSheet.createFromFile(ODSFile).getSheetCount(); i++) {
 
                     sheet = SpreadSheet.createFromFile(ODSFile).getSheet(i);
+                    final String sheetName = sheet.getName();
 
                     // TODO remove later
                     System.out.println("Sheet name:" + sheet.getName() + ", RowCount: " + sheet.getRowCount() + ", ColCount: " + sheet.getColumnCount());
@@ -148,17 +152,25 @@ public class LKTLogbook implements CrawlerTemplate {
 
                     currLKTLSheet.setAnimalID(sheet.getCellAt("C2").getTextValue());
                     currLKTLSheet.setAnimalSex(sheet.getCellAt("C3").getTextValue());
-                    currLKTLSheet.setDateOfBirth(sheet.getCellAt("C4").getTextValue());
-                    currLKTLSheet.setDateOfWithdrawal(sheet.getCellAt("C5").getTextValue());
+                    checkDB = currLKTLSheet.setDateOfBirth(sheet.getCellAt("C4").getTextValue());
+                    checkDW = currLKTLSheet.setDateOfWithdrawal(sheet.getCellAt("C5").getTextValue());
                     currLKTLSheet.setPermitNumber(sheet.getCellAt("C6").getTextValue());
                     currLKTLSheet.setSpecies(sheet.getCellAt("C7").getTextValue());
                     currLKTLSheet.setScientificName(sheet.getCellAt("C8").getTextValue());
 
+                    // TODO come up with a better way to deal with date errors
                     parseSheetMessage = currLKTLSheet.isValidSheet();
-                    if (!parseSheetMessage.isEmpty()) {
+                    if (!parseSheetMessage.isEmpty() || !checkDB.isEmpty() || !checkDW.isEmpty()) {
                         hasParserError = true;
-                        parserErrorMessages.add("Parser error at sheet " + sheet.getName());
-                        parserErrorMessages.addAll(parseSheetMessage);
+                        if(!parseSheetMessage.isEmpty()) {
+                            parseSheetMessage.forEach(m -> parserErrorMessages.add("Parser error sheet " + sheetName + ", " + m));
+                        }
+                        if(!checkDB.isEmpty()) {
+                            parserErrorMessages.add("Parser error sheet " + sheetName +", "+ checkDB);
+                        }
+                        if(!checkDW.isEmpty()) {
+                            parserErrorMessages.add("Parser error sheet " + sheetName +", "+ checkDW);
+                        }
                     }
 
                     // TODO come up with a more robust solution
@@ -208,17 +220,17 @@ public class LKTLogbook implements CrawlerTemplate {
                         }
                     }
 
-                    allSheets.add(currLKTLSheet);
-                }
+                allSheets.add(currLKTLSheet);
+            }
 
-                allSheets.forEach(s -> System.out.println("CurrSheet: "+ s.getAnimalID() +" number of entries: "+ s.getEntries().size()));
+            allSheets.forEach(s -> System.out.println("CurrSheet: " + s.getAnimalID() + " number of entries: " + s.getEntries().size()));
 
-                if(!hasParserError) {
-                    // TODO remove later
-                    allSheets.stream().forEach(s ->
-                    {
-                        System.out.println("AnimalID: " + s.getAnimalID() + ", AnimalSex: " + s.getAnimalSex());
-                        s.getEntries().stream().forEach(e -> System.out.println("CurrRow: " + e.getProject() + " " + e.getExperiment() + " " + e.getExperimentDate()));
+            if (!hasParserError) {
+                // TODO remove later
+                allSheets.stream().forEach(s ->
+                {
+                    System.out.println("AnimalID: " + s.getAnimalID() + ", AnimalSex: " + s.getAnimalSex());
+                    s.getEntries().stream().forEach(e -> System.out.println("CurrRow: " + e.getProject() + " " + e.getExperiment() + " " + e.getExperimentDate()));
                     });
                 } else {
                     // TODO remove later
