@@ -45,11 +45,10 @@ public class App
                         + cr.registeredKeys().toString());
             }
 
-            // add new cli parser options specific for the selected crawler
+            // add new CLI parser options specific for the selected crawler
             cr.getReference(useCrawler).getCrawler().getCLIOptions(cr.registeredKeys()).getOptions().forEach(useOptions::addOption);
 
             try {
-
 
                 // Test commiting stuff to repository
 

@@ -16,6 +16,7 @@ import java.time.format.*;
  */
 public class LKTLogbookEntry {
 
+    private String importID;
     private String project;
     private String experiment;
     private String paradigm;
@@ -30,6 +31,8 @@ public class LKTLogbookEntry {
     private boolean isOnDiet;
     private boolean isInitialWeight;
     private String weight;
+    // required if a line was already imported before to mark it as an update rather than a new entry
+    private boolean isUpdate = false;
     // required to check if a line is actually empty but parsed due to existing column format
     // if any of the required fields project, experiment, experimentDate or lastName are not
     // empty, then the line does not qualify as an empty line any longer
@@ -37,6 +40,21 @@ public class LKTLogbookEntry {
 
     private final String supportedDateTimePattern = "dd.MM.yyyy HH:mm";
     private final DateTimeFormatter supportedDateTime = DateTimeFormatter.ofPattern(supportedDateTimePattern);
+
+
+    public String getImportID() {
+        return importID;
+    }
+
+    public void setExistingImportID(String importID) {
+        this.importID = importID;
+        // if an ID already exists, the current entry has already been imported and has to be treated as an update
+        if(importID != null && !importID.isEmpty()){
+            setIsUpdate(true);
+            //TODO remove later
+            System.out.println("Existing importID: "+ importID);
+        }
+    }
 
     public String getProject() {
         return project;
@@ -204,5 +222,13 @@ public class LKTLogbookEntry {
 
     public void setIsEmptyLine(boolean isEmptyLine) {
         this.isEmptyLine = isEmptyLine;
+    }
+
+    public boolean isUpdate() {
+        return isUpdate;
+    }
+
+    public void setIsUpdate(boolean isUpdate) {
+        this.isUpdate = isUpdate;
     }
 }

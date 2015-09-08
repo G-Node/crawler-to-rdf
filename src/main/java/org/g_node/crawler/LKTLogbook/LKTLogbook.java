@@ -182,6 +182,7 @@ public class LKTLogbook implements CrawlerTemplate {
 
                         LKTLogbookEntry currEntry = new LKTLogbookEntry();
 
+                        currEntry.setExistingImportID(sheet.getCellAt("A"+ j).getTextValue());
                         currEntry.setProject(sheet.getCellAt("K" + j).getTextValue());
                         currEntry.setExperiment(sheet.getCellAt("L" + j).getTextValue());
                         currEntry.setParadigm(sheet.getCellAt("C" + j).getTextValue());
