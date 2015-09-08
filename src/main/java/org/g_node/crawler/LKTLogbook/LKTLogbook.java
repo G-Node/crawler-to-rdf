@@ -121,7 +121,8 @@ public class LKTLogbook implements CrawlerTemplate {
 
     public void parseFile(String inputFile) {
 
-        // TODO check if a robuster solution exists. Also check with Kay, if multiple backupfiles with a timestamp should exist.
+        // TODO check if a robuster solution exists. Also check with Kay, if multiple backup files e.g. with a timestamp should exist.
+        // TODO will fail for sure, if the file contains more than one period; should be addressed as well.
         // Create file backup
         String backupFile = inputFile.split("\\.")[0]+"_backup.ods";
         try {
@@ -170,16 +171,16 @@ public class LKTLogbook implements CrawlerTemplate {
                         parseSheetMessage = currLKTLSheet.isValidSheet();
                         if (!parseSheetMessage.isEmpty() || !checkDB.isEmpty() || !checkDW.isEmpty()) {
                             hasParserError = true;
-                            if(!parseSheetMessage.isEmpty()) {
+                            if (!parseSheetMessage.isEmpty()) {
                                 parseSheetMessage.forEach(m -> parserErrorMessages.add("Parser error sheet " + sheetName + ", " + m));
                             }
                             // check valid date of brith
-                            if(!checkDB.isEmpty()) {
-                                parserErrorMessages.add("Parser error sheet " + sheetName +", "+ checkDB);
+                            if (!checkDB.isEmpty()) {
+                                parserErrorMessages.add("Parser error sheet " + sheetName + ", " + checkDB);
                             }
                             // check valid date of withdrawal
-                            if(!checkDW.isEmpty()) {
-                                parserErrorMessages.add("Parser error sheet " + sheetName +", "+ checkDW);
+                            if (!checkDW.isEmpty()) {
+                                parserErrorMessages.add("Parser error sheet " + sheetName + ", " + checkDW);
                             }
                         }
 
@@ -188,44 +189,51 @@ public class LKTLogbook implements CrawlerTemplate {
                         String[] handleName;
                         String checkExperimentDate;
 
-                        for (int j = 24; j < sheet.getRowCount(); j++) {
+                        if (sheet.getCellAt("A23").getTextValue() == null || !sheet.getCellAt("A23").getTextValue().equals("ImportID")) {
+                            parserErrorMessages.add("Parser error sheet " + sheetName + " HeaderEntry ImportID does not start at required line 23");
+                        } else {
 
-                            LKTLogbookEntry currEntry = new LKTLogbookEntry();
+                            for (int j = 24; j < sheet.getRowCount(); j++) {
 
-                            currEntry.setExistingImportID(sheet.getCellAt("A"+ j).getTextValue());
-                            currEntry.setProject(sheet.getCellAt("K" + j).getTextValue());
-                            currEntry.setExperiment(sheet.getCellAt("L" + j).getTextValue());
-                            currEntry.setParadigm(sheet.getCellAt("C" + j).getTextValue());
-                            currEntry.setParadigmSpecifics(sheet.getCellAt("D" + j).getTextValue());
+                                LKTLogbookEntry currEntry = new LKTLogbookEntry();
 
-                            checkExperimentDate = currEntry.setExperimentDate(sheet.getCellAt("B" + j).getTextValue());
+                                currEntry.setExistingImportID(sheet.getCellAt("A" + j).getTextValue());
+                                currEntry.setProject(sheet.getCellAt("K" + j).getTextValue());
+                                currEntry.setExperiment(sheet.getCellAt("L" + j).getTextValue());
+                                currEntry.setParadigm(sheet.getCellAt("C" + j).getTextValue());
+                                currEntry.setParadigmSpecifics(sheet.getCellAt("D" + j).getTextValue());
 
-                            // TODO solve this better, add middle name
-                            handleName = sheet.getCellAt("M" + j).getTextValue().trim().split("\\s+");
+                                checkExperimentDate = currEntry.setExperimentDate(sheet.getCellAt("B" + j).getTextValue());
 
-                            currEntry.setFirstName(handleName[0]);
-                            currEntry.setLastName(handleName[handleName.length - 1]);
-                            currEntry.setCommentExperiment(sheet.getCellAt("H" + j).getTextValue());
-                            currEntry.setCommentAnimal(sheet.getCellAt("I" + j).getTextValue());
-                            currEntry.setFeed(sheet.getCellAt("J" + j).getTextValue());
-                            currEntry.setIsOnDiet(sheet.getCellAt("E" + j).getTextValue());
-                            currEntry.setIsInitialWeight(sheet.getCellAt("F" + j).getTextValue());
-                            currEntry.setWeight(sheet.getCellAt("G" + j).getTextValue());
+                                // TODO solve this better, add middle name
+                                handleName = sheet.getCellAt("M" + j).getTextValue().trim().split("\\s+");
 
-                            parseEntryMessage = currEntry.isValidEntry();
-                            if (!currEntry.isEmptyLine() && parseEntryMessage.isEmpty()) {
-                                currLKTLSheet.addEntry(currEntry);
-                            } else if (!currEntry.isEmptyLine() &&
-                                    (!currEntry.getProject().isEmpty() || !currEntry.getExperiment().isEmpty() ||
-                                            currEntry.getExperimentDate() != null || !currEntry.getLastName().isEmpty() )) {
-                                hasParserError = true;
-                                // decide whether an experiment date parser error has happened or if a required value is missing at this line
-                                String msg = !checkExperimentDate.isEmpty() ? " " + checkExperimentDate : ", missing value:" + parseEntryMessage;
-                                parserErrorMessages.add("Parser error sheet " + sheet.getName() + " row " + j + msg);
+                                currEntry.setFirstName(handleName[0]);
+                                currEntry.setLastName(handleName[handleName.length - 1]);
+                                currEntry.setCommentExperiment(sheet.getCellAt("H" + j).getTextValue());
+                                currEntry.setCommentAnimal(sheet.getCellAt("I" + j).getTextValue());
+                                currEntry.setFeed(sheet.getCellAt("J" + j).getTextValue());
+                                currEntry.setIsOnDiet(sheet.getCellAt("E" + j).getTextValue());
+                                currEntry.setIsInitialWeight(sheet.getCellAt("F" + j).getTextValue());
+                                currEntry.setWeight(sheet.getCellAt("G" + j).getTextValue());
+
+                                parseEntryMessage = currEntry.isValidEntry();
+                                if (!currEntry.isEmptyLine() && parseEntryMessage.isEmpty()) {
+                                    currLKTLSheet.addEntry(currEntry);
+                                } else if (!currEntry.isEmptyLine() &&
+                                        (!currEntry.getProject().isEmpty() || !currEntry.getExperiment().isEmpty() ||
+                                                currEntry.getExperimentDate() != null || !currEntry.getLastName().isEmpty())) {
+                                    hasParserError = true;
+                                    // decide whether an experiment date parser error has happened or if a required value is missing at this line
+                                    String msg = !checkExperimentDate.isEmpty() ? " " + checkExperimentDate : ", missing value:" + parseEntryMessage;
+                                    // Parser errors should be collected and written to a logfile. If a sheet contains multiple errors
+                                    // the user should get them all at once and not with every run just the latest one.
+                                    parserErrorMessages.add("Parser error sheet " + sheet.getName() + " row " + j + msg);
+                                }
                             }
-                        }
 
-                        allSheets.add(currLKTLSheet);
+                            allSheets.add(currLKTLSheet);
+                        }
                     }
 
                     allSheets.forEach(s -> System.out.println("CurrSheet: " + s.getAnimalID() + " number of entries: " + s.getEntries().size()));
@@ -238,8 +246,8 @@ public class LKTLogbook implements CrawlerTemplate {
                             s.getEntries().stream().forEach(e -> System.out.println("CurrRow: " + e.getProject() + " " + e.getExperiment() + " " + e.getExperimentDate()));
                         });
                     } else {
-                        // TODO remove later
-                        parserErrorMessages.forEach(System.out::println);
+                        // TODO write to logfile
+                        parserErrorMessages.forEach(System.err::println);
                     }
                 }
 

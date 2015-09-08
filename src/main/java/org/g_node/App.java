@@ -34,6 +34,8 @@ public class App
         try {
             String useCrawler;
 
+            // TODO not really happy with the split commandline parser, maybe there is a more sophisticated way
+            // TODO to do this
             // use global parser options, to first check only if a valid parser has been selected,
             // do not stop at unrecognizable arguments for now.
             CommandLine initCMD = parser.parse(useOptions, args, true);
