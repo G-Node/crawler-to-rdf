@@ -10,6 +10,7 @@ package org.g_node.crawler.LKTLogbook;
 
 import java.time.LocalDateTime;
 import java.time.format.*;
+import java.util.UUID;
 
 /**
  * Object containing all information parsed from the individual data rows of an ODS sheet
@@ -41,18 +42,23 @@ public class LKTLogbookEntry {
     private final String supportedDateTimePattern = "dd.MM.yyyy HH:mm";
     private final DateTimeFormatter supportedDateTime = DateTimeFormatter.ofPattern(supportedDateTimePattern);
 
+    // -------- Getter and Setter ----------
 
+    // -------------------------------------
     public String getImportID() {
         return importID;
     }
 
+    // if an ID already exists, the current entry has already been imported and has to be treated as an update
+    // otherwise create a new ID
     public void setExistingImportID(String importID) {
         this.importID = importID;
-        // if an ID already exists, the current entry has already been imported and has to be treated as an update
         if(importID != null && !importID.isEmpty()){
             setIsUpdate(true);
             //TODO remove later
             System.out.println("Existing importID: "+ importID);
+        } else {
+            this.importID = UUID.randomUUID().toString();
         }
     }
 
@@ -196,6 +202,25 @@ public class LKTLogbookEntry {
         this.weight = weight;
     }
 
+    public boolean isEmptyLine() {
+        return isEmptyLine;
+    }
+
+    public void setIsEmptyLine(boolean isEmptyLine) {
+        this.isEmptyLine = isEmptyLine;
+    }
+
+    public boolean isUpdate() {
+        return isUpdate;
+    }
+
+    public void setIsUpdate(boolean isUpdate) {
+        this.isUpdate = isUpdate;
+    }
+
+    // -------- Custom methods --------
+
+    // --------------------------------
     public String isValidEntry() {
 
         String msg = "";
@@ -216,19 +241,4 @@ public class LKTLogbookEntry {
         return msg;
     }
 
-    public boolean isEmptyLine() {
-        return isEmptyLine;
-    }
-
-    public void setIsEmptyLine(boolean isEmptyLine) {
-        this.isEmptyLine = isEmptyLine;
-    }
-
-    public boolean isUpdate() {
-        return isUpdate;
-    }
-
-    public void setIsUpdate(boolean isUpdate) {
-        this.isUpdate = isUpdate;
-    }
 }

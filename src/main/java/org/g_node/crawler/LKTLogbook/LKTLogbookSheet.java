@@ -12,8 +12,6 @@ import java.time.LocalDate;
 import java.time.format.*;
 import java.util.*;
 
-// TODO use logfile, write error messages directly to logfile?
-
 /**
  * Object containing all information parsed from an ODS sheet
  */

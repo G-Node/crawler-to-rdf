@@ -29,6 +29,13 @@
       <version>1.2</version>
     </dependency>
 
+    <!-- core rdf api -->
+    <dependency>
+      <groupId>org.apache.jena</groupId>
+      <artifactId>jena-core</artifactId>
+      <version>2.13.0</version>
+    </dependency>
+
     <!-- unit tests -->
     <dependency>
       <groupId>junit</groupId>
