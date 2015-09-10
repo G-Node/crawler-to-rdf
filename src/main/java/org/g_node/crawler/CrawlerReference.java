@@ -9,7 +9,7 @@
 package org.g_node.crawler;
 
 /**
- * Wrapper Object for Crawler Objects used in by the CrawlerRegistry
+ * Wrapper Object for Crawler Objects used in by the CrawlerRegistry.
  */
 public class CrawlerReference {
     private CrawlerTemplate crawler;
@@ -19,19 +19,19 @@ public class CrawlerReference {
         this.refName = refName;
     }
 
-    public String getRefName() {
+    public final String getRefName() {
         return refName;
     }
 
-    public boolean hasCrawler() {
+    public final boolean hasCrawler() {
         return crawler != null;
     }
 
-    public CrawlerTemplate getCrawler() {
+    public final CrawlerTemplate getCrawler() {
         return crawler;
     }
 
-    public void setCrawler(final CrawlerTemplate crawler) {
+    public final void setCrawler(final CrawlerTemplate crawler) {
         this.crawler = crawler;
     }
 

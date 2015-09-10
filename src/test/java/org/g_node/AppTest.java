@@ -1,3 +1,11 @@
+// Copyright (c) 2015, German Neuroinformatics Node (G-Node)
+//
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted under the terms of the BSD License. See
+// LICENSE file in the root of the Project.
+
 package org.g_node;
 
 import junit.framework.Test;
@@ -7,32 +15,28 @@ import junit.framework.TestSuite;
 /**
  * Unit test for simple App.
  */
-public class AppTest 
-    extends TestCase
-{
+public class AppTest
+    extends TestCase {
     /**
-     * Create the test case
-     *
-     * @param testName name of the test case
+     * Create the test case.
+     * @param testName Name of the test case.
      */
-    public AppTest( String testName )
-    {
-        super( testName );
+    public AppTest(final String testName) {
+        super(testName);
     }
 
     /**
-     * @return the suite of tests being tested
+     * Get the test suite.
+     * @return The suite of tests being tested.
      */
-    public static Test suite()
-    {
-        return new TestSuite( AppTest.class );
+    public static Test suite() {
+        return new TestSuite(AppTest.class);
     }
 
     /**
-     * Rigourous Test :-)
+     * Rigourous Test :-).
      */
-    public void testApp()
-    {
-        assertTrue( true );
+    public final void testApp() {
+        assertTrue(true);
     }
 }

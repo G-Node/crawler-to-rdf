@@ -9,22 +9,26 @@
 package org.g_node.cmdparse;
 
 import java.util.Set;
-
 import org.apache.commons.cli.*;
 
 /**
- * Create options for commandline parser
+ * Create options for commandline parser.
  */
 public class CmdParseLib {
 
     public static Options constructGlobalOptions(final Set<String> regCrawlers) {
         final Options options = new Options();
 
-        Option opHelp = new Option("h", "help", false, "Print this message");
+        final Option opHelp = new Option("h", "help", false, "Print this message");
 
-        Option opCr = Option.builder("c")
+        final Option opCr = Option.builder("c")
                 .longOpt("crawler")
-                .desc("Shorthand of the required data crawler. \nAvailable crawlers: "+ regCrawlers.toString())
+                .desc(
+                        String.join(
+                                "", "Shorthand of the required data crawler. ",
+                                "\nAvailable crawlers: ", regCrawlers.toString()
+                        )
+                )
                 .required()
                 .hasArg()
                 .valueSeparator()
@@ -35,6 +39,5 @@ public class CmdParseLib {
 
         return options;
     }
-
 
 }

@@ -9,26 +9,23 @@
 package org.g_node.crawler;
 
 import java.util.*;
-
 import org.apache.commons.cli.*;
 
 /**
- * Interface for the main file crawler
+ * Interface for the main file crawler.
  */
 public interface CrawlerTemplate {
 
-    public String getNameRegistry();
+    String getNameRegistry();
 
-    public String getNameVerbose();
+    String getNameVerbose();
 
-    public ArrayList<String> getParsableFileTypes();
+    ArrayList<String> getParsableFileTypes();
 
-    public Options getCLIOptions(Set<String> regCrawlers);
+    Options getCLIOptions(Set<String> regCrawlers);
 
-    public boolean checkCLIOptions(CommandLine cmd);
+    boolean checkCLIOptions(CommandLine cmd);
 
-    public void parseFile(String inputFile);
+    void parseFile(String inputFile);
 
 }
-
-

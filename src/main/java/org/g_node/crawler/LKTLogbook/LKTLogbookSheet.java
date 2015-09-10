@@ -13,7 +13,7 @@ import java.time.format.*;
 import java.util.*;
 
 /**
- * Object containing all information parsed from an ODS sheet
+ * Object containing all information parsed from an ODS sheet.
  */
 public class LKTLogbookSheet {
 
@@ -33,108 +33,121 @@ public class LKTLogbookSheet {
         entries = new ArrayList<>();
     }
 
-    public void setAnimalID(String animalID) {
+    public final void setAnimalID(final String animalID) {
         this.animalID = animalID;
     }
 
-    public String getAnimalID(){
+    public final String getAnimalID() {
         return animalID;
     }
 
-    public void setAnimalSex(String animalSex) {
+    public final void setAnimalSex(final String animalSex) {
         this.animalSex = animalSex;
     }
 
-    public String getAnimalSex() {
+    public final String getAnimalSex() {
         return animalSex;
     }
 
-    public LocalDate getDateOfBirth() {
+    public final LocalDate getDateOfBirth() {
         return dateOfBirth;
     }
 
-    public String setDateOfBirth(String dateOfBirth) {
+    public final String setDateOfBirth(final String dateOfBirth) {
         String errMsg = "";
 
         try {
             this.dateOfBirth = LocalDate.parse(dateOfBirth, supportedDate);
-        } catch(DateTimeParseException err) {
-            if(dateOfBirth == null || dateOfBirth.isEmpty()) {
+        } catch (final DateTimeParseException err) {
+            if (dateOfBirth == null || dateOfBirth.isEmpty()) {
                 errMsg = "Date of birth is missing";
             } else {
-                errMsg = "Invalid Date of birth format (" + dateOfBirth + "). Use format '" + supportedDatePattern + "'";
+                errMsg = String.join(
+                        "", "Invalid Date of birth format (", dateOfBirth,
+                        "). Use format '", supportedDatePattern, "'"
+                );
             }
         }
 
         return errMsg;
     }
 
-    public LocalDate getDateOfWithdrawal() {
+    public final LocalDate getDateOfWithdrawal() {
         return dateOfWithdrawal;
     }
 
-    public String setDateOfWithdrawal(String dateOfWithdrawal) {
+    public final String setDateOfWithdrawal(final String dateOfWithdrawal) {
         String errMsg = "";
         try {
             this.dateOfWithdrawal = LocalDate.parse(dateOfWithdrawal, supportedDate);
-        } catch(DateTimeParseException err) {
-            if(dateOfWithdrawal == null || dateOfWithdrawal.isEmpty()) {
+        } catch (final DateTimeParseException err) {
+            if (dateOfWithdrawal == null || dateOfWithdrawal.isEmpty()) {
                 errMsg = "Date of withdrawal is missing";
             } else {
-                errMsg = "Invalid Date of withdrawal format (" + dateOfWithdrawal + "). Use format '" + supportedDatePattern + "'";
+                errMsg = String.join(
+                        "", "Invalid Date of withdrawal format (", dateOfWithdrawal,
+                        "). Use format '", supportedDatePattern, "'"
+                );
             }
         }
         return errMsg;
     }
 
-    public String getPermitNumber() {
+    public final String getPermitNumber() {
         return permitNumber;
     }
 
-    public void setPermitNumber(String permitNumber) {
+    public final void setPermitNumber(final String permitNumber) {
         this.permitNumber = permitNumber;
     }
 
-    public String getSpecies() {
+    public final String getSpecies() {
         return species;
     }
 
-    public void setSpecies(String species) {
+    public final void setSpecies(final String species) {
         this.species = species;
     }
 
-    public String getScientificName() {
+    public final String getScientificName() {
         return scientificName;
     }
 
-    public void setScientificName(String scientificName) {
+    public final void setScientificName(final String scientificName) {
         this.scientificName = scientificName;
     }
 
-    public ArrayList<LKTLogbookEntry> getEntries() {
+    public final ArrayList<LKTLogbookEntry> getEntries() {
         return entries;
     }
 
-    public void setEntries(ArrayList<LKTLogbookEntry> entries) {
+    public final void setEntries(final ArrayList<LKTLogbookEntry> entries) {
         this.entries = entries;
     }
 
-    public void addEntry(LKTLogbookEntry entry) {
+    public final void addEntry(final LKTLogbookEntry entry) {
         this.entries.add(entry);
     }
 
-    // TODO redo validity checks
-    public ArrayList<String> isValidSheet() {
-
-        ArrayList<String> validationMessage = new ArrayList<>();
+    /**
+     * Method to check if the current sheet contains all required information.
+     * @return Validation message
+     */
+    public final ArrayList<String> isValidSheet() {
+        // TODO redo validity checks
+        final ArrayList<String> validationMessage = new ArrayList<>();
 
         if (animalID.isEmpty() || Objects.equals(animalID, "")) {
             validationMessage.add("Missing animal ID");
         }
         if (animalSex.isEmpty() || Objects.equals(animalSex, "")) {
             validationMessage.add("Missing animal sex");
-        } else if (!Objects.equals(animalSex,"m") && !Objects.equals(animalSex,"f")) {
-            validationMessage.add("Invalid animal sex ("+ getAnimalSex() +")");
+        } else if (!Objects.equals(animalSex, "m") && !Objects.equals(animalSex, "f")) {
+            validationMessage.add(
+                    String.join(
+                            "", "Invalid animal sex (", getAnimalSex(), ")"
+                    )
+            );
         }
 
         if (permitNumber.isEmpty() || Objects.equals(permitNumber, "")) {

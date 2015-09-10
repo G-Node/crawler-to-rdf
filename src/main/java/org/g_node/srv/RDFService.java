@@ -9,7 +9,7 @@
 package org.g_node.srv;
 
 /**
- * Main service class for saving data to an RDF file
+ * Main service class for saving data to an RDF file.
  */
 public class RDFService {
 }

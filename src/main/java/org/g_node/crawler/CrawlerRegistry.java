@@ -17,9 +17,9 @@ public class CrawlerRegistry {
 
     private final Map<String, CrawlerReference> registry = new HashMap<>();
 
-    public CrawlerReference getReference(final String refName) {
+    public final CrawlerReference getReference(final String refName) {
         CrawlerReference result;
-        if(isRegistered(refName)) {
+        if (isRegistered(refName)) {
             result = registry.get(refName);
         } else {
             result = new CrawlerReference(refName);
@@ -28,27 +28,27 @@ public class CrawlerRegistry {
         return result;
     }
 
-    public boolean isRegistered(final String refName) {
+    public final boolean isRegistered(final String refName) {
         return registry.containsKey(refName);
     }
 
-    public void register(final CrawlerTemplate obj) {
+    public final void register(final CrawlerTemplate obj) {
         final CrawlerReference ref = getReference(obj.getNameRegistry());
-        if(!ref.hasCrawler() || ref.getCrawler() != obj) {
+        if (!ref.hasCrawler() || ref.getCrawler() != obj) {
             ref.setCrawler(obj);
         }
     }
 
-    public void unregister(final CrawlerTemplate obj) {
-        if(isRegistered(obj.getNameRegistry())) {
+    public final void unregister(final CrawlerTemplate obj) {
+        if (isRegistered(obj.getNameRegistry())) {
             final CrawlerReference ref = getReference(obj.getNameRegistry());
-            if(ref.hasCrawler()) {
+            if (ref.hasCrawler()) {
                 ref.setCrawler(null);
             }
         }
     }
 
-    public Set<String> registeredKeys() {
+    public final Set<String> registeredKeys() {
         return registry.keySet();
     }
 
