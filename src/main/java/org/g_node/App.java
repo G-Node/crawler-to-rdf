@@ -35,11 +35,11 @@ public class App {
 
             // TODO not really happy with the split commandline parser, maybe there is a more sophisticated way
             // TODO to do this
-            // use global parser options, to first check only if a valid parser has been selected,
+            // Use global parser options, to first check only if a valid parser has been selected,
             // do not stop at unrecognizable arguments for now.
             final CommandLine initCMD = parser.parse(useOptions, args, true);
 
-            if (initCMD.hasOption("c") & cr.isRegistered(initCMD.getOptionValue("c"))) {
+            if (initCMD.hasOption("c") && cr.isRegistered(initCMD.getOptionValue("c"))) {
                 useCrawler = initCMD.getOptionValue("c");
             } else {
                 throw new ParseException(
@@ -50,24 +50,22 @@ public class App {
                 );
             }
 
-            // add new CLI parser options specific for the selected crawler
+            // Add new CLI parser options specific for the selected crawler
             cr.getReference(useCrawler).getCrawler().getCLIOptions(cr.registeredKeys()).getOptions().forEach(useOptions::addOption);
 
             try {
-
                 // TODO Test commit stuff to repository
-
                 System.out.println(String.join("", "Crawler: ", useCrawler));
 
                 final CommandLine cmd = parser.parse(useOptions, args);
-
                 if (cmd.hasOption("h")) {
                     printHelp.printHelp("Help", useOptions);
                     return;
                 }
 
                 final CrawlerTemplate currCrawler = cr.getReference(cmd.getOptionValue("c")).getCrawler();
-                if (currCrawler.checkCLIOptions(cmd)) {
+                if (currCrawler.validateCLIOptions(cmd)) {
+                    // TODO Not sure whether handing the filename over is a good idea.
                     currCrawler.parseFile(cmd.getOptionValue("i"));
                 }
 

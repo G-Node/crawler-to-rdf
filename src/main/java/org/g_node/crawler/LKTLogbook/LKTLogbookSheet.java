@@ -134,7 +134,7 @@ public class LKTLogbookSheet {
      * @return Validation message
      */
     public final ArrayList<String> isValidSheet() {
-        // TODO redo validity checks
+
         final ArrayList<String> validationMessage = new ArrayList<>();
 
         if (animalID.isEmpty() || Objects.equals(animalID, "")) {

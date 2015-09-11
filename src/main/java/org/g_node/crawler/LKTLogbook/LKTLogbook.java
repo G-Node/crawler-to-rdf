@@ -127,8 +127,7 @@ public class LKTLogbook implements CrawlerTemplate {
      * @param cmd User provided commandline options.
      * @return
      */
-    // TODO rename to validate CLI options
-    public final boolean checkCLIOptions(final CommandLine cmd) {
+    public final boolean validateCLIOptions(final CommandLine cmd) {
         // TODO find better name
         boolean correctCLI = true;
         if (cmd.hasOption("i")) {

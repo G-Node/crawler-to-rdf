@@ -24,7 +24,7 @@ public interface CrawlerTemplate {
 
     Options getCLIOptions(Set<String> regCrawlers);
 
-    boolean checkCLIOptions(CommandLine cmd);
+    boolean validateCLIOptions(CommandLine cmd);
 
     void parseFile(String inputFile);
 
