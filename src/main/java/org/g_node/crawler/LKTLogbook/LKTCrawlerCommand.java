@@ -24,6 +24,9 @@ import org.g_node.crawler.Command;
  */
 public class LKTCrawlerCommand implements Command {
 
+    /**
+     * The actual crawler this class handles and provides.
+     */
     private LKTLogbook crawler;
 
     /**

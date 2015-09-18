@@ -23,25 +23,100 @@ import java.util.UUID;
  */
 public class LKTLogbookEntry {
 
+    /**
+     * ImportID of the current entry. ID is used to
+     * identify the current entry.
+     */
     private String importID;
+    /**
+     * String identifier, short description of the project
+     * the current entry belongs to. This value
+     * is required.
+     */
     private String project;
+    /**
+     * String identifier, short description of the experiment
+     * the current entry belongs to. This value
+     * is required.
+     */
     private String experiment;
+    /**
+     * String identifier, short description of the paradigm
+     * that is being tested at the current entry.
+     */
     private String paradigm;
+    /**
+     * Specification of the paradigm that is being tested
+     * at the current entry.
+     */
     private String paradigmSpecifics;
+    /**
+     * Date and time when the experiment the current entry
+     * represents took place. This value
+     * is required.
+     */
     private LocalDateTime experimentDate;
+    /**
+     * First name of the experimenter.
+     */
     private String firstName;
+    /**
+     * Middle name of the experimenter.
+     */
     private String middleName;
+    /**
+     * Last name of the experimenter. This value is required.
+     */
     private String lastName;
+    /**
+     * Comment about the experiment.
+     */
     private String commentExperiment;
+    /**
+     * Comment about the animal.
+     */
     private String commentAnimal;
+    /**
+     * Description of the food the animal received
+     * at the time of the current entry.
+     */
     private String feed;
+    /**
+     * Boolean value if the animal is on a diet
+     * at the time of the current entry.
+     */
     private boolean isOnDiet;
+    /**
+     * Boolean value if the weight at the current entry
+     * is used to calculate weight changes for later
+     * entries.
+     */
     private boolean isInitialWeight;
+    /**
+     * Weight of the animal at the time of the current entry.
+     */
     private String weight;
+    /**
+     * Boolean value if the current entry is an update
+     * or a new entry.
+     */
     private boolean isUpdate;
+    /**
+     * Boolean value if the current entry should
+     * be treated as an empty line and therefore
+     * not be imported.
+     */
     private boolean isEmptyLine = true;
 
+    /**
+     * Pattern that all DateTime values have to be formatted in
+     * to be accepted by this parser.
+     */
     private final String supportedDateTimePattern = "dd.MM.yyyy HH:mm";
+    /**
+     * Formatter used to test DateTime values
+     * for the pattern {@supportedDateTimePattern}.
+     */
     private final DateTimeFormatter supportedDateTime = DateTimeFormatter.ofPattern(supportedDateTimePattern);
 
     /**

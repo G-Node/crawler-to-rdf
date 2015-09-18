@@ -27,11 +27,33 @@ import org.jopendocument.dom.spreadsheet.SpreadSheet;
  */
 public class LKTLogbook {
 
-    // Line within the ODS file where the header of the animal entry lines is found
+    /**
+     * Line within the ODS file where the header of the
+     * experiment description section is found.
+     */
     private final Integer sheetHeaderLine = 23;
+
+    /**
+     * String value of the first field of the header
+     * of the experiment description section. This string is
+     * required to check, if the header line and subsequently
+     * the actual data entry lines are properly aligned for
+     * the next parsing steps.
+     */
     private final String firstHeaderEntry = "ImportID";
 
+    /**
+     * Boolean value stating, if errors during the parsing of the ODS file
+     * have occurred.
+     */
     private boolean hasParserError;
+
+    /**
+     * ArrayList containing all messages that occurred while parsing the ODS file.
+     * All parser errors connected to missing values or incorrect value formats should
+     * be collected and written to a logfile, so that users can correct these
+     * mistakes ideally all at once before running the crawler again.
+     */
     private final ArrayList<String> parserErrorMessages = new ArrayList<>(0);
 
     /**

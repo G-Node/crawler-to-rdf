@@ -31,6 +31,10 @@ import org.g_node.crawler.LKTLogbook.LKTLogbook;
  */
 public class App {
 
+    /**
+     * Registry containing all crawlers implemented
+     * and available to this application.
+     */
     private final Map<String, Command> crawlers;
 
     /**

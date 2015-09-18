@@ -24,16 +24,49 @@ import java.util.Objects;
  */
 public class LKTLogbookSheet {
 
+    /**
+     * Animal ID of the current ODS sheet. Required value.
+     */
     private String animalID;
+    /**
+     * Sex of the animal of the current ODS sheet. Required value.
+     */
     private String animalSex;
+    /**
+     * Date of birth of the animal of the current ODS sheet.
+     */
     private LocalDate dateOfBirth;
+    /**
+     * Date of withdrawal of the animal of the current ODS sheet.
+     */
     private LocalDate dateOfWithdrawal;
+    /**
+     * Permit number for the animal of the current ODS sheet. Required value.
+     */
     private String permitNumber;
+    /**
+     * Common species name of the animal of the current ODS sheet.
+     */
     private String species;
+    /**
+     * Scientific species name of the animal of the current ODS sheet.
+     */
     private String scientificName;
+
+    /**
+     * ArrayList containing all parsed experiment entries of the current ODS.
+     */
     private ArrayList<LKTLogbookEntry> entries;
 
+    /**
+     * Pattern that all Date values have to be formatted in
+     * to be accepted by this parser.
+     */
     private final String supportedDatePattern = "dd.MM.yyyy";
+    /**
+     * Formatter used to test Date values
+     * for the pattern {@supportedDatePattern}.
+     */
     private final DateTimeFormatter supportedDate = DateTimeFormatter.ofPattern(supportedDatePattern);
 
     /**
