@@ -27,6 +27,7 @@ import org.g_node.crawler.LKTLogbook.LKTLogbook;
  * information to the appropriate modules.
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
+ * @version $Id 0.01$
  */
 public class App {
 
