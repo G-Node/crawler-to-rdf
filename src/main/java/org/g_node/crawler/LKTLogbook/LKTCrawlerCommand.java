@@ -94,7 +94,7 @@ public class LKTCrawlerCommand implements Command {
      * @param cmd Commandline input provided by the user
      */
     public final void run(final CommandLine cmd) {
-        crawler.parseFile(cmd.getOptionValue("i"));
+        this.crawler.parseFile(cmd.getOptionValue("i"));
         // TODO write stuff to a file in the specified format
     }
 

@@ -67,13 +67,13 @@ public class LKTLogbookSheet {
      * Formatter used to test Date values
      * for the pattern {@supportedDatePattern}.
      */
-    private final DateTimeFormatter supportedDate = DateTimeFormatter.ofPattern(supportedDatePattern);
+    private final DateTimeFormatter supportedDate = DateTimeFormatter.ofPattern(this.supportedDatePattern);
 
     /**
      * Constructor.
      */
     public LKTLogbookSheet() {
-        entries = new ArrayList<>(0);
+        this.entries = new ArrayList<>(0);
     }
 
     /**
@@ -81,7 +81,7 @@ public class LKTLogbookSheet {
      * @return See description.
      */
     public final String getAnimalID() {
-        return animalID;
+        return this.animalID;
     }
 
     /**
@@ -98,7 +98,7 @@ public class LKTLogbookSheet {
      * @return See description.
      */
     public final String getAnimalSex() {
-        return animalSex;
+        return this.animalSex;
     }
 
     /**
@@ -115,7 +115,7 @@ public class LKTLogbookSheet {
      * @return Return the date of birth in format {@supportedDatePattern}.
      */
     public final LocalDate getDateOfBirth() {
-        return dateOfBirth;
+        return this.dateOfBirth;
     }
 
     /**
@@ -128,14 +128,14 @@ public class LKTLogbookSheet {
     public final String setDateOfBirth(final String dob) {
         String errMsg = "";
         try {
-            this.dateOfBirth = LocalDate.parse(dob, supportedDate);
+            this.dateOfBirth = LocalDate.parse(dob, this.supportedDate);
         } catch (final DateTimeParseException err) {
             if (dob == null || dob.isEmpty()) {
                 errMsg = "Date of birth is missing";
             } else {
                 errMsg = String.join(
                         "", "Invalid Date of birth format (", dob,
-                        "). Use format '", supportedDatePattern, "'"
+                        "). Use format '", this.supportedDatePattern, "'"
                 );
             }
         }
@@ -147,7 +147,7 @@ public class LKTLogbookSheet {
      * @return Animal withdrawal date in format {@supportedDatePattern}.
      */
     public final LocalDate getDateOfWithdrawal() {
-        return dateOfWithdrawal;
+        return this.dateOfWithdrawal;
     }
 
     /**
@@ -160,14 +160,14 @@ public class LKTLogbookSheet {
     public final String setDateOfWithdrawal(final String dow) {
         String errMsg = "";
         try {
-            this.dateOfWithdrawal = LocalDate.parse(dow, supportedDate);
+            this.dateOfWithdrawal = LocalDate.parse(dow, this.supportedDate);
         } catch (final DateTimeParseException err) {
             if (dow == null || dow.isEmpty()) {
                 errMsg = "Date of withdrawal is missing";
             } else {
                 errMsg = String.join(
                         "", "Invalid Date of withdrawal format (", dow,
-                        "). Use format '", supportedDatePattern, "'"
+                        "). Use format '", this.supportedDatePattern, "'"
                 );
             }
         }
@@ -179,7 +179,7 @@ public class LKTLogbookSheet {
      * @return See description.
      */
     public final String getPermitNumber() {
-        return permitNumber;
+        return this.permitNumber;
     }
 
     /**
@@ -196,7 +196,7 @@ public class LKTLogbookSheet {
      * @return See description.
      */
     public final String getSpecies() {
-        return species;
+        return this.species;
     }
 
     /**
@@ -212,7 +212,7 @@ public class LKTLogbookSheet {
      * @return See description.
      */
     public final String getScientificName() {
-        return scientificName;
+        return this.scientificName;
     }
 
     /**
@@ -228,7 +228,7 @@ public class LKTLogbookSheet {
      * @return Returns the {@entries} array.
      */
     public final ArrayList<LKTLogbookEntry> getEntries() {
-        return entries;
+        return this.entries;
     }
 
     /**
@@ -258,20 +258,20 @@ public class LKTLogbookSheet {
 
         final ArrayList<String> validationMessage = new ArrayList<>(0);
 
-        if (animalID.isEmpty() || Objects.equals(animalID, "")) {
+        if (this.animalID.isEmpty() || Objects.equals(this.animalID, "")) {
             validationMessage.add("Missing animal ID");
         }
-        if (animalSex.isEmpty() || Objects.equals(animalSex, "")) {
+        if (this.animalSex.isEmpty() || Objects.equals(this.animalSex, "")) {
             validationMessage.add("Missing animal sex");
-        } else if (!Objects.equals(animalSex, "m") && !Objects.equals(animalSex, "f")) {
+        } else if (!Objects.equals(this.animalSex, "m") && !Objects.equals(this.animalSex, "f")) {
             validationMessage.add(
                     String.join(
-                            "", "Invalid animal sex (", getAnimalSex(), ")"
+                            "", "Invalid animal sex (", this.getAnimalSex(), ")"
                     )
             );
         }
 
-        if (permitNumber.isEmpty() || Objects.equals(permitNumber, "")) {
+        if (this.permitNumber.isEmpty() || Objects.equals(this.permitNumber, "")) {
             validationMessage.add("Missing permitNumber");
         }
         return validationMessage;

@@ -41,7 +41,7 @@ public class App {
      * Constructor.
      */
     App() {
-        crawlers = new HashMap<>();
+        this.crawlers = new HashMap<>();
     }
 
     /**
@@ -60,7 +60,7 @@ public class App {
      * The short hand is required to select and run the intended crawler.
      */
     public final void register() {
-        crawlers.put("lkt", new LKTCrawlerCommand(new LKTLogbook()));
+        this.crawlers.put("lkt", new LKTCrawlerCommand(new LKTLogbook()));
     }
 
     /**
@@ -72,12 +72,12 @@ public class App {
     public final void run(final String[] args) {
 
         // The first argument of the command line has to be the crawler shorthand.
-        if (crawlers.containsKey(args[0])) {
+        if (this.crawlers.containsKey(args[0])) {
 
             final HelpFormatter printHelp = new HelpFormatter();
             final CommandLineParser parser = new DefaultParser();
-            final Command currCrawlerCommand = crawlers.get(args[0]);
-            final Options useOptions = crawlers.get(args[0]).options(crawlers.keySet());
+            final Command currCrawlerCommand = this.crawlers.get(args[0]);
+            final Options useOptions = this.crawlers.get(args[0]).options(this.crawlers.keySet());
 
             try {
 
@@ -98,7 +98,7 @@ public class App {
                     String.join(
                             "", "Oh no, provided crawler '", args[0], "' does not exist!",
                             "\n Please use syntax: 'java crawler-to-rdf.jar [crawler] [crawler options]'",
-                            " \n Available crawlers: ", crawlers.keySet().toString()
+                            " \n Available crawlers: ", this.crawlers.keySet().toString()
                     )
             );
         }

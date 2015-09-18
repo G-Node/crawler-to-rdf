@@ -62,11 +62,11 @@ public class LKTLogbook {
      */
     public final void parseFile(final String inputFile) {
 
-        hasParserError = false;
+        this.hasParserError = false;
 
         // TODO is this a good way to end the execution of the app
         // TODO if the input file is not available?
-        if (!checkInputFile(inputFile)) {
+        if (!this.checkInputFile(inputFile)) {
             return;
         }
 
@@ -90,8 +90,13 @@ public class LKTLogbook {
             System.out.println(String.join(" ", "File has # sheets:", String.valueOf(SpreadSheet.createFromFile(ODSFile).getSheetCount())));
 
             if (!(SpreadSheet.createFromFile(ODSFile).getSheetCount() > 0)) {
-                hasParserError = true;
-                parserErrorMessages.add(String.join(" ", "Provided labbook", inputFile, "does not contain valid data sheets"));
+                this.hasParserError = true;
+                this.parserErrorMessages.add(
+                        String.join(
+                                " ", "Provided labbook",
+                                inputFile, "does not contain valid data sheets"
+                        )
+                );
             } else {
 
                 final ArrayList<LKTLogbookSheet> allSheets = new ArrayList<>(0);
@@ -130,17 +135,21 @@ public class LKTLogbook {
                     // TODO come up with a better way to deal with date errors
                     parseSheetMessage = currLKTLSheet.isValidSheet();
                     if (!parseSheetMessage.isEmpty() || !checkDB.isEmpty() || !checkDW.isEmpty()) {
-                        hasParserError = true;
+                        this.hasParserError = true;
                         if (!parseSheetMessage.isEmpty()) {
-                            parseSheetMessage.forEach(m -> parserErrorMessages.add(String.join(" ", "Parser error sheet", sheetName, ",", m)));
+                            parseSheetMessage.forEach(
+                                    m -> this.parserErrorMessages.add(
+                                        String.join(" ", "Parser error sheet", sheetName, ",", m)
+                                    )
+                            );
                         }
                         // check valid date of birth
                         if (!checkDB.isEmpty()) {
-                            parserErrorMessages.add(String.join(" ", "Parser error sheet", sheetName, ",", checkDB));
+                            this.parserErrorMessages.add(String.join(" ", "Parser error sheet", sheetName, ",", checkDB));
                         }
                         // check valid date of withdrawal
                         if (!checkDW.isEmpty()) {
-                            parserErrorMessages.add(String.join(" ", "Parser error sheet", sheetName, ",", checkDW));
+                            this.parserErrorMessages.add(String.join(" ", "Parser error sheet", sheetName, ",", checkDW));
                         }
                     }
 
@@ -148,19 +157,20 @@ public class LKTLogbook {
                     // TODO check that line 23 contains the header and that the information start at line 24
                     String[] handleName;
                     String checkExperimentDate;
-                    final String startCell = String.join("", "A", String.valueOf(sheetHeaderLine));
+                    final String startCell = String.join("", "A", String.valueOf(this.sheetHeaderLine));
 
-                    if (currSheet.getCellAt(startCell).getTextValue() == null || !currSheet.getCellAt(startCell).getTextValue().equals(firstHeaderEntry)) {
-                        parserErrorMessages.add(
+                    if (currSheet.getCellAt(startCell).getTextValue() == null
+                            || !currSheet.getCellAt(startCell).getTextValue().equals(this.firstHeaderEntry)) {
+                        this.parserErrorMessages.add(
                                 String.join(
                                         " ", "Parser error sheet", sheetName,
                                         "HeaderEntry ImportID does not start at required line",
-                                        String.valueOf(sheetHeaderLine)
+                                        String.valueOf(this.sheetHeaderLine)
                                 )
                         );
                     } else {
 
-                        for (int j = sheetHeaderLine + 1; j < currSheet.getRowCount(); j++) {
+                        for (int j = this.sheetHeaderLine + 1; j < currSheet.getRowCount(); j++) {
 
                             final LKTLogbookEntry currEntry = new LKTLogbookEntry();
 
@@ -192,13 +202,19 @@ public class LKTLogbook {
                                         || !currEntry.getExperiment().isEmpty()
                                         || currEntry.getExperimentDate() != null
                                         || !currEntry.getLastName().isEmpty())) {
-                                hasParserError = true;
+                                this.hasParserError = true;
                                 // decide whether an experiment date parser error has happened or if a required value is missing at this line
                                 String msg;
                                 msg = !checkExperimentDate.isEmpty() ? checkExperimentDate : String.join("", ", missing value:", parseEntryMessage);
                                 // Parser errors should be collected and written to a logfile. If a sheet contains multiple errors
                                 // the user should get them all at once and not with every run just the latest one.
-                                parserErrorMessages.add(String.join(" ", "Parser error sheet", currSheet.getName(), "row", String.valueOf(j), msg));
+                                this.parserErrorMessages.add(
+                                        String.join(
+                                                " ", "Parser error sheet",
+                                                currSheet.getName(), "row",
+                                                String.valueOf(j), msg
+                                        )
+                                );
                             }
                         }
                         allSheets.add(currLKTLSheet);
@@ -207,15 +223,24 @@ public class LKTLogbook {
 
                 allSheets.forEach(
                         s -> System.out.println(
-                                String.join(" ", "CurrSheet:", s.getAnimalID(), ", number of entries:", String.valueOf(s.getEntries().size()))
+                                String.join(
+                                        " ", "CurrSheet:", s.getAnimalID(),
+                                        ", number of entries:",
+                                        String.valueOf(s.getEntries().size())
+                                )
                         )
                 );
 
-                if (!hasParserError) {
+                if (!this.hasParserError) {
                     // TODO remove later
                     allSheets.stream().forEach(
                         s -> {
-                            System.out.println(String.join(" ", "AnimalID:", s.getAnimalID(), ", AnimalSex:", s.getAnimalSex()));
+                            System.out.println(
+                                    String.join(
+                                            " ", "AnimalID:", s.getAnimalID(),
+                                            ", AnimalSex:", s.getAnimalSex()
+                                    )
+                            );
                             s.getEntries().stream().forEach(
                                     e -> System.out.println(
                                         String.join(
@@ -227,7 +252,7 @@ public class LKTLogbook {
                         });
                 } else {
                     // TODO write to logfile
-                    parserErrorMessages.forEach(System.err::println);
+                    this.parserErrorMessages.forEach(System.err::println);
                 }
             }
         } catch (final IOException exp) {
@@ -250,5 +275,4 @@ public class LKTLogbook {
         }
         return correctFile;
     }
-
 }

@@ -117,14 +117,14 @@ public class LKTLogbookEntry {
      * Formatter used to test DateTime values
      * for the pattern {@supportedDateTimePattern}.
      */
-    private final DateTimeFormatter supportedDateTime = DateTimeFormatter.ofPattern(supportedDateTimePattern);
+    private final DateTimeFormatter supportedDateTime = DateTimeFormatter.ofPattern(this.supportedDateTimePattern);
 
     /**
      * Return the importID of the current entry.
      * @return See description.
      */
     public final String getImportID() {
-        return importID;
+        return this.importID;
     }
 
     /**
@@ -138,7 +138,7 @@ public class LKTLogbookEntry {
     public final void setExistingImportID(final String impid) {
         this.importID = impid;
         if (impid != null && !impid.isEmpty()) {
-            setIsUpdate(true);
+            this.setIsUpdate(true);
             //TODO remove later
             System.out.println(String.join("", "Existing importID: ", impid));
         } else {
@@ -151,7 +151,7 @@ public class LKTLogbookEntry {
      * @return See description.
      */
     public final String getProject() {
-        return project;
+        return this.project;
     }
 
     /**
@@ -163,7 +163,7 @@ public class LKTLogbookEntry {
      */
     public final void setProject(final String prj) {
         if (prj != null && !prj.isEmpty()) {
-            setIsEmptyLine(false);
+            this.setIsEmptyLine(false);
         }
         this.project = prj;
     }
@@ -173,7 +173,7 @@ public class LKTLogbookEntry {
      * @return See description.
      */
     public final String getExperiment() {
-        return experiment;
+        return this.experiment;
     }
 
     /**
@@ -185,7 +185,7 @@ public class LKTLogbookEntry {
      */
     public final void setExperiment(final String exp) {
         if (exp != null && !exp.isEmpty()) {
-            setIsEmptyLine(false);
+            this.setIsEmptyLine(false);
         }
         this.experiment = exp;
     }
@@ -195,7 +195,7 @@ public class LKTLogbookEntry {
      * @return See description.
      */
     public final String getParadigm() {
-        return paradigm;
+        return this.paradigm;
     }
 
     /**
@@ -211,7 +211,7 @@ public class LKTLogbookEntry {
      * @return See description.
      */
     public final String getParadigmSpecifics() {
-        return paradigmSpecifics;
+        return this.paradigmSpecifics;
     }
 
     /**
@@ -227,7 +227,7 @@ public class LKTLogbookEntry {
      * @return See description.
      */
     public final LocalDateTime getExperimentDate() {
-        return experimentDate;
+        return this.experimentDate;
     }
 
     /**
@@ -243,17 +243,17 @@ public class LKTLogbookEntry {
     public final String setExperimentDate(final String expdt) {
         String errMsg = "";
         if (expdt != null && !expdt.isEmpty()) {
-            setIsEmptyLine(false);
+            this.setIsEmptyLine(false);
         }
         try {
-            this.experimentDate = LocalDateTime.parse(expdt, supportedDateTime);
+            this.experimentDate = LocalDateTime.parse(expdt, this.supportedDateTime);
         } catch (final DateTimeParseException err) {
             if (expdt == null || expdt.isEmpty()) {
                 errMsg = "Date of experiment is missing";
             } else {
                 errMsg = String.join(
                         "", "Invalid experiment date format (", expdt,
-                        "). Use format '", supportedDateTimePattern, "'"
+                        "). Use format '", this.supportedDateTimePattern, "'"
                 );
             }
         }
@@ -265,7 +265,7 @@ public class LKTLogbookEntry {
      * @return See description.
      */
     public final String getFirstName() {
-        return firstName;
+        return this.firstName;
     }
 
     /**
@@ -281,7 +281,7 @@ public class LKTLogbookEntry {
      * @return See description.
      */
     public final String getMiddleName() {
-        return middleName;
+        return this.middleName;
     }
 
     /**
@@ -297,7 +297,7 @@ public class LKTLogbookEntry {
      * @return See description.
      */
     public final String getLastName() {
-        return lastName;
+        return this.lastName;
     }
 
     /**
@@ -305,8 +305,8 @@ public class LKTLogbookEntry {
      * @param lnm Last name of the experimenter.
      */
     public final void setLastName(final String lnm) {
-        if (lastName != null && !lastName.isEmpty()) {
-            setIsEmptyLine(false);
+        if (this.lastName != null && !this.lastName.isEmpty()) {
+            this.setIsEmptyLine(false);
         }
         this.lastName = lnm;
     }
@@ -316,7 +316,7 @@ public class LKTLogbookEntry {
      * @return See description.
      */
     public final String getCommentExperiment() {
-        return commentExperiment;
+        return this.commentExperiment;
     }
 
     /**
@@ -332,7 +332,7 @@ public class LKTLogbookEntry {
      * @return See description.
      */
     public final String getCommentAnimal() {
-        return commentAnimal;
+        return this.commentAnimal;
     }
 
     /**
@@ -348,7 +348,7 @@ public class LKTLogbookEntry {
      * @return See description.
      */
     public final String getFeed() {
-        return feed;
+        return this.feed;
     }
 
     /**
@@ -364,7 +364,7 @@ public class LKTLogbookEntry {
      * @return See description.
      */
     public final boolean getIsOnDiet() {
-        return isOnDiet;
+        return this.isOnDiet;
     }
 
     /**
@@ -381,7 +381,7 @@ public class LKTLogbookEntry {
      * @return See description.
      */
     public final boolean getIsInitialWeight() {
-        return isInitialWeight;
+        return this.isInitialWeight;
     }
 
     /**
@@ -397,7 +397,7 @@ public class LKTLogbookEntry {
      * @return See description.
      */
     public final String getWeight() {
-        return weight;
+        return this.weight;
     }
 
     /**
@@ -413,7 +413,7 @@ public class LKTLogbookEntry {
      * @return See description.
      */
     public final boolean getIsEmptyLine() {
-        return isEmptyLine;
+        return this.isEmptyLine;
     }
 
     /**
@@ -437,7 +437,7 @@ public class LKTLogbookEntry {
      * @return See description.
      */
     public final boolean getIsUpdate() {
-        return isUpdate;
+        return this.isUpdate;
     }
 
     /**
@@ -460,16 +460,16 @@ public class LKTLogbookEntry {
         // TODO maybe solve this better by using optional if there is no entry missing?
         String msg = "";
 
-        if (getProject() == null || getProject().isEmpty()) {
+        if (this.getProject() == null || this.getProject().isEmpty()) {
             msg = msg.concat(" Project ");
         }
-        if (getExperiment() == null || getExperiment().isEmpty()) {
+        if (this.getExperiment() == null || this.getExperiment().isEmpty()) {
             msg = msg.concat(" Experiment ");
         }
-        if (getExperimentDate() == null) {
+        if (this.getExperimentDate() == null) {
             msg = msg.concat(" Experiment date ");
         }
-        if (getLastName() == null || getLastName().isEmpty()) {
+        if (this.getLastName() == null || this.getLastName().isEmpty()) {
             msg = msg.concat(" Name of experimenter ");
         }
 
