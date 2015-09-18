@@ -1,6 +1,5 @@
 /**
  * Copyright (c) 2015, German Neuroinformatics Node (G-Node)
- * Michael Sonntag (sonntag@bio.lmu.de)
  *
  * All rights reserved.
  *
