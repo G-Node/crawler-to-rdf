@@ -22,10 +22,12 @@ public interface CrawlerTemplate {
 
     ArrayList<String> getParsableFileTypes();
 
+    // ToDo move to CrawlerCommand Interface or Class, rename options,
     Options getCLIOptions(Set<String> regCrawlers);
 
     boolean validateCLIOptions(CommandLine cmd);
 
+    // ToDo rename crawl
     void parseFile(String inputFile);
 
 }
