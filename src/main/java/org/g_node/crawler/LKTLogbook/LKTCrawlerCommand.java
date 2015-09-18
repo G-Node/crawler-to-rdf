@@ -6,26 +6,30 @@
 // modification, are permitted under the terms of the BSD License. See
 // LICENSE file in the root of the Project.
 
-package org.g_node;
+package org.g_node.crawler.LKTLogbook;
 
-import java.nio.file.*;
 import java.util.Set;
 import org.apache.commons.cli.*;
 import org.apache.commons.cli.CommandLine;
-import org.g_node.crawler.LKTLogbook.LKTLogbook;
+import org.g_node.crawler.Command;
 
 /**
  * Command class for the LKT crawler.
  */
 public class LKTCrawlerCommand implements Command {
 
-    LKTLogbook crawler;
+    private LKTLogbook crawler;
 
-    LKTCrawlerCommand(LKTLogbook crawler) {
+    public LKTCrawlerCommand(final LKTLogbook crawler) {
         this.crawler = crawler;
     }
 
-    public Options options(final Set<String> regCrawlers){
+    /**
+     * Method returning the commandline options of the LKT crawler.
+     * @param regCrawlers Set of all registered crawlers.
+     * @return Available commandline options.
+     */
+    public final Options options(final Set<String> regCrawlers) {
         final Options options = new Options();
 
         final Option opHelp = new Option("h", "help", false, "Print this message");
@@ -71,42 +75,14 @@ public class LKTCrawlerCommand implements Command {
         return options;
     }
 
-    public void run(final CommandLine cmd) {
-        if (validateCLIOptions(cmd)) {
-            // TODO Not sure whether handing the filename over is a good idea.
-            crawler.parseFile(cmd.getOptionValue("i"));
-        } else {
-            System.err.println("Error parsing commandline options");
-        }
-    }
-
     /**
-     * Method for validating user provided command line options.
-     * @param cmd User provided commandline options.
-     * @return
+     * Method to parse information from an input file to an output file using
+     * the LKT crawler.
+     * @param cmd Commandline input provided by the user
      */
-    private final boolean validateCLIOptions(final CommandLine cmd) {
-        // TODO find better name
-        boolean correctCLI = true;
-        if (cmd.hasOption("i")) {
-            System.out.println(String.join(" ", "Input file:", cmd.getOptionValue("i")));
-            if (!Files.exists(Paths.get(cmd.getOptionValue("i")))
-                    && (!Files.exists(Paths.get(cmd.getOptionValue("i")).toAbsolutePath())))  {
-                System.err.println("\nProvided input is not a valid file");
-                correctCLI = false;
-            }
-        }
-
-        if (cmd.hasOption("o")) {
-            System.out.println(String.join(" ", "Output file:", cmd.getOptionValue("o")));
-        }
-
-        if (cmd.hasOption("f")) {
-            System.out.println(String.join(" ", "Use output format:", cmd.getOptionValue("f")));
-        }
-
-        return correctCLI;
+    public final void run(final CommandLine cmd) {
+        crawler.parseFile(cmd.getOptionValue("i"));
+        // TODO write stuff to a file in the specified format
     }
-
 
 }

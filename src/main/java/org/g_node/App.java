@@ -9,9 +9,9 @@
 package org.g_node;
 
 import java.util.*;
-
 import org.apache.commons.cli.*;
-import org.g_node.crawler.LKTLogbook.LKTLogbook;
+import org.g_node.crawler.Command;
+import org.g_node.crawler.LKTLogbook.*;
 
 /**
  * Main application class used to parse command line input and pass
@@ -25,19 +25,35 @@ public class App {
         crawlers = new HashMap<>();
     }
 
+    /**
+     * Main method of the crawler-to-rdf framework. Registers all so far available crawlers and
+     * selects and runs the appropriate crawler dependent on commandline input.
+     * @param args User provided commandline arguments.
+     */
     public static void main(final String[] args) {
-        App currApp = new App();
+        final App currApp = new App();
         currApp.register();
         currApp.run(args);
     }
 
-    public void register() {
+    /**
+     * Method to register all implemented crawlers with their short hand.
+     * The short hand is required to select and run the intended crawler.
+     */
+    public final void register() {
         crawlers.put("lkt", new LKTCrawlerCommand(new LKTLogbook()));
     }
 
-    public void run(final String[] args) {
+    /**
+     * Method to parse the commandline arguments, provide
+     * appropriate error messages if required and run the selected
+     * crawler.
+     * @param args User provided commandline arguments.
+     */
+    public final void run(final String[] args) {
 
-        if (crawlers.containsKey(args[0])){
+        // The first argument of the command line has to be the crawler shorthand.
+        if (crawlers.containsKey(args[0])) {
 
             final HelpFormatter printHelp = new HelpFormatter();
             final CommandLineParser parser = new DefaultParser();
@@ -46,7 +62,7 @@ public class App {
 
             try {
 
-                final CommandLine cmd = parser.parse(useOptions, args);
+                final CommandLine cmd = parser.parse(useOptions, args, false);
                 if (cmd.hasOption("h")) {
                     printHelp.printHelp("Help", useOptions);
                     return;
@@ -60,8 +76,8 @@ public class App {
 
         } else {
             System.err.println(
-                    String.join("", "Oh no, provided crawler '",
-                            args[0], "' does not exist!",
+                    String.join(
+                            "", "Oh no, provided crawler '", args[0], "' does not exist!",
                             "\n Please use syntax: 'java crawler-to-rdf.jar [crawler] [crawler options]'",
                             " \n Available crawlers: ", crawlers.keySet().toString()
                     )
