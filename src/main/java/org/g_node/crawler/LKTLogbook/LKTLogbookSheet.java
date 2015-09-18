@@ -11,8 +11,10 @@
 package org.g_node.crawler.LKTLogbook;
 
 import java.time.LocalDate;
-import java.time.format.*;
-import java.util.*;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  * Object containing all information parsed from an ODS sheet.
@@ -34,7 +36,7 @@ public class LKTLogbookSheet {
     private final DateTimeFormatter supportedDate = DateTimeFormatter.ofPattern(supportedDatePattern);
 
     public LKTLogbookSheet() {
-        entries = new ArrayList<>();
+        entries = new ArrayList<>(0);
     }
 
     public final void setAnimalID(final String aid) {
@@ -139,7 +141,7 @@ public class LKTLogbookSheet {
      */
     public final ArrayList<String> isValidSheet() {
 
-        final ArrayList<String> validationMessage = new ArrayList<>();
+        final ArrayList<String> validationMessage = new ArrayList<>(0);
 
         if (animalID.isEmpty() || Objects.equals(animalID, "")) {
             validationMessage.add("Missing animal ID");

@@ -11,7 +11,8 @@
 package org.g_node.crawler.LKTLogbook;
 
 import java.time.LocalDateTime;
-import java.time.format.*;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.UUID;
 
 /**

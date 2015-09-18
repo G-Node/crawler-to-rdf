@@ -11,7 +11,8 @@
 package org.g_node.crawler;
 
 import java.util.Set;
-import org.apache.commons.cli.*;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Options;
 
 /**
  * Interface for command classes of individual crawlers.

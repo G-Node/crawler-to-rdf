@@ -10,10 +10,17 @@
 
 package org.g_node;
 
-import java.util.*;
-import org.apache.commons.cli.*;
+import java.util.HashMap;
+import java.util.Map;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.g_node.crawler.Command;
-import org.g_node.crawler.LKTLogbook.*;
+import org.g_node.crawler.LKTLogbook.LKTCrawlerCommand;
+import org.g_node.crawler.LKTLogbook.LKTLogbook;
 
 /**
  * Main application class used to parse command line input and pass

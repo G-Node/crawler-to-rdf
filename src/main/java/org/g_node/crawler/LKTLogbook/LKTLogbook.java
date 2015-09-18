@@ -12,9 +12,12 @@ package org.g_node.crawler.LKTLogbook;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.*;
-import java.util.*;
-import org.jopendocument.dom.spreadsheet.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import org.jopendocument.dom.spreadsheet.Sheet;
+import org.jopendocument.dom.spreadsheet.SpreadSheet;
 
 /**
  * Parser for the main ODS metadata file used in the lab of Kay Thurley.
@@ -28,7 +31,7 @@ public class LKTLogbook {
     private final String firstHeaderEntry = "ImportID";
 
     private boolean hasParserError;
-    private final ArrayList<String> parserErrorMessages = new ArrayList<>();
+    private final ArrayList<String> parserErrorMessages = new ArrayList<>(0);
 
     /**
      * Method for parsing the contents of a provided ODS input file.
@@ -68,7 +71,7 @@ public class LKTLogbook {
                 parserErrorMessages.add(String.join(" ", "Provided labbook", inputFile, "does not contain valid data sheets"));
             } else {
 
-                final ArrayList<LKTLogbookSheet> allSheets = new ArrayList<>();
+                final ArrayList<LKTLogbookSheet> allSheets = new ArrayList<>(0);
                 Sheet currSheet;
                 LKTLogbookSheet currLKTLSheet;
                 ArrayList<String> parseSheetMessage;
