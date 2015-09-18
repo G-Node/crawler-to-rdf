@@ -71,7 +71,8 @@ public class App {
      */
     public final void run(final String[] args) {
 
-        // The first argument of the command line has to be the crawler shorthand.
+        // The first argument of the command line has to be
+        // the shorthand of the required crawler.
         if (this.crawlers.containsKey(args[0])) {
 
             final HelpFormatter printHelp = new HelpFormatter();

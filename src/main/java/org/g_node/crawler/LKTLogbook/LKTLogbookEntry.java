@@ -248,9 +248,7 @@ public class LKTLogbookEntry {
         try {
             this.experimentDate = LocalDateTime.parse(expdt, this.supportedDateTime);
         } catch (final DateTimeParseException err) {
-            if (expdt == null || expdt.isEmpty()) {
-                errMsg = "Date of experiment is missing";
-            } else {
+            if (expdt != null && !expdt.isEmpty()) {
                 errMsg = String.join(
                         "", "Invalid experiment date format (", expdt,
                         "). Use format '", this.supportedDateTimePattern, "'"
