@@ -33,6 +33,9 @@ public class App {
 
     private final Map<String, Command> crawlers;
 
+    /**
+     * Constructor.
+     */
     App() {
         crawlers = new HashMap<>();
     }

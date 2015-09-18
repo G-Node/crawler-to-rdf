@@ -26,6 +26,10 @@ public class LKTCrawlerCommand implements Command {
 
     private LKTLogbook crawler;
 
+    /**
+     * Constructor.
+     * @param crl Instance of the {@LKTLogbook} crawler.
+     */
     public LKTCrawlerCommand(final LKTLogbook crl) {
         this.crawler = crl;
     }

@@ -36,33 +36,64 @@ public class LKTLogbookSheet {
     private final String supportedDatePattern = "dd.MM.yyyy";
     private final DateTimeFormatter supportedDate = DateTimeFormatter.ofPattern(supportedDatePattern);
 
+    /**
+     * Constructor.
+     */
     public LKTLogbookSheet() {
         entries = new ArrayList<>(0);
     }
 
-    public final void setAnimalID(final String aid) {
-        this.animalID = aid;
-    }
-
+    /**
+     * Return the animalID of the animal of the current ODS sheet.
+     * @return See description.
+     */
     public final String getAnimalID() {
         return animalID;
     }
 
-    public final void setAnimalSex(final String asx) {
-        this.animalSex = asx;
+    /**
+     * Set the animalID of the animal of the current ODS sheet.
+     * This entry is required for a sheet to be complete and valid.
+     * @param aid ID of the current animal.
+     */
+    public final void setAnimalID(final String aid) {
+        this.animalID = aid;
     }
 
+    /**
+     * Return the sex of the animal of the current ODS sheet.
+     * @return See description.
+     */
     public final String getAnimalSex() {
         return animalSex;
     }
 
+    /**
+     * Set the sex of the animal of the current ODS sheet.
+     * This entry is required for a sheet to be complete and valid.
+     * @param asx Sex of the animal, has to be in format "f" or "m".
+     */
+    public final void setAnimalSex(final String asx) {
+        this.animalSex = asx;
+    }
+
+    /**
+     * Return the date of birth of the animal of the current ODS sheet.
+     * @return Return the date of birth in format {@supportedDatePattern}.
+     */
     public final LocalDate getDateOfBirth() {
         return dateOfBirth;
     }
 
+    /**
+     * Set the date of birth of the animal of the current ODS sheet.
+     * This entry has to be conform to the date format {@supportedDatePattern}.
+     * @param dob String containing the date of birth of the animal.
+     * @return Error message, if the date does not conform to
+     *  format {@supportedDatePattern}
+     */
     public final String setDateOfBirth(final String dob) {
         String errMsg = "";
-
         try {
             this.dateOfBirth = LocalDate.parse(dob, supportedDate);
         } catch (final DateTimeParseException err) {
@@ -75,14 +106,24 @@ public class LKTLogbookSheet {
                 );
             }
         }
-
         return errMsg;
     }
 
+    /**
+     * Return the withdrawal date of the the animal of the current ODS sheet.
+     * @return Animal withdrawal date in format {@supportedDatePattern}.
+     */
     public final LocalDate getDateOfWithdrawal() {
         return dateOfWithdrawal;
     }
 
+    /**
+     * Set the withdrawal date of the animal of the current ODS sheet.
+     * This entry has to be conform to the date format {@supportedDatePattern}.
+     * @param dow String containing the withdrawal date of the animal.
+     * @return Error message, if the date does not conform to
+     *  format {@supportedDatePattern}
+     */
     public final String setDateOfWithdrawal(final String dow) {
         String errMsg = "";
         try {
@@ -100,38 +141,75 @@ public class LKTLogbookSheet {
         return errMsg;
     }
 
+    /**
+     * Return the permit number of the animal of the current ODS sheet.
+     * @return See description.
+     */
     public final String getPermitNumber() {
         return permitNumber;
     }
 
+    /**
+     * Set the permit number of the animal of the current ODS sheet.
+     * This entry is required for a sheet to be complete and valid.
+     * @param pnr Animal permit number.
+     */
     public final void setPermitNumber(final String pnr) {
         this.permitNumber = pnr;
     }
 
+    /**
+     * Returns the common species name of the animal of the current ODS sheet.
+     * @return See description.
+     */
     public final String getSpecies() {
         return species;
     }
 
+    /**
+     * Sets the common species name of the animal of the current ODS sheet.
+     * @param spc Common species animal name.
+     */
     public final void setSpecies(final String spc) {
         this.species = spc;
     }
 
+    /**
+     * Returns the scientific species name of the animal of the current ODS sheet.
+     * @return See description.
+     */
     public final String getScientificName() {
         return scientificName;
     }
 
+    /**
+     * Sets the scientific species name of the animal of the current ODS sheet.
+     * @param snm Scientific species animal name.
+     */
     public final void setScientificName(final String snm) {
         this.scientificName = snm;
     }
 
+    /**
+     * Returns ArrayList of parsed {@LKTLogbookEntry} of the current ODS sheet.
+     * @return Returns the {@entries} array.
+     */
     public final ArrayList<LKTLogbookEntry> getEntries() {
         return entries;
     }
 
+    /**
+     * Method adds an ArrayList of {@LKTLogbookEntry} to the {@entries} array.
+     * @param ent ArrayList of parsed {@LKTLogbookEntry}.
+     */
     public final void setEntries(final ArrayList<LKTLogbookEntry> ent) {
         this.entries = ent;
     }
 
+    /**
+     * Method adds a single logbook entry to the {@entries} array.
+     * @param entry Parsed {@LKTLogbookEntry}.
+     */
     public final void addEntry(final LKTLogbookEntry entry) {
         this.entries.add(entry);
     }
@@ -139,6 +217,9 @@ public class LKTLogbookSheet {
     /**
      * Method to check if the current sheet contains all required information.
      * @return Validation message
+     *  TODO maybe move all these checks directly to the setter methods
+     *  TODO and come up with a good method how to pass the error messages to
+     *  TODO the calling instance.
      */
     public final ArrayList<String> isValidSheet() {
 
@@ -160,8 +241,6 @@ public class LKTLogbookSheet {
         if (permitNumber.isEmpty() || Objects.equals(permitNumber, "")) {
             validationMessage.add("Missing permitNumber");
         }
-
         return validationMessage;
     }
-
 }

@@ -21,7 +21,18 @@ import org.apache.commons.cli.Options;
  * @version $Id 0.01$
  */
 public interface Command {
+    /**
+     * Method returning available commandline options of the crawler
+     * corresponding to the command class.
+     * @param regCrawlers Set of shorthand strings corresponding to
+     *  registered crawlers.
+     * @return Constructed set of commandline options.
+     */
     Options options(Set<String> regCrawlers);
 
+    /**
+     * Method running the crawler corresponding to the command class.
+     * @param cmd User commandline input.
+     */
     void run(CommandLine cmd);
 }
