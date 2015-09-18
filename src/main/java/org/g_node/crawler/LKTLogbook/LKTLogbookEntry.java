@@ -55,12 +55,12 @@ public class LKTLogbookEntry {
 
     // if an ID already exists, the current entry has already been imported and has to be treated as an update
     // otherwise create a new ID
-    public final void setExistingImportID(final String importID) {
-        this.importID = importID;
-        if (importID != null && !importID.isEmpty()) {
+    public final void setExistingImportID(final String impid) {
+        this.importID = impid;
+        if (impid != null && !impid.isEmpty()) {
             setIsUpdate(true);
             //TODO remove later
-            System.out.println(String.join("", "Existing importID: ", importID));
+            System.out.println(String.join("", "Existing importID: ", impid));
         } else {
             this.importID = UUID.randomUUID().toString();
         }
@@ -70,57 +70,57 @@ public class LKTLogbookEntry {
         return project;
     }
 
-    public final void setProject(final String project) {
-        if (project != null && !project.isEmpty()) {
+    public final void setProject(final String prj) {
+        if (prj != null && !prj.isEmpty()) {
             setIsEmptyLine(false);
         }
-        this.project = project;
+        this.project = prj;
     }
 
     public final String getExperiment() {
         return experiment;
     }
 
-    public final void setExperiment(final String experiment) {
-        if (experiment != null && !experiment.isEmpty()) {
+    public final void setExperiment(final String exp) {
+        if (exp != null && !exp.isEmpty()) {
             setIsEmptyLine(false);
         }
-        this.experiment = experiment;
+        this.experiment = exp;
     }
 
     public final String getParadigm() {
         return paradigm;
     }
 
-    public final void setParadigm(final String paradigm) {
-        this.paradigm = paradigm;
+    public final void setParadigm(final String para) {
+        this.paradigm = para;
     }
 
     public final String getParadigmSpecifics() {
         return paradigmSpecifics;
     }
 
-    public final void setParadigmSpecifics(final String paradigmSpecifics) {
-        this.paradigmSpecifics = paradigmSpecifics;
+    public final void setParadigmSpecifics(final String pspec) {
+        this.paradigmSpecifics = pspec;
     }
 
     public final LocalDateTime getExperimentDate() {
         return experimentDate;
     }
 
-    public final String setExperimentDate(final String experimentDate) {
+    public final String setExperimentDate(final String expdt) {
         String errMsg = "";
-        if (experimentDate != null && !experimentDate.isEmpty()) {
+        if (expdt != null && !expdt.isEmpty()) {
             setIsEmptyLine(false);
         }
         try {
-            this.experimentDate = LocalDateTime.parse(experimentDate, supportedDateTime);
+            this.experimentDate = LocalDateTime.parse(expdt, supportedDateTime);
         } catch (final DateTimeParseException err) {
-            if (experimentDate == null || experimentDate.isEmpty()) {
+            if (expdt == null || expdt.isEmpty()) {
                 errMsg = "Date of experiment is missing";
             } else {
                 errMsg = String.join(
-                        "", "Invalid experiment date format (", experimentDate,
+                        "", "Invalid experiment date format (", expdt,
                         "). Use format '", supportedDateTimePattern, "'"
                 );
             }
@@ -132,59 +132,59 @@ public class LKTLogbookEntry {
         return firstName;
     }
 
-    public final void setFirstName(final String firstName) {
-        this.firstName = firstName;
+    public final void setFirstName(final String fnm) {
+        this.firstName = fnm;
     }
 
     public final String getMiddleName() {
         return middleName;
     }
 
-    public final void setMiddleName(final String middleName) {
-        this.middleName = middleName;
+    public final void setMiddleName(final String mnm) {
+        this.middleName = mnm;
     }
 
     public final String getLastName() {
         return lastName;
     }
 
-    public final void setLastName(final String lastName) {
+    public final void setLastName(final String lnm) {
         if (lastName != null && !lastName.isEmpty()) {
             setIsEmptyLine(false);
         }
-        this.lastName = lastName;
+        this.lastName = lnm;
     }
 
     public final String getCommentExperiment() {
         return commentExperiment;
     }
 
-    public final void setCommentExperiment(final String commentExperiment) {
-        this.commentExperiment = commentExperiment;
+    public final void setCommentExperiment(final String cmtexp) {
+        this.commentExperiment = cmtexp;
     }
 
     public final String getCommentAnimal() {
         return commentAnimal;
     }
 
-    public final void setCommentAnimal(final String commentAnimal) {
-        this.commentAnimal = commentAnimal;
+    public final void setCommentAnimal(final String cmtan) {
+        this.commentAnimal = cmtan;
     }
 
     public final String getFeed() {
         return feed;
     }
 
-    public final void setFeed(final String feed) {
-        this.feed = feed;
+    public final void setFeed(final String onfd) {
+        this.feed = onfd;
     }
 
     public final boolean getIsOnDiet() {
         return isOnDiet;
     }
 
-    public final void setIsOnDiet(final String isOnDiet) {
-        switch (isOnDiet) {
+    public final void setIsOnDiet(final String isod) {
+        switch (isod) {
             case "y": this.isOnDiet = true;
             default: this.isOnDiet = false;
         }
@@ -194,8 +194,8 @@ public class LKTLogbookEntry {
         return isInitialWeight;
     }
 
-    public final void setIsInitialWeight(final String isInitialWeight) {
-        switch (isInitialWeight) {
+    public final void setIsInitialWeight(final String isinwght) {
+        switch (isinwght) {
             case "y": this.isInitialWeight = true;
             default: this.isInitialWeight = false;
         }
@@ -205,24 +205,24 @@ public class LKTLogbookEntry {
         return weight;
     }
 
-    public final void setWeight(final String weight) {
-        this.weight = weight;
+    public final void setWeight(final String wght) {
+        this.weight = wght;
     }
 
     public final boolean getIsEmptyLine() {
         return isEmptyLine;
     }
 
-    public final void setIsEmptyLine(final boolean isEmptyLine) {
-        this.isEmptyLine = isEmptyLine;
+    public final void setIsEmptyLine(final boolean iseline) {
+        this.isEmptyLine = iseline;
     }
 
     public final boolean getIsUpdate() {
         return isUpdate;
     }
 
-    public final void setIsUpdate(final boolean isUpdate) {
-        this.isUpdate = isUpdate;
+    public final void setIsUpdate(final boolean isupd) {
+        this.isUpdate = isupd;
     }
 
     /**

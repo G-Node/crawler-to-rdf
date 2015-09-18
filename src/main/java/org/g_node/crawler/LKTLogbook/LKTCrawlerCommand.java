@@ -24,8 +24,8 @@ public class LKTCrawlerCommand implements Command {
 
     private LKTLogbook crawler;
 
-    public LKTCrawlerCommand(final LKTLogbook crawler) {
-        this.crawler = crawler;
+    public LKTCrawlerCommand(final LKTLogbook crl) {
+        this.crawler = crl;
     }
 
     /**

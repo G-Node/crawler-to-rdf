@@ -37,16 +37,16 @@ public class LKTLogbookSheet {
         entries = new ArrayList<>();
     }
 
-    public final void setAnimalID(final String animalID) {
-        this.animalID = animalID;
+    public final void setAnimalID(final String aid) {
+        this.animalID = aid;
     }
 
     public final String getAnimalID() {
         return animalID;
     }
 
-    public final void setAnimalSex(final String animalSex) {
-        this.animalSex = animalSex;
+    public final void setAnimalSex(final String asx) {
+        this.animalSex = asx;
     }
 
     public final String getAnimalSex() {
@@ -57,17 +57,17 @@ public class LKTLogbookSheet {
         return dateOfBirth;
     }
 
-    public final String setDateOfBirth(final String dateOfBirth) {
+    public final String setDateOfBirth(final String dob) {
         String errMsg = "";
 
         try {
-            this.dateOfBirth = LocalDate.parse(dateOfBirth, supportedDate);
+            this.dateOfBirth = LocalDate.parse(dob, supportedDate);
         } catch (final DateTimeParseException err) {
-            if (dateOfBirth == null || dateOfBirth.isEmpty()) {
+            if (dob == null || dob.isEmpty()) {
                 errMsg = "Date of birth is missing";
             } else {
                 errMsg = String.join(
-                        "", "Invalid Date of birth format (", dateOfBirth,
+                        "", "Invalid Date of birth format (", dob,
                         "). Use format '", supportedDatePattern, "'"
                 );
             }
@@ -80,16 +80,16 @@ public class LKTLogbookSheet {
         return dateOfWithdrawal;
     }
 
-    public final String setDateOfWithdrawal(final String dateOfWithdrawal) {
+    public final String setDateOfWithdrawal(final String dow) {
         String errMsg = "";
         try {
-            this.dateOfWithdrawal = LocalDate.parse(dateOfWithdrawal, supportedDate);
+            this.dateOfWithdrawal = LocalDate.parse(dow, supportedDate);
         } catch (final DateTimeParseException err) {
-            if (dateOfWithdrawal == null || dateOfWithdrawal.isEmpty()) {
+            if (dow == null || dow.isEmpty()) {
                 errMsg = "Date of withdrawal is missing";
             } else {
                 errMsg = String.join(
-                        "", "Invalid Date of withdrawal format (", dateOfWithdrawal,
+                        "", "Invalid Date of withdrawal format (", dow,
                         "). Use format '", supportedDatePattern, "'"
                 );
             }
@@ -101,32 +101,32 @@ public class LKTLogbookSheet {
         return permitNumber;
     }
 
-    public final void setPermitNumber(final String permitNumber) {
-        this.permitNumber = permitNumber;
+    public final void setPermitNumber(final String pnr) {
+        this.permitNumber = pnr;
     }
 
     public final String getSpecies() {
         return species;
     }
 
-    public final void setSpecies(final String species) {
-        this.species = species;
+    public final void setSpecies(final String spc) {
+        this.species = spc;
     }
 
     public final String getScientificName() {
         return scientificName;
     }
 
-    public final void setScientificName(final String scientificName) {
-        this.scientificName = scientificName;
+    public final void setScientificName(final String snm) {
+        this.scientificName = snm;
     }
 
     public final ArrayList<LKTLogbookEntry> getEntries() {
         return entries;
     }
 
-    public final void setEntries(final ArrayList<LKTLogbookEntry> entries) {
-        this.entries = entries;
+    public final void setEntries(final ArrayList<LKTLogbookEntry> ent) {
+        this.entries = ent;
     }
 
     public final void addEntry(final LKTLogbookEntry entry) {
