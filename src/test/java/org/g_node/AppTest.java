@@ -18,7 +18,6 @@ import junit.framework.TestSuite;
  * Unit test for simple App.
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
- * @version $Id 0.01$
  */
 public class AppTest
     extends TestCase {

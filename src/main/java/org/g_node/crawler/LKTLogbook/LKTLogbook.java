@@ -23,7 +23,6 @@ import org.jopendocument.dom.spreadsheet.SpreadSheet;
  * Parser for the main ODS metadata file used in the lab of Kay Thurley.
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
- * @version $Id 0.01$
  */
 public class LKTLogbook {
 

@@ -20,7 +20,6 @@ import org.g_node.crawler.Command;
  * Command class for the LKT crawler.
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
- * @version $Id 0.01$
  */
 public class LKTCrawlerCommand implements Command {
 

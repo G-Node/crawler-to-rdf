@@ -19,7 +19,6 @@ import java.util.UUID;
  * Object containing all information parsed from the individual data rows of an ODS sheet.
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
- * @version $Id 0.01$
  */
 public class LKTLogbookEntry {
 

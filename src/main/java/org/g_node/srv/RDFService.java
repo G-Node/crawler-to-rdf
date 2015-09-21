@@ -14,7 +14,6 @@ package org.g_node.srv;
  * Main service class for saving data to an RDF file.
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
- * @version $Id 0.01$
  */
 public class RDFService {
 }

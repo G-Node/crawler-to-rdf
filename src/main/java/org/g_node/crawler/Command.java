@@ -18,7 +18,6 @@ import org.apache.commons.cli.Options;
  * Interface for command classes of individual crawlers.
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
- * @version $Id 0.01$
  */
 public interface Command {
     /**
