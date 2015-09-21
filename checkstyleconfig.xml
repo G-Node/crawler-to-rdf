@@ -1,0 +1,245 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+        "-//Puppy Crawl//DTD Check Configuration 1.2//EN"
+        "http://www.puppycrawl.com/dtds/configuration_1_2.dtd">
+<module name="Checker">
+
+    <!--
+    Checks that each Java package has a Javadoc file
+    used for commenting.
+    -->
+    <module name="JavadocPackage"/>
+
+    <!--
+    Checks whether files end with a new line.
+    -->
+    <module name="NewlineAtEndOfFile"/>
+
+    <!--
+    Checks that property files contain the same keys.
+    -->
+    <module name="Translation"/>
+
+    <!--
+    Maximum number of lines in any .java file is limited.
+    -->
+    <module name="FileLength">
+        <property name="max" value="500"/>
+    </module>
+
+    <!--
+    TAB chars are not allowed anywhere.
+    -->
+    <module name="FileTabCharacter">
+        <property name="eachLine" value="true"/>
+    </module>
+
+    <!--
+    Trailing spaces are not allowed anywhere.
+    -->
+    <module name="RegexpSingleline">
+        <property name="format" value="\s+$"/>
+        <property name="message" value="Line has trailing spaces."/>
+    </module>
+
+    <!--
+    C++ style inline comment is not allowed.
+    -->
+    <module name="RegexpSingleline">
+        <property name="format" value="/\*.*\*/"/>
+        <property name="message" value="This kind of comment is not allowed."/>
+    </module>
+
+    <!--
+    Two consecutive empty lines are not allowed.
+    -->
+    <module name="RegexpMultiline">
+        <property name="format" value="\r?\n[ \t\x0B\f]*\r?\n[ \t\x0B\f]*\r?\n"/>
+        <property name="fileExtensions" value="java"/>
+        <property name="message" value="Two consecutive empty lines"/>
+    </module>
+
+    <!--
+    JavaDoc regexp checks
+    -->
+    <module name="RegexpSingleline">
+        <property name="format" value="\* +@return +[^A-Z]"/>
+        <property name="fileExtensions" value="java"/>
+        <property name="message" value="@return tag description should start with capital letter"/>
+    </module>
+    <module name="RegexpSingleline">
+        <property name="format" value="\* +@param +\w+ +[^A-Z]"/>
+        <property name="fileExtensions" value="java"/>
+        <property name="message" value="@param tag description should start with capital letter"/>
+    </module>
+    <module name="RegexpSingleline">
+        <property name="format" value="/\*\* +[^A-Z\{]"/>
+        <property name="fileExtensions" value="java"/>
+        <property name="message" value="First sentence in a comment should start with a capital letter"/>
+    </module>
+    <module name="RegexpMultiline">
+        <property name="format" value="/\*\*\W+\* +[^A-Z\{]"/>
+        <property name="fileExtensions" value="java"/>
+        <property name="message" value="First sentence in a comment should start with a capital letter"/>
+    </module>
+
+    <module name="TreeWalker">
+        <!--<property name="cacheFile" value="${cache.file}" />-->
+
+        <!-- to enable suppressions -->
+        <module name="FileContentsHolder"/>
+
+        <!-- Checks for annotations. -->
+        <module name="AnnotationUseStyle"/>
+        <module name="MissingDeprecated"/>
+        <module name="MissingOverride"/>
+        <module name="PackageAnnotation"/>
+        <module name="SuppressWarnings"/>
+
+        <!-- Checks for blocks. -->
+        <module name="EmptyBlock"/>
+        <module name="LeftCurly"/>
+        <module name="NeedBraces"/>
+        <module name="RightCurly"/>
+        <module name="AvoidNestedBlocks"/>
+
+        <!-- Checks for class design. -->
+        <module name="VisibilityModifier"/>
+        <module name="FinalClass"/>
+        <module name="InterfaceIsType"/>
+        <module name="HideUtilityClassConstructor"/>
+        <module name="DesignForExtension"/>
+        <module name="MutableException"/>
+        <module name="ThrowsCount" />
+        <module name="InnerTypeLast"/>
+
+        <!-- Checks for common coding problems -->
+        <module name="ArrayTrailingComma"/>
+        <module name="AvoidInlineConditionals"/>
+        <module name="CovariantEquals"/>
+        <!--<module name="DoubleCheckedLocking"/>-->
+        <module name="EmptyStatement"/>
+        <module name="EqualsAvoidNull"/>
+        <module name="EqualsHashCode"/>
+        <module name="FinalLocalVariable"/>
+        <module name="HiddenField"/>
+        <module name="IllegalInstantiation"/>
+        <module name="IllegalToken" />
+        <module name="IllegalTokenText" />
+        <module name="InnerAssignment"/>
+        <module name="MagicNumber"/>
+        <module name="MissingSwitchDefault"/>
+        <module name="ModifiedControlVariable"/>
+        <!--<module name="RedundantThrows"/>-->
+        <module name="SimplifyBooleanExpression"/>
+        <module name="SimplifyBooleanReturn"/>
+        <module name="StringLiteralEquality"/>
+        <module name="NestedIfDepth"/>
+        <module name="NestedTryDepth"/>
+        <module name="NoClone"/>
+        <module name="NoFinalizer"/>
+        <module name="SuperClone"/>
+        <module name="SuperFinalize"/>
+        <module name="IllegalCatch"/>
+        <module name="IllegalThrows"/>
+        <module name="PackageDeclaration"/>
+        <module name="ReturnCount" />
+        <!--<module name="IllegalType"/>-->
+        <module name="DeclarationOrder"/>
+        <module name="ParameterAssignment"/>
+        <module name="ExplicitInitialization"/>
+        <module name="DefaultComesLast"/>
+        <!-- <module name="MissingCtor"/> -->
+        <module name="FallThrough"/>
+        <!--<module name="MultipleStringLiterals"/>-->
+        <module name="MultipleVariableDeclarations"/>
+        <module name="RequireThis"/>
+        <module name="UnnecessaryParentheses"/>
+        <module name="DescendantToken"/>
+
+        <!-- Checks for imports. -->
+        <module name="AvoidStarImport"/>
+        <module name="AvoidStaticImport"/>
+        <module name="IllegalImport"/>
+        <module name="RedundantImport"/>
+        <module name="UnusedImports"/>
+        <module name="ImportOrder"/>
+
+        <!-- Checks for Javadoc comments. -->
+        <module name="JavadocType"/>
+        <module name="JavadocMethod"/>
+        <module name="JavadocVariable"/>
+        <module name="JavadocStyle"/>
+
+        <!-- Metrics. -->
+        <module name="BooleanExpressionComplexity"/>
+        <module name="ClassDataAbstractionCoupling"/>
+        <module name="ClassFanOutComplexity">
+            <!--
+            Total number of classes that a particular class
+            depends on. We're increasing this value because
+            default "20" is too low.
+            -->
+            <property name="max" value="30"/>
+        </module>
+        <module name="CyclomaticComplexity"/>
+        <module name="NPathComplexity"/>
+        <module name="JavaNCSS"/>
+
+        <!-- Miscellaneous other checks. -->
+        <module name="TodoComment"/>
+        <module name="UpperEll"/>
+        <module name="ArrayTypeStyle"/>
+        <module name="FinalParameters"/>
+        <module name="Indentation"/>
+        <module name="TrailingComment"/>
+
+        <!-- Modifier Checks. -->
+        <module name="ModifierOrder"/>
+        <module name="RedundantModifier"/>
+
+        <!-- Checks for Naming Conventions. -->
+        <module name="AbstractClassName"/>
+        <module name="ClassTypeParameterName"/>
+        <module name="ConstantName"/>
+        <module name="LocalFinalVariableName"/>
+        <module name="LocalVariableName"/>
+        <module name="MemberName"/>
+        <module name="MethodName"/>
+        <module name="MethodTypeParameterName"/>
+        <module name="PackageName"/>
+        <module name="ParameterName"/>
+        <module name="StaticVariableName"/>
+        <module name="TypeName"/>
+
+        <!-- Checks for Size Violations. -->
+        <module name="ExecutableStatementCount">
+            <property name="max" value="25"/>
+        </module>
+        <module name="LineLength">
+            <property name="max" value="120"/>
+            <property name="ignorePattern" value="^((\s+(\*|//)\s+@[a-z]+ )|(import )).*$"/>
+        </module>
+        <module name="AnonInnerLength"/>
+        <module name="MethodLength"/>
+        <module name="ParameterNumber">
+            <property name="max" value="3"/>
+        </module>
+        <module name="OuterTypeNumber"/>
+
+        <!-- Checks for whitespace. -->
+        <module name="GenericWhitespace"/>
+        <module name="EmptyForInitializerPad"/>
+        <module name="EmptyForIteratorPad"/>
+        <module name="MethodParamPad"/>
+        <module name="NoWhitespaceAfter"/>
+        <module name="NoWhitespaceBefore"/>
+        <module name="OperatorWrap"/>
+        <module name="ParenPad"/>
+        <module name="TypecastParenPad"/>
+        <module name="WhitespaceAfter"/>
+        <module name="WhitespaceAround"/>
+
+    </module>
+
+</module>
