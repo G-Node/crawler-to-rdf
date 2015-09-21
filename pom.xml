@@ -116,18 +116,6 @@
           <!-- Configures the directory in which the XML report is created -->
           <findbugsXmlOutputDirectory>${project.build.directory}/findbugs</findbugsXmlOutputDirectory>
         </configuration>
-        <executions>
-          <!--
-              Ensures that FindBugs inspects source code when project is compiled.
-          -->
-          <execution>
-            <id>analyze-compile</id>
-            <phase>compile</phase>
-            <goals>
-              <goal>check</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
 
       <plugin>
@@ -135,24 +123,6 @@
         <artifactId>maven-pmd-plugin</artifactId>
         <version>3.5</version>
       </plugin>
-
-      <!--
-      <plugin>
-        <groupId>com.qulice</groupId>
-        <artifactId>qulice-maven-plugin</artifactId>
-        <version>0.12.2</version>
-        <configuration>
-          <license>file:${basedir}/LICENSE.txt</license>
-        </configuration>
-        <executions>
-          <execution>
-            <goals>
-              <goal>check</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      -->
 
     </plugins>
   </build>
