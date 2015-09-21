@@ -15,6 +15,7 @@ after_success:
   - mvn clean test jacoco:report coveralls:jacoco
   - mvn checkstyle:check
   - mvn findbugs:check
+  - mvn -Dpmd.printFailingErrors=true pmd:check
 
 notifications:
   email: false

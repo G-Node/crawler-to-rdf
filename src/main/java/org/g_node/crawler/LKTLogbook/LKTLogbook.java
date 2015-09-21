@@ -151,7 +151,7 @@ public class LKTLogbook {
     private boolean checkInputFile(final String inputFile) {
         boolean correctFile = true;
         if (!Files.exists(Paths.get(inputFile))
-                    && (!Files.exists(Paths.get(inputFile).toAbsolutePath()))) {
+                    && !Files.exists(Paths.get(inputFile).toAbsolutePath())) {
             System.err.println(String.join(" ", "Invalid input file:", inputFile));
             correctFile = false;
         }
