@@ -277,14 +277,15 @@ public class LKTLogbook {
 
             final LKTLogbookEntry currEntry = this.parseSheetEntriesVariables(currSheet, i);
 
+            final boolean checkEmptyReqField = !currEntry.getProject().isEmpty()
+                    || !currEntry.getExperiment().isEmpty()
+                    || currEntry.getExperimentDate() != null
+                    || !currEntry.getLastName().isEmpty();
+
             parseEntryMessage = currEntry.isValidEntry();
             if (!currEntry.getIsEmptyLine() && parseEntryMessage.isEmpty()) {
                 currLKTLSheet.addEntry(currEntry);
-            } else if (!currEntry.getIsEmptyLine()
-                    && (!currEntry.getProject().isEmpty()
-                    || !currEntry.getExperiment().isEmpty()
-                    || currEntry.getExperimentDate() != null
-                    || !currEntry.getLastName().isEmpty())) {
+            } else if (!currEntry.getIsEmptyLine() && checkEmptyReqField) {
                 this.hasParserError = true;
                 this.parserErrorMessages.add(
                         String.join(
