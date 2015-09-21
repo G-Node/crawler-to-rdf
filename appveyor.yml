@@ -40,7 +40,10 @@ install:
 build_script:
   - mvn clean package --batch-mode -DskipTest
 test_script:
-  - mvn clean install --batch-mode -Dpmd.printFailingErrors=true pmd:check checkstyle:check findbugs:check
+  - mvn clean install --batch-mode
+  - mvn -Dpmd.printFailingErrors=true pmd:check
+  - mvn checkstyle:check
+  - mvn findbugs:check
 cache:
   - C:\maven\
   - C:\Users\appveyor\.m2
