@@ -69,7 +69,8 @@ public class LKTLogbook {
             return;
         }
 
-        // TODO check if a robuster solution exists. Also check with Kay, if multiple backup files e.g. with a timestamp should exist.
+        // TODO check if a robuster solution exists. Also check with Kay,
+        // TODO if multiple backup files e.g. with a timestamp should exist.
         // TODO will fail for sure, if the file contains more than one period; should be addressed as well.
         // Create file backup
         final String backupFile = String.join("", inputFile.split("\\.")[0], "_backup.ods");
@@ -83,12 +84,16 @@ public class LKTLogbook {
         }
 
         try {
-            final File ODSFile = new File(inputFile);
+            final File odsFile = new File(inputFile);
 
             // TODO remove later
-            System.out.println(String.join(" ", "File has # sheets:", String.valueOf(SpreadSheet.createFromFile(ODSFile).getSheetCount())));
+            System.out.println(
+                    String.join(
+                            " ", "File has # sheets:",
+                            String.valueOf(SpreadSheet.createFromFile(odsFile).getSheetCount()))
+            );
 
-            if (!(SpreadSheet.createFromFile(ODSFile).getSheetCount() > 0)) {
+            if (!(SpreadSheet.createFromFile(odsFile).getSheetCount() > 0)) {
                 this.hasParserError = true;
                 this.parserErrorMessages.add(
                         String.join(
@@ -97,7 +102,7 @@ public class LKTLogbook {
                         )
                 );
             } else {
-                final ArrayList<LKTLogbookSheet> allSheets = this.parseSheets(ODSFile);
+                final ArrayList<LKTLogbookSheet> allSheets = this.parseSheets(odsFile);
                 allSheets.forEach(
                         s -> System.out.println(
                                 String.join(
@@ -158,18 +163,18 @@ public class LKTLogbook {
      * If parsing errors occur, {@hasParserError} will be set to true,
      * the corresponding message will be added to {@parserErrorMessages}.
      * Parsing will continue to collect further possible parser errors.
-     * @param ODSFile Input file.
+     * @param odsFile Input file.
      * @return ArrayList containing parsed {@LKTLogbookSheet}.
      */
-    private ArrayList<LKTLogbookSheet> parseSheets(final File ODSFile) {
+    private ArrayList<LKTLogbookSheet> parseSheets(final File odsFile) {
         final ArrayList<LKTLogbookSheet> allSheets = new ArrayList<>(0);
         Sheet currSheet;
         LKTLogbookSheet currLKTLSheet;
 
         try {
-            for (int i = 0; i < SpreadSheet.createFromFile(ODSFile).getSheetCount(); i = i + 1) {
+            for (int i = 0; i < SpreadSheet.createFromFile(odsFile).getSheetCount(); i = i + 1) {
 
-                currSheet = SpreadSheet.createFromFile(ODSFile).getSheet(i);
+                currSheet = SpreadSheet.createFromFile(odsFile).getSheet(i);
                 final String sheetName = currSheet.getName();
 
                 // TODO remove later
@@ -307,14 +312,26 @@ public class LKTLogbook {
 
         final LKTLogbookEntry currEntry = new LKTLogbookEntry();
 
-        currEntry.setExistingImportID(currSheet.getCellAt(String.join("", "A", String.valueOf(currLine))).getTextValue());
-        currEntry.setProject(currSheet.getCellAt(String.join("", "K", String.valueOf(currLine))).getTextValue());
-        currEntry.setExperiment(currSheet.getCellAt(String.join("", "L", String.valueOf(currLine))).getTextValue());
-        currEntry.setParadigm(currSheet.getCellAt(String.join("", "C", String.valueOf(currLine))).getTextValue());
-        currEntry.setParadigmSpecifics(currSheet.getCellAt(String.join("", "D", String.valueOf(currLine))).getTextValue());
+        currEntry.setExistingImportID(currSheet.getCellAt(
+                String.join("", "A", String.valueOf(currLine))).getTextValue()
+        );
+        currEntry.setProject(currSheet.getCellAt(
+                String.join("", "K", String.valueOf(currLine))).getTextValue()
+        );
+        currEntry.setExperiment(currSheet.getCellAt(
+                String.join("", "L", String.valueOf(currLine))).getTextValue()
+        );
+        currEntry.setParadigm(currSheet.getCellAt(
+                String.join("", "C", String.valueOf(currLine))).getTextValue()
+        );
+        currEntry.setParadigmSpecifics(currSheet.getCellAt(
+                String.join("", "D", String.valueOf(currLine))).getTextValue()
+        );
 
         // TODO check if the experimentDate parser error and the empty line messages all still work!
-        checkExperimentDate = currEntry.setExperimentDate(currSheet.getCellAt(String.join("", "B", String.valueOf(currLine))).getTextValue());
+        checkExperimentDate = currEntry.setExperimentDate(currSheet.getCellAt(
+                String.join("", "B", String.valueOf(currLine))).getTextValue()
+        );
         if (!checkExperimentDate.isEmpty()) {
             this.hasParserError = true;
             this.parserErrorMessages.add(
@@ -327,16 +344,30 @@ public class LKTLogbook {
         }
 
         // TODO solve this better, add middle name
-        handleName = currSheet.getCellAt(String.join("", "M", String.valueOf(currLine))).getTextValue().trim().split("\\s+");
+        handleName = currSheet.getCellAt(
+                String.join("", "M", String.valueOf(currLine))
+        ).getTextValue().trim().split("\\s+");
 
         currEntry.setFirstName(handleName[0]);
         currEntry.setLastName(handleName[handleName.length - 1]);
-        currEntry.setCommentExperiment(currSheet.getCellAt(String.join("", "H", String.valueOf(currLine))).getTextValue());
-        currEntry.setCommentAnimal(currSheet.getCellAt(String.join("", "I", String.valueOf(currLine))).getTextValue());
-        currEntry.setFeed(currSheet.getCellAt(String.join("", "J", String.valueOf(currLine))).getTextValue());
-        currEntry.setIsOnDiet(currSheet.getCellAt(String.join("", "E", String.valueOf(currLine))).getTextValue());
-        currEntry.setIsInitialWeight(currSheet.getCellAt(String.join("", "F", String.valueOf(currLine))).getTextValue());
-        currEntry.setWeight(currSheet.getCellAt(String.join("", "G", String.valueOf(currLine))).getTextValue());
+        currEntry.setCommentExperiment(currSheet.getCellAt(
+                String.join("", "H", String.valueOf(currLine))).getTextValue()
+        );
+        currEntry.setCommentAnimal(currSheet.getCellAt(
+                String.join("", "I", String.valueOf(currLine))).getTextValue()
+        );
+        currEntry.setFeed(currSheet.getCellAt(
+                String.join("", "J", String.valueOf(currLine))).getTextValue()
+        );
+        currEntry.setIsOnDiet(currSheet.getCellAt(
+                String.join("", "E", String.valueOf(currLine))).getTextValue()
+        );
+        currEntry.setIsInitialWeight(currSheet.getCellAt(
+                String.join("", "F", String.valueOf(currLine))).getTextValue()
+        );
+        currEntry.setWeight(currSheet.getCellAt(
+                String.join("", "G", String.valueOf(currLine))).getTextValue()
+        );
 
         return currEntry;
     }
