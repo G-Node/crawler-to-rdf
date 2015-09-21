@@ -24,6 +24,17 @@ import java.util.Objects;
 public class LKTLogbookSheet {
 
     /**
+     * Pattern that all Date values have to be formatted in
+     * to be accepted by this parser.
+     */
+    private static final String SUPPORTED_DATE_PATTERN = "dd.MM.yyyy";
+    /**
+     * Formatter used to test Date values
+     * for the pattern {@supportedDatePattern}.
+     */
+    private final DateTimeFormatter supportedDate = DateTimeFormatter.ofPattern(LKTLogbookSheet.SUPPORTED_DATE_PATTERN);
+
+    /**
      * Animal ID of the current ODS sheet. Required value.
      */
     private String animalID;
@@ -56,17 +67,6 @@ public class LKTLogbookSheet {
      * ArrayList containing all parsed experiment entries of the current ODS.
      */
     private ArrayList<LKTLogbookEntry> entries;
-
-    /**
-     * Pattern that all Date values have to be formatted in
-     * to be accepted by this parser.
-     */
-    private final String supportedDatePattern = "dd.MM.yyyy";
-    /**
-     * Formatter used to test Date values
-     * for the pattern {@supportedDatePattern}.
-     */
-    private final DateTimeFormatter supportedDate = DateTimeFormatter.ofPattern(this.supportedDatePattern);
 
     /**
      * Constructor.
@@ -134,7 +134,7 @@ public class LKTLogbookSheet {
             } else {
                 errMsg = String.join(
                         "", "Invalid Date of birth format (", dob,
-                        "). Use format '", this.supportedDatePattern, "'"
+                        "). Use format '", this.SUPPORTED_DATE_PATTERN, "'"
                 );
             }
         }
@@ -166,7 +166,7 @@ public class LKTLogbookSheet {
             } else {
                 errMsg = String.join(
                         "", "Invalid Date of withdrawal format (", dow,
-                        "). Use format '", this.supportedDatePattern, "'"
+                        "). Use format '", this.SUPPORTED_DATE_PATTERN, "'"
                 );
             }
         }

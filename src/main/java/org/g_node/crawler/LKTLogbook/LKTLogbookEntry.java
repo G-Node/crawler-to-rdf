@@ -23,6 +23,19 @@ import java.util.UUID;
 public class LKTLogbookEntry {
 
     /**
+     * Pattern that all DateTime values have to be formatted in
+     * to be accepted by this parser.
+     */
+    private static final String SUPPORTED_DATE_TIME_PATTERN = "dd.MM.yyyy HH:mm";
+    /**
+     * Formatter used to test DateTime values
+     * for the pattern {@supportedDateTimePattern}.
+     */
+    private final DateTimeFormatter supportedDateTime = DateTimeFormatter.ofPattern(
+            LKTLogbookEntry.SUPPORTED_DATE_TIME_PATTERN
+    );
+
+    /**
      * ImportID of the current entry. ID is used to
      * identify the current entry.
      */
@@ -106,17 +119,6 @@ public class LKTLogbookEntry {
      * not be imported.
      */
     private boolean isEmptyLine = true;
-
-    /**
-     * Pattern that all DateTime values have to be formatted in
-     * to be accepted by this parser.
-     */
-    private final String supportedDateTimePattern = "dd.MM.yyyy HH:mm";
-    /**
-     * Formatter used to test DateTime values
-     * for the pattern {@supportedDateTimePattern}.
-     */
-    private final DateTimeFormatter supportedDateTime = DateTimeFormatter.ofPattern(this.supportedDateTimePattern);
 
     /**
      * Return the importID of the current entry.
@@ -250,7 +252,7 @@ public class LKTLogbookEntry {
             if (expdt != null && !expdt.isEmpty()) {
                 errMsg = String.join(
                         "", "Invalid experiment date format (", expdt,
-                        "). Use format '", this.supportedDateTimePattern, "'"
+                        "). Use format '", this.SUPPORTED_DATE_TIME_PATTERN, "'"
                 );
             }
         }

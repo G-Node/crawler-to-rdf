@@ -14,6 +14,7 @@ jdk:
 after_success:
   - mvn clean test jacoco:report coveralls:jacoco
   - mvn checkstyle:check
+  - mvn findbugs:check
 
 notifications:
   email: false

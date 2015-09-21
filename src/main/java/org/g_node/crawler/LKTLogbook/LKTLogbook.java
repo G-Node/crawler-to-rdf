@@ -30,7 +30,7 @@ public class LKTLogbook {
      * Line within the ODS file where the header of the
      * experiment description section is found.
      */
-    private final Integer sheetHeaderLine = 23;
+    private static final Integer SHEET_HEADER_LINE = 23;
 
     /**
      * String value of the first field of the header
@@ -39,7 +39,7 @@ public class LKTLogbook {
      * the actual data entry lines are properly aligned for
      * the next parsing steps.
      */
-    private final String firstHeaderEntry = "ImportID";
+    private static final String FIRST_HEADER_ENTRY = "ImportID";
 
     /**
      * Boolean value stating, if errors during the parsing of the ODS file
@@ -192,15 +192,15 @@ public class LKTLogbook {
 
                 // TODO come up with a more robust solution
                 // TODO check that line 23 contains the header and that the information start at line 24
-                final String startCell = String.join("", "A", String.valueOf(this.sheetHeaderLine));
+                final String startCell = String.join("", "A", String.valueOf(LKTLogbook.SHEET_HEADER_LINE));
 
                 if (currSheet.getCellAt(startCell).getTextValue() == null
-                        || !currSheet.getCellAt(startCell).getTextValue().equals(this.firstHeaderEntry)) {
+                        || !currSheet.getCellAt(startCell).getTextValue().equals(LKTLogbook.FIRST_HEADER_ENTRY)) {
                     this.parserErrorMessages.add(
                             String.join(
                                     " ", "Parser error sheet", sheetName,
                                     "HeaderEntry ImportID does not start at required line",
-                                    String.valueOf(this.sheetHeaderLine)
+                                    String.valueOf(LKTLogbook.SHEET_HEADER_LINE)
                             )
                     );
                 } else {
@@ -273,7 +273,7 @@ public class LKTLogbook {
     private LKTLogbookSheet parseSheetEntries(final Sheet currSheet, final LKTLogbookSheet currLKTLSheet) {
         String parseEntryMessage;
 
-        for (int i = this.sheetHeaderLine + 1; i < currSheet.getRowCount(); i = i + 1) {
+        for (int i = LKTLogbook.SHEET_HEADER_LINE + 1; i < currSheet.getRowCount(); i = i + 1) {
 
             final LKTLogbookEntry currEntry = this.parseSheetEntriesVariables(currSheet, i);
 
