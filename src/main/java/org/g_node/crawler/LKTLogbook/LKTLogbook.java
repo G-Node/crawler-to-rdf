@@ -16,6 +16,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
 import org.jopendocument.dom.spreadsheet.Sheet;
 import org.jopendocument.dom.spreadsheet.SpreadSheet;
 
@@ -40,6 +43,11 @@ public class LKTLogbook {
      * the next parsing steps.
      */
     private static final String FIRST_HEADER_ENTRY = "ImportID";
+
+    /**
+     * File types that can be processed by this crawler.
+     */
+    private static final List<String> SUPPORTED_INPUT_FILE_TYPES = Collections.singletonList("ODS");
 
     /**
      * Boolean value stating, if errors during the parsing of the ODS file
@@ -143,7 +151,8 @@ public class LKTLogbook {
     }
 
     /**
-     * Method for validating that the input file actually exists.
+     * Method for validating that the input file actually exists and if it is of
+     * a supported file type defined in {@SUPPORTED_INPUT_FILE_TYPES}.
      * @param inputFile Path and filename of the provided input file.
      * @return True if the file exists, false otherwise.
      */
@@ -153,7 +162,22 @@ public class LKTLogbook {
         if (!correctFile) {
             System.err.println(String.join(" ", "[Error] Invalid input file:", inputFile));
         }
-        return correctFile;
+
+        boolean correctFileType;
+        final int i = inputFile.lastIndexOf('.');
+        if (i > 0) {
+            final String checkExtension = inputFile.substring(i + 1);
+            correctFileType = LKTLogbook.SUPPORTED_INPUT_FILE_TYPES
+                                    .contains(checkExtension.toUpperCase(Locale.ENGLISH));
+        } else {
+            correctFileType = false;
+        }
+
+        if (!correctFileType) {
+            System.err.println(String.join(" ", "[Error] Invalid input file type:", inputFile));
+        }
+
+        return correctFile && correctFileType;
     }
 
     /**
