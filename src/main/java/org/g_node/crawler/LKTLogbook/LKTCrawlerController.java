@@ -72,7 +72,7 @@ public class LKTCrawlerController implements Controller {
                 .desc(
                         String.join(
                                 "", "Optional: format of the RDF file that will be written. ",
-                                "Default setting is the Turtle (ttl) format"
+                                "Default setting is the Turtle (ttl) format."
                         )
                 )
                 .hasArg()

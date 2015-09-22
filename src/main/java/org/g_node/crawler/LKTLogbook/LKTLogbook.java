@@ -77,9 +77,8 @@ public class LKTLogbook {
         try {
             Files.copy(Paths.get(inputFile), Paths.get(backupFile), StandardCopyOption.REPLACE_EXISTING);
         } catch (final IOException exc) {
-            System.err.println(String.join(" ", "Error creating backup file:", exc.getMessage()));
+            System.err.println(String.join(" ", "[Error] creating backup file:", exc.getMessage()));
             exc.printStackTrace();
-            // TODO is this in this case a valid way to end the function?
             return;
         }
 
@@ -97,8 +96,8 @@ public class LKTLogbook {
                 this.hasParserError = true;
                 this.parserErrorMessages.add(
                         String.join(
-                                " ", "Provided labbook",
-                                inputFile, "does not contain valid data sheets"
+                                " ", "[Parser error] File", inputFile,
+                                "does not contain valid data sheets"
                         )
                 );
             } else {
@@ -138,7 +137,7 @@ public class LKTLogbook {
                 }
             }
         } catch (final IOException exp) {
-            System.err.println(String.join(" ", "Error reading from input file:", exp.getMessage()));
+            System.err.println(String.join(" ", "[Error] reading from input file:", exp.getMessage()));
             exp.printStackTrace();
         }
     }
@@ -149,11 +148,10 @@ public class LKTLogbook {
      * @return True if the file exists, false otherwise.
      */
     private boolean checkInputFile(final String inputFile) {
-        boolean correctFile = true;
-        if (!Files.exists(Paths.get(inputFile))
-                    && !Files.exists(Paths.get(inputFile).toAbsolutePath())) {
-            System.err.println(String.join(" ", "Invalid input file:", inputFile));
-            correctFile = false;
+        final boolean correctFile = Files.exists(Paths.get(inputFile))
+                                    && Files.exists(Paths.get(inputFile).toAbsolutePath());
+        if (!correctFile) {
+            System.err.println(String.join(" ", "[Error] Invalid input file:", inputFile));
         }
         return correctFile;
     }
@@ -195,8 +193,8 @@ public class LKTLogbook {
                         || !currSheet.getCellAt(startCell).getTextValue().equals(LKTLogbook.FIRST_HEADER_ENTRY)) {
                     this.parserErrorMessages.add(
                             String.join(
-                                    " ", "Parser error at sheet", sheetName,
-                                    "HeaderEntry 'ImportID' not found at required line A",
+                                    " ", "[Parser error] sheet", sheetName,
+                                    ", HeaderEntry 'ImportID' not found at required line A",
                                     String.valueOf(LKTLogbook.SHEET_HEADER_LINE)
                             )
                     );
@@ -206,7 +204,7 @@ public class LKTLogbook {
                 }
             }
         } catch (final IOException exp) {
-            System.err.println(String.join(" ", "Error reading from input file:", exp.getMessage()));
+            System.err.println(String.join(" ", "[Error] reading from input file:", exp.getMessage()));
             exp.printStackTrace();
         }
         return allSheets;
@@ -239,17 +237,17 @@ public class LKTLogbook {
             if (!parseSheetMessage.isEmpty()) {
                 parseSheetMessage.forEach(
                         m -> this.parserErrorMessages.add(
-                                String.join(" ", "Parser error sheet", sheetName, ",", m)
+                                String.join(" ", "[Parser error] sheet", sheetName, ",", m)
                         )
                 );
             }
             // check valid date of birth
             if (!checkDB.isEmpty()) {
-                this.parserErrorMessages.add(String.join(" ", "Parser error sheet", sheetName, ",", checkDB));
+                this.parserErrorMessages.add(String.join(" ", "[Parser error] sheet", sheetName, ",", checkDB));
             }
             // check valid date of withdrawal
             if (!checkDW.isEmpty()) {
-                this.parserErrorMessages.add(String.join(" ", "Parser error sheet", sheetName, ",", checkDW));
+                this.parserErrorMessages.add(String.join(" ", "[Parser error] sheet", sheetName, ",", checkDW));
             }
         }
         return currLKTLSheet;
@@ -284,9 +282,8 @@ public class LKTLogbook {
                 this.hasParserError = true;
                 this.parserErrorMessages.add(
                         String.join(
-                                " ", "Parser error sheet",
-                                currSheet.getName(), "row",
-                                String.valueOf(i), String.join("", ", missing value:", parseEntryMessage)
+                                " ", "[Parser error] sheet", currSheet.getName(), "row",
+                                String.valueOf(i), ", missing value:", parseEntryMessage
                         )
                 );
             }
@@ -332,8 +329,7 @@ public class LKTLogbook {
             this.hasParserError = true;
             this.parserErrorMessages.add(
                     String.join(
-                            " ", "Parser error sheet",
-                            currSheet.getName(), "row",
+                            " ", "[Parser error] sheet", currSheet.getName(), "row",
                             String.valueOf(currLine), checkExperimentDate
                     )
             );

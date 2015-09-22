@@ -66,13 +66,21 @@ public class App {
      * Method to parse the commandline arguments, provide
      * appropriate error messages if required and run the selected
      * crawler.
+     * The first argument of the command line has to be the shorthand of the required crawler.
      * @param args User provided commandline arguments.
      */
     public final void run(final String[] args) {
 
-        // The first argument of the command line has to be
-        // the shorthand of the required crawler.
-        if (this.crawlers.containsKey(args[0])) {
+        if (args.length < 1) {
+            System.err.println(
+                    String.join(
+                            "", "No crawler selected!",
+                            "\n Please use syntax: 'java crawler-to-rdf.jar [crawler] [crawler options]'",
+                            "\n e.g. 'java crawler-to-rdf.jar lkt -i labbook.ods -o out.ttl'",
+                            "\n Currently available crawlers: ", this.crawlers.keySet().toString()
+                    )
+            );
+        } else if (this.crawlers.containsKey(args[0])) {
 
             final HelpFormatter printHelp = new HelpFormatter();
             final CommandLineParser parser = new DefaultParser();
@@ -90,15 +98,18 @@ public class App {
 
             } catch (final ParseException exp) {
                 printHelp.printHelp("Help", useOptions);
-                System.err.println(String.join("", "Parser error: ", exp.getMessage()));
+                System.err.println(
+                        String.join("", "\n[Parser error] ", exp.getMessage(), "\n")
+                );
             }
 
         } else {
             System.err.println(
                     String.join(
-                            "", "Oh no, provided crawler '", args[0], "' does not exist!",
+                            "", "Oh no, selected crawler '", args[0], "' does not exist!",
                             "\n Please use syntax: 'java crawler-to-rdf.jar [crawler] [crawler options]'",
-                            " \n Available crawlers: ", this.crawlers.keySet().toString()
+                            "\n e.g. 'java crawler-to-rdf.jar lkt -i labbook.ods -o out.ttl'",
+                            "\n Currently available crawlers: ", this.crawlers.keySet().toString()
                     )
             );
         }
