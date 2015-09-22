@@ -169,7 +169,6 @@ public class LKTLogbook {
     private ArrayList<LKTLogbookSheet> parseSheets(final File odsFile) {
         final ArrayList<LKTLogbookSheet> allSheets = new ArrayList<>(0);
         Sheet currSheet;
-        LKTLogbookSheet currLKTLSheet;
 
         try {
             for (int i = 0; i < SpreadSheet.createFromFile(odsFile).getSheetCount(); i = i + 1) {
@@ -186,9 +185,7 @@ public class LKTLogbook {
                         )
                 );
 
-                currLKTLSheet = new LKTLogbookSheet();
-
-                currLKTLSheet = this.parseSheetVariables(currSheet, currLKTLSheet);
+                LKTLogbookSheet currLKTLSheet = this.parseSheetVariables(currSheet);
 
                 // TODO come up with a more robust solution
                 // TODO check that line 23 contains the header and that the information start at line 24
@@ -198,15 +195,13 @@ public class LKTLogbook {
                         || !currSheet.getCellAt(startCell).getTextValue().equals(LKTLogbook.FIRST_HEADER_ENTRY)) {
                     this.parserErrorMessages.add(
                             String.join(
-                                    " ", "Parser error sheet", sheetName,
-                                    "HeaderEntry ImportID does not start at required line",
+                                    " ", "Parser error at sheet", sheetName,
+                                    "HeaderEntry 'ImportID' not found at required line A",
                                     String.valueOf(LKTLogbook.SHEET_HEADER_LINE)
                             )
                     );
                 } else {
-
                     currLKTLSheet = this.parseSheetEntries(currSheet, currLKTLSheet);
-
                     allSheets.add(currLKTLSheet);
                 }
             }
@@ -220,10 +215,10 @@ public class LKTLogbook {
     /**
      * Method for retrieving all sheet specific data from the current ODS sheet.
      * @param currSheet The current sheet from the ODS file.
-     * @param currLKTLSheet The current {@LKTLogbookSheet}.
      * @return The current {@LKTLogbookSheet} containing all parsed values.
      */
-    private LKTLogbookSheet parseSheetVariables(final Sheet currSheet, final LKTLogbookSheet currLKTLSheet) {
+    private LKTLogbookSheet parseSheetVariables(final Sheet currSheet) {
+        final LKTLogbookSheet currLKTLSheet  = new LKTLogbookSheet();
         final String sheetName = currSheet.getName();
         ArrayList<String> parseSheetMessage;
         String checkDB;
