@@ -14,14 +14,14 @@ import java.util.Set;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.g_node.crawler.Command;
+import org.g_node.crawler.Controller;
 
 /**
  * Command class for the LKT crawler.
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
-public class LKTCrawlerCommand implements Command {
+public class LKTCrawlerController implements Controller {
 
     /**
      * The actual crawler this class handles and provides.
@@ -32,7 +32,7 @@ public class LKTCrawlerCommand implements Command {
      * Constructor.
      * @param crl Instance of the {@LKTLogbook} crawler.
      */
-    public LKTCrawlerCommand(final LKTLogbook crl) {
+    public LKTCrawlerController(final LKTLogbook crl) {
         this.crawler = crl;
     }
 

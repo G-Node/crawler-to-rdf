@@ -18,8 +18,8 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.g_node.crawler.Command;
-import org.g_node.crawler.LKTLogbook.LKTCrawlerCommand;
+import org.g_node.crawler.Controller;
+import org.g_node.crawler.LKTLogbook.LKTCrawlerController;
 import org.g_node.crawler.LKTLogbook.LKTLogbook;
 
 /**
@@ -34,7 +34,7 @@ public class App {
      * Registry containing all crawlers implemented
      * and available to this application.
      */
-    private final Map<String, Command> crawlers;
+    private final Map<String, Controller> crawlers;
 
     /**
      * Constructor.
@@ -59,7 +59,7 @@ public class App {
      * The short hand is required to select and run the intended crawler.
      */
     public final void register() {
-        this.crawlers.put("lkt", new LKTCrawlerCommand(new LKTLogbook()));
+        this.crawlers.put("lkt", new LKTCrawlerController(new LKTLogbook()));
     }
 
     /**
@@ -76,7 +76,7 @@ public class App {
 
             final HelpFormatter printHelp = new HelpFormatter();
             final CommandLineParser parser = new DefaultParser();
-            final Command currCrawlerCommand = this.crawlers.get(args[0]);
+            final Controller currCrawlerController = this.crawlers.get(args[0]);
             final Options useOptions = this.crawlers.get(args[0]).options(this.crawlers.keySet());
 
             try {
@@ -86,7 +86,7 @@ public class App {
                     printHelp.printHelp("Help", useOptions);
                     return;
                 }
-                currCrawlerCommand.run(cmd);
+                currCrawlerController.run(cmd);
 
             } catch (final ParseException exp) {
                 printHelp.printHelp("Help", useOptions);

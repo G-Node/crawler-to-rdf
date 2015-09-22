@@ -19,7 +19,7 @@ import org.apache.commons.cli.Options;
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
-public interface Command {
+public interface Controller {
     /**
      * Method returning available commandline options of the crawler
      * corresponding to the command class.
