@@ -30,7 +30,7 @@ public class LKTCrawlerController implements Controller {
 
     /**
      * Constructor.
-     * @param crl Instance of the {@LKTLogbook} crawler.
+     * @param crl Instance of the {@link org.g_node.crawler.LKTLogbook.LKTLogbook} crawler.
      */
     public LKTCrawlerController(final LKTLogbook crl) {
         this.crawler = crl;

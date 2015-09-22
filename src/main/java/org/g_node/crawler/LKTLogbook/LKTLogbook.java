@@ -152,7 +152,7 @@ public class LKTLogbook {
 
     /**
      * Method for validating that the input file actually exists and if it is of
-     * a supported file type defined in {@SUPPORTED_INPUT_FILE_TYPES}.
+     * a supported file type defined in {@link #SUPPORTED_INPUT_FILE_TYPES}.
      * @param inputFile Path and filename of the provided input file.
      * @return True if the file exists, false otherwise.
      */
@@ -182,11 +182,11 @@ public class LKTLogbook {
 
     /**
      * Method parsing all sheets of the current ODS file.
-     * If parsing errors occur, {@hasParserError} will be set to true,
-     * the corresponding message will be added to {@parserErrorMessages}.
+     * If parsing errors occur, {@link #hasParserError} will be set to true,
+     * the corresponding message will be added to {@link #parserErrorMessages}.
      * Parsing will continue to collect further possible parser errors.
      * @param odsFile Input file.
-     * @return ArrayList containing parsed {@LKTLogbookSheet}.
+     * @return ArrayList containing parsed {@link org.g_node.crawler.LKTLogbook.LKTLogbookSheet}.
      */
     private ArrayList<LKTLogbookSheet> parseSheets(final File odsFile) {
         final ArrayList<LKTLogbookSheet> allSheets = new ArrayList<>(0);
@@ -237,7 +237,7 @@ public class LKTLogbook {
     /**
      * Method for retrieving all sheet specific data from the current ODS sheet.
      * @param currSheet The current sheet from the ODS file.
-     * @return The current {@LKTLogbookSheet} containing all parsed values.
+     * @return The current {@link org.g_node.crawler.LKTLogbook.LKTLogbookSheet} containing all parsed values.
      */
     private LKTLogbookSheet parseSheetVariables(final Sheet currSheet) {
         final LKTLogbookSheet currLKTLSheet  = new LKTLogbookSheet();
@@ -279,12 +279,12 @@ public class LKTLogbook {
 
     /**
      * Method for parsing the experiment entries of an animal sheet.
-     * If parsing errors occur, {@hasParserError} will be set to true,
-     * the corresponding message will be added to {@parserErrorMessages}.
+     * If parsing errors occur, {@link #hasParserError} will be set to true,
+     * the corresponding message will be added to {@link #parserErrorMessages}.
      * Parsing will continue to collect further possible parser errors.
      * @param currSheet The current sheet of the parsed ODS file.
-     * @param currLKTLSheet The current {@LKTLogbookSheet}.
-     * @return The current {@LKTLogbookSheet} containing the parsed
+     * @param currLKTLSheet The current {@link org.g_node.crawler.LKTLogbook.LKTLogbookSheet}.
+     * @return The current {@link org.g_node.crawler.LKTLogbook.LKTLogbookSheet} containing the parsed
      *  experiment entries.
      */
     private LKTLogbookSheet parseSheetEntries(final Sheet currSheet, final LKTLogbookSheet currLKTLSheet) {
@@ -320,7 +320,7 @@ public class LKTLogbook {
      * ODS sheet.
      * @param currSheet The current ODS sheet.
      * @param currLine Number of the current line in the current ODS sheet.
-     * @return The {@LKTLogbookEntry} containing the parsed values from
+     * @return The {@link org.g_node.crawler.LKTLogbook.LKTLogbookEntry} containing the parsed values from
      *  the current single entry.
      */
     private LKTLogbookEntry parseSheetEntriesVariables(final Sheet currSheet, final int currLine) {

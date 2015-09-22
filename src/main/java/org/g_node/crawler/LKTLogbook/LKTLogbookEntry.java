@@ -29,7 +29,7 @@ public class LKTLogbookEntry {
     private static final String SUPPORTED_DATE_TIME_PATTERN = "dd.MM.yyyy HH:mm";
     /**
      * Formatter used to test DateTime values
-     * for the pattern {@supportedDateTimePattern}.
+     * for the pattern {@link #SUPPORTED_DATE_TIME_PATTERN}.
      */
     private final DateTimeFormatter supportedDateTime = DateTimeFormatter.ofPattern(
             LKTLogbookEntry.SUPPORTED_DATE_TIME_PATTERN
@@ -224,7 +224,7 @@ public class LKTLogbookEntry {
     }
 
     /**
-     * Return the date of the experiment using format {@supportedDateTimePattern}.
+     * Return the date of the experiment using format {@link #SUPPORTED_DATE_TIME_PATTERN}.
      * @return See description.
      */
     public final LocalDateTime getExperimentDate() {
@@ -233,13 +233,13 @@ public class LKTLogbookEntry {
 
     /**
      * Set the date of the experiment. Check that the date format is conform
-     * to {@supportedDateTimePattern}. This entry is one of the required
+     * to {@link #SUPPORTED_DATE_TIME_PATTERN}. This entry is one of the required
      * fields to uniquely identify an entry. If the experiment date
      * is not available, the current line cannot be imported, the value of
      * the variable isEmptyLine is set to false.
      * @param expdt String containing the date of the experiment.
      * @return An error message, if the date was not conform to
-     *  {@supportedDateTimePattern}
+     *  {@link #SUPPORTED_DATE_TIME_PATTERN}
      */
     public final String setExperimentDate(final String expdt) {
         String errMsg = "";
@@ -252,7 +252,7 @@ public class LKTLogbookEntry {
             if (expdt != null && !expdt.isEmpty()) {
                 errMsg = String.join(
                         "", "Invalid experiment date format (", expdt,
-                        "). Use format '", this.SUPPORTED_DATE_TIME_PATTERN, "'"
+                        "). Use format '", LKTLogbookEntry.SUPPORTED_DATE_TIME_PATTERN, "'"
                 );
             }
         }

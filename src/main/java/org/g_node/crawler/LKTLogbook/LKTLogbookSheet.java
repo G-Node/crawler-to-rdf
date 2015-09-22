@@ -30,7 +30,7 @@ public class LKTLogbookSheet {
     private static final String SUPPORTED_DATE_PATTERN = "dd.MM.yyyy";
     /**
      * Formatter used to test Date values
-     * for the pattern {@supportedDatePattern}.
+     * for the pattern {@link #SUPPORTED_DATE_PATTERN}.
      */
     private final DateTimeFormatter supportedDate = DateTimeFormatter.ofPattern(LKTLogbookSheet.SUPPORTED_DATE_PATTERN);
 
@@ -111,7 +111,7 @@ public class LKTLogbookSheet {
 
     /**
      * Return the date of birth of the animal of the current ODS sheet.
-     * @return Return the date of birth in format {@supportedDatePattern}.
+     * @return Return the date of birth in format {@link #SUPPORTED_DATE_PATTERN}.
      */
     public final LocalDate getDateOfBirth() {
         return this.dateOfBirth;
@@ -119,10 +119,10 @@ public class LKTLogbookSheet {
 
     /**
      * Set the date of birth of the animal of the current ODS sheet.
-     * This entry has to be conform to the date format {@supportedDatePattern}.
+     * This entry has to be conform to the date format {@link #SUPPORTED_DATE_PATTERN}.
      * @param dob String containing the date of birth of the animal.
      * @return Error message, if the date does not conform to
-     *  format {@supportedDatePattern}
+     *  format {@link #SUPPORTED_DATE_PATTERN}
      */
     public final String setDateOfBirth(final String dob) {
         String errMsg = "";
@@ -134,7 +134,7 @@ public class LKTLogbookSheet {
             } else {
                 errMsg = String.join(
                         "", "Invalid Date of birth format (", dob,
-                        "). Use format '", this.SUPPORTED_DATE_PATTERN, "'"
+                        "). Use format '", LKTLogbookSheet.SUPPORTED_DATE_PATTERN, "'"
                 );
             }
         }
@@ -143,7 +143,7 @@ public class LKTLogbookSheet {
 
     /**
      * Return the withdrawal date of the the animal of the current ODS sheet.
-     * @return Animal withdrawal date in format {@supportedDatePattern}.
+     * @return Animal withdrawal date in format {@link #SUPPORTED_DATE_PATTERN}.
      */
     public final LocalDate getDateOfWithdrawal() {
         return this.dateOfWithdrawal;
@@ -151,10 +151,10 @@ public class LKTLogbookSheet {
 
     /**
      * Set the withdrawal date of the animal of the current ODS sheet.
-     * This entry has to be conform to the date format {@supportedDatePattern}.
+     * This entry has to be conform to the date format {@link #SUPPORTED_DATE_PATTERN}.
      * @param dow String containing the withdrawal date of the animal.
      * @return Error message, if the date does not conform to
-     *  format {@supportedDatePattern}
+     *  format {@link #SUPPORTED_DATE_PATTERN}
      */
     public final String setDateOfWithdrawal(final String dow) {
         String errMsg = "";
@@ -166,7 +166,7 @@ public class LKTLogbookSheet {
             } else {
                 errMsg = String.join(
                         "", "Invalid Date of withdrawal format (", dow,
-                        "). Use format '", this.SUPPORTED_DATE_PATTERN, "'"
+                        "). Use format '", LKTLogbookSheet.SUPPORTED_DATE_PATTERN, "'"
                 );
             }
         }
@@ -223,24 +223,24 @@ public class LKTLogbookSheet {
     }
 
     /**
-     * Returns ArrayList of parsed {@LKTLogbookEntry} of the current ODS sheet.
-     * @return Returns the {@entries} array.
+     * Returns ArrayList of parsed {@link org.g_node.crawler.LKTLogbook.LKTLogbookEntry} of the current ODS sheet.
+     * @return Returns the {@link #entries} array.
      */
     public final ArrayList<LKTLogbookEntry> getEntries() {
         return this.entries;
     }
 
     /**
-     * Method adds an ArrayList of {@LKTLogbookEntry} to the {@entries} array.
-     * @param ent ArrayList of parsed {@LKTLogbookEntry}.
+     * Method adds an ArrayList of {@link org.g_node.crawler.LKTLogbook.LKTLogbookEntry} to the {@link #entries} array.
+     * @param ent ArrayList of parsed {@link org.g_node.crawler.LKTLogbook.LKTLogbookEntry}.
      */
     public final void setEntries(final ArrayList<LKTLogbookEntry> ent) {
         this.entries = ent;
     }
 
     /**
-     * Method adds a single logbook entry to the {@entries} array.
-     * @param entry Parsed {@LKTLogbookEntry}.
+     * Method adds a single logbook entry to the {@link #entries} array.
+     * @param entry Parsed {@link org.g_node.crawler.LKTLogbook.LKTLogbookEntry}.
      */
     public final void addEntry(final LKTLogbookEntry entry) {
         this.entries.add(entry);
