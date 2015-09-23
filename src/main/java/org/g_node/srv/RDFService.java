@@ -10,12 +10,12 @@
 
 package org.g_node.srv;
 
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.RDFWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.RDFWriter;
+import java.io.IOException;
 
 /**
  * Main service class for saving data to an RDF file.
@@ -32,17 +32,24 @@ public class RDFService {
      * @param format Output format of the RDF file.
      */
     public static void writeModelToFile(final String fileName, final Model model, final String format) {
-        File file = new File(fileName);
-        RDFWriter writer = model.getWriter(format);
+
+        final File file = new File(fileName);
+        final RDFWriter writer = model.getWriter(format);
 
         try {
+            final FileOutputStream fos = new FileOutputStream(file);
             System.out.println(
                     String.join(
                             "", "[Info] Writing data to RDF file, ",
                             fileName, " using format '", format, "'"
                     )
             );
-            writer.write(model, new FileOutputStream(file), format);
+            try {
+                writer.write(model, fos, format);
+                fos.close();
+            } catch (IOException ioExc) {
+                System.err.println("[Error] while closing file stream.");
+            }
         } catch (FileNotFoundException exc) {
             System.err.println(String.join(
                     "", "[Error] Could not open output file ", fileName));

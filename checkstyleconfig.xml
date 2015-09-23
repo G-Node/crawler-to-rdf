@@ -26,7 +26,7 @@
     Maximum number of lines in any .java file is limited.
     -->
     <module name="FileLength">
-        <property name="max" value="500"/>
+        <property name="max" value="800"/>
     </module>
 
     <!--
@@ -109,7 +109,7 @@
         <module name="VisibilityModifier"/>
         <module name="FinalClass"/>
         <module name="InterfaceIsType"/>
-        <module name="HideUtilityClassConstructor"/>
+        <!--<module name="HideUtilityClassConstructor"/>-->
         <module name="DesignForExtension"/>
         <module name="MutableException"/>
         <module name="ThrowsCount" />
