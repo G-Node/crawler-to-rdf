@@ -62,7 +62,7 @@ public class LKTCrawlerController implements Controller {
                         String.join(
                                 "", "Optional: Path and name of the output file. ",
                                 "Files with the same name will be overwritten. ",
-                                "Default file name uses format 'YYYYMMDDHHmm_out.ttl'"
+                                "Default file name uses format 'yyyyMMddHHmm_out.ttl'"
                         )
                 )
                 .hasArg()

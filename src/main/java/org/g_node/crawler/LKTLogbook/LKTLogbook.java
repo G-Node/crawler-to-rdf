@@ -90,7 +90,6 @@ public class LKTLogbook {
      * Namespace used to identify RDF resources and properties specific for the current usecase.
      */
     private final String rdfNamespace = "http://g-node.org/lkt/";
-
     /**
      * Method for parsing the contents of a provided ODS input file.
      * This method will create a backup file of the original ODS file.
@@ -193,8 +192,9 @@ public class LKTLogbook {
 
         Property permitNr = model.createProperty(String.join("", this.rdfNamespace, "hasNumber"));
         Resource permit = model.createResource(String.join("", this.rdfNamespace, "Permit#", UUID.randomUUID().toString()))
-                .addProperty(permitNr, currSheet.getPermitNumber());
+                .addLiteral(permitNr, currSheet.getPermitNumber());
 
+        // TODO handle dates properly
         Property animalIDProp = model.createProperty(String.join("", this.rdfNamespace, "hasAnimalID"));
         Property sexProp = model.createProperty(String.join("", this.rdfNamespace, "hasSex"));
         Property birthDate = model.createProperty(String.join("", this.rdfNamespace, "hasBirthDate"));
@@ -204,12 +204,12 @@ public class LKTLogbook {
         Property permitNumber = model.createProperty(String.join("", this.rdfNamespace, "hasPermit"));
 
         Resource animal = model.createResource(String.join("", this.rdfNamespace, "Animal#", animalUUID))
-                                .addProperty(animalIDProp, animalID)
-                                .addProperty(sexProp, currSheet.getAnimalSex())
-                .addProperty(birthDate, currSheet.getDateOfBirth().toString())
-                .addProperty(withdrawalDate, currSheet.getDateOfWithdrawal().toString())
-                .addProperty(speciesName, currSheet.getSpecies())
-                .addProperty(scientificName, currSheet.getScientificName())
+                .addLiteral(animalIDProp, animalID)
+                .addLiteral(sexProp, currSheet.getAnimalSex())
+                .addLiteral(birthDate, currSheet.getDateOfBirth().toString())
+                .addLiteral(withdrawalDate, currSheet.getDateOfWithdrawal().toString())
+                .addLiteral(speciesName, currSheet.getSpecies())
+                .addLiteral(scientificName, currSheet.getScientificName())
                 .addProperty(permitNumber, permit);
 
         currSheet.getEntries().stream().forEach(
@@ -232,12 +232,12 @@ public class LKTLogbook {
 
             Property projName = model.createProperty(String.join("", this.rdfNamespace, "hasName"));
             Resource proj = model.createResource(String.join("", this.rdfNamespace, "Project#", this.projectList.get(project)))
-                    .addProperty(projName, project);
+                    .addLiteral(projName, project);
         }
         Resource projectRes = model.getResource(String.join("", this.rdfNamespace, "Project#", this.projectList.get(project)));
 
         // TODO replace this with the FOAF namespace!
-        // TODO add middle name!
+        // TODO add middle name
         // add experimenter only once to the rdf model
         final String experimenter = String.join(" ", currEntry.getLastName(), currEntry.getFirstName());
         if (!this.experimenterList.containsKey(experimenter)) {
@@ -246,9 +246,10 @@ public class LKTLogbook {
             Property firstName = model.createProperty(String.join("", this.rdfNamespace, "hasFirstName"));
             Property lastName = model.createProperty(String.join("", this.rdfNamespace, "hasLastName"));
 
+            // TODO add middle name
             Resource name = model.createResource(String.join("", this.rdfNamespace, "Experimenter#", this.experimenterList.get(experimenter)))
-                    .addProperty(firstName, currEntry.getFirstName())
-                    .addProperty(lastName, currEntry.getLastName());
+                    .addLiteral(firstName, currEntry.getFirstName())
+                    .addLiteral(lastName, currEntry.getLastName());
         }
 
         Resource experimenterRes = model.getResource(String.join("", this.rdfNamespace, "Experimenter#", this.experimenterList.get(experimenter)));
@@ -262,16 +263,39 @@ public class LKTLogbook {
         Property animalProp = model.createProperty(String.join("", this.rdfNamespace, "hasAnimal"));
 
         Resource exp = model.createResource(String.join("", this.rdfNamespace, "Experiment#", currEntry.getImportID()))
-                .addProperty(d, currEntry.getExperimentDate().toString())
-                .addProperty(label, currEntry.getExperiment())
-                .addProperty(paradigm, currEntry.getParadigm())
-                .addProperty(paradigmSpec, currEntry.getParadigmSpecifics())
-                .addProperty(expCom, currEntry.getCommentExperiment())
+                .addLiteral(d, currEntry.getExperimentDate().toString())
+                .addLiteral(label, currEntry.getExperiment())
+                .addLiteral(paradigm, currEntry.getParadigm())
+                .addLiteral(paradigmSpec, currEntry.getParadigmSpecifics())
+                .addLiteral(expCom, currEntry.getCommentExperiment())
                 .addProperty(expmtr, experimenterRes)
                 .addProperty(animalProp, animal);
 
         Property hasExpProp = model.createProperty(String.join("", this.rdfNamespace, "hasExperiment"));
         projectRes.addProperty(hasExpProp, exp);
+
+        Property startedProp = model.createProperty(String.join("", this.rdfNamespace, "startedAt"));
+        Property animalCommentProp = model.createProperty(String.join("", this.rdfNamespace, "hasComment"));
+        Property dietProp = model.createProperty(String.join("", this.rdfNamespace, "hasDiet"));
+        // TODO include blank node with g as unit
+        Property weightProp = model.createProperty(String.join("", this.rdfNamespace, "hasWeight"));
+        Property initialWeightProp = model.createProperty(String.join("", this.rdfNamespace, "hasInitialWeightDate"));
+        Property feedProp = model.createProperty(String.join("", this.rdfNamespace, "hasFeed"));
+
+        // TODO check if its actually correct to use the same UUID for experiment AND animalLogEntry
+        Resource animalLogEntry = model.createResource(String.join("", this.rdfNamespace, "AnimalLogEntry#", currEntry.getImportID()))
+                .addLiteral(startedProp, currEntry.getExperimentDate().toString())
+                .addLiteral(animalCommentProp, currEntry.getCommentAnimal())
+                .addLiteral(dietProp, currEntry.getIsOnDiet())
+                .addLiteral(weightProp, currEntry.getWeight())
+                .addLiteral(initialWeightProp, currEntry.getIsInitialWeight())
+                .addLiteral(feedProp, currEntry.getFeed())
+                .addProperty(expmtr, experimenterRes);
+
+        // add animal log entry to the animal node
+        Property animalLogEntryProp = model.createProperty(String.join("", this.rdfNamespace, "hasAnimalLogEntry"));
+        animal.addProperty(animalLogEntryProp, animalLogEntry);
+
     }
 
     /**
