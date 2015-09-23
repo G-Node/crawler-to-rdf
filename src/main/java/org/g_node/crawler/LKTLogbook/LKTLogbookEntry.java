@@ -140,8 +140,6 @@ public class LKTLogbookEntry {
         this.importID = impid;
         if (impid != null && !impid.isEmpty()) {
             this.setIsUpdate(true);
-            //TODO remove later
-            System.out.println(String.join("", "Existing importID: ", impid));
         } else {
             this.importID = UUID.randomUUID().toString();
         }

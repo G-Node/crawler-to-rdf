@@ -10,6 +10,8 @@
 
 package org.g_node.crawler.LKTLogbook;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Set;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -60,7 +62,7 @@ public class LKTCrawlerController implements Controller {
                         String.join(
                                 "", "Optional: Path and name of the output file. ",
                                 "Files with the same name will be overwritten. ",
-                                "Default file name uses format 'YYYYMMDDHHmm'"
+                                "Default file name uses format 'YYYYMMDDHHmm_out.ttl'"
                         )
                 )
                 .hasArg()
@@ -93,8 +95,20 @@ public class LKTCrawlerController implements Controller {
      * @param cmd Commandline input provided by the user
      */
     public final void run(final CommandLine cmd) {
-        this.crawler.parseFile(cmd.getOptionValue("i"));
-        // TODO write stuff to a file in the specified format
+        String outputFormat = "TTL";
+        if (cmd.hasOption("f")) {
+            outputFormat = cmd.getOptionValue("f");
+        }
+
+        String outputFile = String.join(
+                "", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmm")),
+                "_out.ttl"
+        );
+        if (cmd.hasOption("o")) {
+            outputFile = cmd.getOptionValue("o");
+        }
+
+        this.crawler.parseFile(cmd.getOptionValue("i"), outputFile, outputFormat);
     }
 
 }
