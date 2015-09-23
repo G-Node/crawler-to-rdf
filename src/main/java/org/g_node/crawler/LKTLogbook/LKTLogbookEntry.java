@@ -252,7 +252,7 @@ public class LKTLogbookEntry {
             if (expdt != null && !expdt.isEmpty()) {
                 errMsg = String.join(
                         "", "Invalid experiment date format (", expdt,
-                        "). Use format '", LKTLogbookEntry.SUPPORTED_DATE_TIME_PATTERN, "'"
+                        "). Please check the date and use format '", LKTLogbookEntry.SUPPORTED_DATE_TIME_PATTERN, "'"
                 );
             }
         }

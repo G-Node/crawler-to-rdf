@@ -50,12 +50,6 @@ public class LKTLogbook {
     private static final List<String> SUPPORTED_INPUT_FILE_TYPES = Collections.singletonList("ODS");
 
     /**
-     * Boolean value stating, if errors during the parsing of the ODS file
-     * have occurred.
-     */
-    private boolean hasParserError;
-
-    /**
      * ArrayList containing all messages that occurred while parsing the ODS file.
      * All parser errors connected to missing values or incorrect value formats should
      * be collected and written to a logfile, so that users can correct these
@@ -65,11 +59,12 @@ public class LKTLogbook {
 
     /**
      * Method for parsing the contents of a provided ODS input file.
+     * This method will create a backup file of the original ODS file.
      * @param inputFile ODS file specific to Kay Thurleys usecase.
      */
     public final void parseFile(final String inputFile) {
 
-        this.hasParserError = false;
+        System.out.println("[Info] Checking provided file...");
 
         // TODO is this a good way to end the execution of the app
         // TODO if the input file is not available?
@@ -77,10 +72,10 @@ public class LKTLogbook {
             return;
         }
 
+        System.out.println("[Info] Creating backup file...");
         // TODO check if a robuster solution exists. Also check with Kay,
         // TODO if multiple backup files e.g. with a timestamp should exist.
         // TODO will fail for sure, if the file contains more than one period; should be addressed as well.
-        // Create file backup
         final String backupFile = String.join("", inputFile.split("\\.")[0], "_backup.ods");
         try {
             Files.copy(Paths.get(inputFile), Paths.get(backupFile), StandardCopyOption.REPLACE_EXISTING);
@@ -90,18 +85,18 @@ public class LKTLogbook {
             return;
         }
 
+        System.out.println("[Info] Starting to parse provided file...");
         try {
             final File odsFile = new File(inputFile);
 
             // TODO remove later
             System.out.println(
                     String.join(
-                            " ", "File has # sheets:",
+                            " ", "[Info] File has # sheets:",
                             String.valueOf(SpreadSheet.createFromFile(odsFile).getSheetCount()))
             );
 
             if (!(SpreadSheet.createFromFile(odsFile).getSheetCount() > 0)) {
-                this.hasParserError = true;
                 this.parserErrorMessages.add(
                         String.join(
                                 " ", "[Parser error] File", inputFile,
@@ -113,14 +108,14 @@ public class LKTLogbook {
                 allSheets.forEach(
                         s -> System.out.println(
                                 String.join(
-                                        " ", "CurrSheet:", s.getAnimalID(),
+                                        " ", "[Info] CurrSheet:", s.getAnimalID(),
                                         ", number of entries:",
                                         String.valueOf(s.getEntries().size())
                                 )
                         )
                 );
 
-                if (!this.hasParserError) {
+                if (this.parserErrorMessages.size() == 0) {
                     // TODO remove later
                     allSheets.stream().forEach(
                         s -> {
@@ -182,8 +177,7 @@ public class LKTLogbook {
 
     /**
      * Method parsing all sheets of the current ODS file.
-     * If parsing errors occur, {@link #hasParserError} will be set to true,
-     * the corresponding message will be added to {@link #parserErrorMessages}.
+     * If parsing errors occur,  the corresponding message will be added to {@link #parserErrorMessages}.
      * Parsing will continue to collect further possible parser errors.
      * @param odsFile Input file.
      * @return ArrayList containing parsed {@link org.g_node.crawler.LKTLogbook.LKTLogbookSheet}.
@@ -197,15 +191,6 @@ public class LKTLogbook {
 
                 currSheet = SpreadSheet.createFromFile(odsFile).getSheet(i);
                 final String sheetName = currSheet.getName();
-
-                // TODO remove later
-                System.out.println(
-                        String.join(
-                                " ", "Sheet name:", currSheet.getName(),
-                                ", RowCount:", String.valueOf(currSheet.getRowCount()),
-                                ", ColCount:", String.valueOf(currSheet.getColumnCount())
-                        )
-                );
 
                 LKTLogbookSheet currLKTLSheet = this.parseSheetVariables(currSheet);
 
@@ -257,7 +242,6 @@ public class LKTLogbook {
         // TODO come up with a better way to deal with date errors
         parseSheetMessage = currLKTLSheet.isValidSheet();
         if (!parseSheetMessage.isEmpty() || !checkDB.isEmpty() || !checkDW.isEmpty()) {
-            this.hasParserError = true;
             if (!parseSheetMessage.isEmpty()) {
                 parseSheetMessage.forEach(
                         m -> this.parserErrorMessages.add(
@@ -279,8 +263,7 @@ public class LKTLogbook {
 
     /**
      * Method for parsing the experiment entries of an animal sheet.
-     * If parsing errors occur, {@link #hasParserError} will be set to true,
-     * the corresponding message will be added to {@link #parserErrorMessages}.
+     * If parsing errors occur, the corresponding message will be added to {@link #parserErrorMessages}.
      * Parsing will continue to collect further possible parser errors.
      * @param currSheet The current sheet of the parsed ODS file.
      * @param currLKTLSheet The current {@link org.g_node.crawler.LKTLogbook.LKTLogbookSheet}.
@@ -303,7 +286,6 @@ public class LKTLogbook {
             if (!currEntry.getIsEmptyLine() && parseEntryMessage.isEmpty()) {
                 currLKTLSheet.addEntry(currEntry);
             } else if (!currEntry.getIsEmptyLine() && checkEmptyReqField) {
-                this.hasParserError = true;
                 this.parserErrorMessages.add(
                         String.join(
                                 " ", "[Parser error] sheet", currSheet.getName(), "row",
@@ -350,7 +332,6 @@ public class LKTLogbook {
                 String.join("", "B", String.valueOf(currLine))).getTextValue()
         );
         if (!checkExperimentDate.isEmpty()) {
-            this.hasParserError = true;
             this.parserErrorMessages.add(
                     String.join(
                             " ", "[Parser error] sheet", currSheet.getName(), "row",

@@ -134,7 +134,7 @@ public class LKTLogbookSheet {
             } else {
                 errMsg = String.join(
                         "", "Invalid Date of birth format (", dob,
-                        "). Use format '", LKTLogbookSheet.SUPPORTED_DATE_PATTERN, "'"
+                        "). Please check the date and use format '", LKTLogbookSheet.SUPPORTED_DATE_PATTERN, "'"
                 );
             }
         }
@@ -166,7 +166,7 @@ public class LKTLogbookSheet {
             } else {
                 errMsg = String.join(
                         "", "Invalid Date of withdrawal format (", dow,
-                        "). Use format '", LKTLogbookSheet.SUPPORTED_DATE_PATTERN, "'"
+                        "). Please check the date and use format '", LKTLogbookSheet.SUPPORTED_DATE_PATTERN, "'"
                 );
             }
         }
