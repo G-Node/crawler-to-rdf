@@ -32,7 +32,7 @@ public class RDFService {
      * Map returning the RDF formats supported by this service.
      */
     public static final Map<String, RDFFormat> RDF_FORMAT_MAP =
-            Collections.unmodifiableMap(new HashMap<String, RDFFormat>() {
+            Collections.unmodifiableMap(new HashMap<String, RDFFormat>(3) {
                 {
                     put("TTL", RDFFormat.TURTLE_PRETTY);
                     put("RDF/XML", RDFFormat.RDFXML);

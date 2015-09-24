@@ -145,7 +145,7 @@
         <module name="IllegalCatch"/>
         <module name="IllegalThrows"/>
         <module name="PackageDeclaration"/>
-        <module name="ReturnCount" />
+        <!--<module name="ReturnCount"/>-->
         <!--<module name="IllegalType"/>-->
         <module name="DeclarationOrder"/>
         <module name="ParameterAssignment"/>

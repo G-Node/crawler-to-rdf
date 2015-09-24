@@ -16,14 +16,8 @@ import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import org.g_node.srv.RDFService;
@@ -51,11 +45,6 @@ public class LKTLogbook {
      * the next parsing steps.
      */
     private static final String FIRST_HEADER_ENTRY = "ImportID";
-
-    /**
-     * File types that can be processed by this crawler.
-     */
-    private static final List<String> SUPPORTED_INPUT_FILE_TYPES = Collections.singletonList("ODS");
 
     /**
      * Namespace used to identify RDF resources and properties specific for the current usecase.
@@ -100,27 +89,6 @@ public class LKTLogbook {
      */
     public final void parseFile(final String inputFile, final String outputFile, final String outputFormat) {
 
-        System.out.println("[Info] Checking provided file...");
-
-        // TODO is this a good way to end the execution of the app
-        // TODO if the input file is not available?
-        if (!this.checkInputFile(inputFile)) {
-            return;
-        }
-
-        System.out.println("[Info] Creating backup file...");
-        // TODO check if a robuster solution exists. Also check with Kay,
-        // TODO if multiple backup files e.g. with a timestamp should exist.
-        // TODO will fail for sure, if the file contains more than one period; should be addressed as well.
-        final String backupFile = String.join("", inputFile.split("\\.")[0], "_backup.ods");
-        try {
-            Files.copy(Paths.get(inputFile), Paths.get(backupFile), StandardCopyOption.REPLACE_EXISTING);
-        } catch (final IOException exc) {
-            System.err.println(String.join(" ", "[Error] creating backup file:", exc.getMessage()));
-            exc.printStackTrace();
-            return;
-        }
-
         System.out.println("[Info] Starting to parse provided file...");
         try {
             final File odsFile = new File(inputFile);
@@ -157,6 +125,8 @@ public class LKTLogbook {
 
                 } else {
                     // TODO write to logfile
+                    this.parserErrorMessages.add(
+                            "\nThere are parser errors present. Please resolve them and run the program again.");
                     this.parserErrorMessages.forEach(System.err::println);
                 }
             }
@@ -164,235 +134,6 @@ public class LKTLogbook {
             System.err.println(String.join(" ", "[Error] reading from input file:", exp.getMessage()));
             exp.printStackTrace();
         }
-    }
-
-    /**
-     * Creates an RDF model from the parsed ODS sheet data and writes
-     * the model to the designated output file.
-     * @param allSheets Data from the parsed ODS sheets.
-     * @param outputFile Name and path of the designated output file.
-     * @param outputFormat RDF output format.
-     */
-    private void createRDFModel(final ArrayList<LKTLogbookSheet> allSheets,
-                                final String outputFile, final String outputFormat) {
-        allSheets.stream().forEach(
-                this::addAnimal
-        );
-        RDFService.writeModelToFile(outputFile, this.model, outputFormat);
-    }
-
-    /**
-     * Adds all data of a parsed ODS sheet to the main RDF model. The problem here is
-     * that the ODS sheet is centered around the animal, while the RDF model is project
-     * centric.
-     * @param currSheet Data from the current sheet.
-     */
-    private void addAnimal(final LKTLogbookSheet currSheet) {
-        final String animalID = currSheet.getAnimalID();
-        if (!this.animalList.containsKey(animalID)) {
-            this.animalList.put(animalID, UUID.randomUUID().toString());
-        }
-        final String animalUUID = this.animalList.get(animalID);
-
-        // TODO fix namespace issue
-        this.model.setNsPrefix("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-        this.model.setNsPrefix("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
-        this.model.setNsPrefix(LKTLogbook.RDF_NS_ABR, "http://g-node.org/lkt#");
-
-        final Property permitNr = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasNumber"));
-        final Resource permit = this.model.createResource(
-                    String.join("", LKTLogbook.RDF_NAMESPACE, "Permit#", UUID.randomUUID().toString())
-                )
-                .addLiteral(permitNr, currSheet.getPermitNumber());
-
-        // TODO handle dates properly
-        final Property animalIDProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasAnimalID"));
-        final Property sexProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasSex"));
-        final Property birthDate = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasBirthDate"));
-        final Property withdrawalDate = this.model.createProperty(
-                    String.join("", LKTLogbook.RDF_NS_ABR, ":hasWithdrawalDate")
-                );
-        final Property speciesName = this.model.createProperty(
-                    String.join("", LKTLogbook.RDF_NS_ABR, ":hasSpeciesName")
-                );
-        final Property scientificName = this.model.createProperty(
-                    String.join("", LKTLogbook.RDF_NS_ABR, ":hasScientificName")
-                );
-        final Property permitNumber = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasPermit"));
-
-        final Resource animal = this.model.createResource(
-                    String.join("", LKTLogbook.RDF_NAMESPACE, "Animal#", animalUUID)
-                )
-                .addLiteral(animalIDProp, animalID)
-                .addLiteral(sexProp, currSheet.getAnimalSex())
-                .addLiteral(birthDate, currSheet.getDateOfBirth().toString())
-                .addLiteral(withdrawalDate, currSheet.getDateOfWithdrawal().toString())
-                .addLiteral(speciesName, currSheet.getSpecies())
-                .addLiteral(scientificName, currSheet.getScientificName())
-                .addProperty(permitNumber, permit);
-
-        currSheet.getEntries().stream().forEach(
-                c -> this.addEntry(c, animal)
-        );
-    }
-
-    /**
-     * Adds the data of the current ODS entry to the main RDF model.
-     * @param currEntry Data from the current ODS line entry.
-     * @param animal Resource from the main RDF model containing the information about
-     *  the animal this entry is associated with.
-     */
-    private void addEntry(final LKTLogbookEntry currEntry, final Resource animal) {
-
-        final String project = currEntry.getProject();
-        // add project only once to the rdf model
-        if (!this.projectList.containsKey(project)) {
-            this.projectList.put(project, UUID.randomUUID().toString());
-
-            final Property projName = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasName"));
-            this.model.createResource(
-                        String.join(
-                                "", LKTLogbook.RDF_NAMESPACE,
-                                "Project#", this.projectList.get(project))
-                    )
-                    .addLiteral(projName, project);
-        }
-        final Resource projectRes = this.model.getResource(
-                    String.join("", LKTLogbook.RDF_NAMESPACE, "Project#", this.projectList.get(project))
-            );
-
-        // TODO replace this with the FOAF namespace!
-        // TODO add middle name
-        // add experimenter only once to the rdf model
-        final String experimenter = String.join(" ", currEntry.getLastName(), currEntry.getFirstName());
-        if (!this.experimenterList.containsKey(experimenter)) {
-            this.experimenterList.put(experimenter, UUID.randomUUID().toString());
-
-            final Property firstName = this.model.createProperty(
-                    String.join("", LKTLogbook.RDF_NS_ABR, ":hasFirstName")
-            );
-            final Property lastName = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasLastName"));
-
-            // TODO add middle name
-            this.model.createResource(
-                        String.join(
-                                "", LKTLogbook.RDF_NAMESPACE,
-                                "Experimenter#", this.experimenterList.get(experimenter))
-                    )
-                    .addLiteral(firstName, currEntry.getFirstName())
-                    .addLiteral(lastName, currEntry.getLastName());
-        }
-
-        final Resource experimenterRes = this.model.getResource(
-                String.join("", LKTLogbook.RDF_NAMESPACE, "Experimenter#", this.experimenterList.get(experimenter))
-        );
-
-        // Create current experiment resource
-        final Resource exp = this.addExperimentEntry(currEntry);
-        // Link current experiment to experimenter
-        final Property expmtr = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasExperimenter"));
-        // Link current experiment to animal log
-        final Property animalProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasAnimal"));
-
-        exp.addProperty(expmtr, experimenterRes)
-                .addProperty(animalProp, animal);
-
-        final Property hasExpProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasExperiment"));
-        projectRes.addProperty(hasExpProp, exp);
-
-        // Create current animalLog resource
-        final Resource animalLogEntry = this.addAnimalLogEntry(currEntry);
-        // Link animal log entry to experimenter
-        animalLogEntry.addProperty(expmtr, experimenterRes);
-        // Add animal log entry to the current animal node
-        final Property animalLogEntryProp = this.model.createProperty(
-                String.join("", LKTLogbook.RDF_NS_ABR, ":hasAnimalLogEntry")
-        );
-        animal.addProperty(animalLogEntryProp, animalLogEntry);
-
-    }
-
-    /**
-     * Add Experiment node to the RDF model.
-     * @param currEntry Current entry line of the parsed ODS file.
-     * @return Created experiment node.
-     */
-    private Resource addExperimentEntry(final LKTLogbookEntry currEntry) {
-        final Property d = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":startedAt"));
-        final Property label = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasLabel"));
-        final Property paradigm = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasParadigm"));
-        final Property paradigmSpec = this.model.createProperty(
-                String.join("", LKTLogbook.RDF_NS_ABR, ":hasParadigmSpecifics")
-        );
-
-        final Property expCom = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasComment"));
-        return this.model.createResource(
-                String.join("", LKTLogbook.RDF_NAMESPACE, "Experiment#", currEntry.getImportID())
-        )
-                .addLiteral(d, currEntry.getExperimentDate().toString())
-                .addLiteral(label, currEntry.getExperiment())
-                .addLiteral(paradigm, currEntry.getParadigm())
-                .addLiteral(paradigmSpec, currEntry.getParadigmSpecifics())
-                .addLiteral(expCom, currEntry.getCommentExperiment());
-    }
-
-    /**
-     * Add AnimalLogEntry node to the RDF model.
-     * @param currEntry Current entry line of the parsed ODS file.
-     * @return Created AnimalLogEntryNode.
-     */
-    private Resource addAnimalLogEntry(final LKTLogbookEntry currEntry) {
-        final Property startedProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":startedAt"));
-        final Property animalCommentProp = this.model.createProperty(
-                String.join("", LKTLogbook.RDF_NS_ABR, ":hasComment")
-        );
-        final Property dietProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasDiet"));
-        // TODO include blank node with g as unit
-        final Property weightProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasWeight"));
-        final Property initialWeightProp = this.model.createProperty(
-                String.join("", LKTLogbook.RDF_NS_ABR, ":hasInitialWeightDate")
-        );
-        final Property feedProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasFeed"));
-
-        // TODO check if its actually correct to use the same UUID for experiment AND animalLogEntry
-        return this.model.createResource(
-                String.join("", LKTLogbook.RDF_NAMESPACE, "AnimalLogEntry#", currEntry.getImportID()))
-                .addLiteral(startedProp, currEntry.getExperimentDate().toString())
-                .addLiteral(animalCommentProp, currEntry.getCommentAnimal())
-                .addLiteral(dietProp, currEntry.getIsOnDiet())
-                .addLiteral(weightProp, currEntry.getWeight())
-                .addLiteral(initialWeightProp, currEntry.getIsInitialWeight())
-                .addLiteral(feedProp, currEntry.getFeed());
-    }
-
-    /**
-     * Method for validating that the input file actually exists and if it is of
-     * a supported file type defined in {@link #SUPPORTED_INPUT_FILE_TYPES}.
-     * @param inputFile Path and filename of the provided input file.
-     * @return True if the file exists, false otherwise.
-     */
-    private boolean checkInputFile(final String inputFile) {
-        final boolean correctFile = Files.exists(Paths.get(inputFile))
-                                    && Files.exists(Paths.get(inputFile).toAbsolutePath());
-        if (!correctFile) {
-            System.err.println(String.join(" ", "[Error] Invalid input file:", inputFile));
-        }
-
-        boolean correctFileType;
-        final int i = inputFile.lastIndexOf('.');
-        if (i > 0) {
-            final String checkExtension = inputFile.substring(i + 1);
-            correctFileType = LKTLogbook.SUPPORTED_INPUT_FILE_TYPES
-                                    .contains(checkExtension.toUpperCase(Locale.ENGLISH));
-        } else {
-            correctFileType = false;
-        }
-
-        if (!correctFileType) {
-            System.err.println(String.join(" ", "[Error] Invalid input file type:", inputFile));
-        }
-
-        return correctFile && correctFileType;
     }
 
     /**
@@ -415,7 +156,6 @@ public class LKTLogbook {
                 LKTLogbookSheet currLKTLSheet = this.parseSheetVariables(currSheet);
 
                 // TODO come up with a more robust solution
-                // TODO check that line 23 contains the header and that the information start at line 24
                 final String startCell = String.join("", "A", String.valueOf(LKTLogbook.SHEET_HEADER_LINE));
 
                 if (currSheet.getCellAt(startCell).getTextValue() == null
@@ -568,7 +308,7 @@ public class LKTLogbook {
         currEntry.setFirstName(handleName[0]);
         currEntry.setLastName(handleName[handleName.length - 1]);
         currEntry.setCommentExperiment(currSheet.getCellAt(
-                String.join("", "H", String.valueOf(currLine))).getTextValue()
+                        String.join("", "H", String.valueOf(currLine))).getTextValue()
         );
         currEntry.setCommentAnimal(currSheet.getCellAt(
                 String.join("", "I", String.valueOf(currLine))).getTextValue()
@@ -583,9 +323,208 @@ public class LKTLogbook {
                 String.join("", "F", String.valueOf(currLine))).getTextValue()
         );
         currEntry.setWeight(currSheet.getCellAt(
-                String.join("", "G", String.valueOf(currLine))).getTextValue()
+                        String.join("", "G", String.valueOf(currLine))).getTextValue()
         );
 
         return currEntry;
+    }
+
+    /**
+     * Creates an RDF model from the parsed ODS sheet data and writes
+     * the model to the designated output file.
+     * @param allSheets Data from the parsed ODS sheets.
+     * @param outputFile Name and path of the designated output file.
+     * @param outputFormat RDF output format.
+     */
+    private void createRDFModel(final ArrayList<LKTLogbookSheet> allSheets,
+                                final String outputFile, final String outputFormat) {
+        allSheets.stream().forEach(
+                this::addAnimal
+        );
+        RDFService.writeModelToFile(outputFile, this.model, outputFormat);
+    }
+
+    /**
+     * Adds all data of a parsed ODS sheet to the main RDF model. The problem here is
+     * that the ODS sheet is centered around the animal, while the RDF model is project
+     * centric.
+     * @param currSheet Data from the current sheet.
+     */
+    private void addAnimal(final LKTLogbookSheet currSheet) {
+        final String animalID = currSheet.getAnimalID();
+        if (!this.animalList.containsKey(animalID)) {
+            this.animalList.put(animalID, UUID.randomUUID().toString());
+        }
+        final String animalUUID = this.animalList.get(animalID);
+
+        // TODO fix namespace issue
+        this.model.setNsPrefix("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+        this.model.setNsPrefix("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
+        this.model.setNsPrefix(LKTLogbook.RDF_NS_ABR, "http://g-node.org/lkt#");
+
+        final Property permitNr = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasNumber"));
+        final Resource permit = this.model.createResource(
+                String.join("", LKTLogbook.RDF_NAMESPACE, "Permit#", UUID.randomUUID().toString())
+        )
+                .addLiteral(permitNr, currSheet.getPermitNumber());
+
+        // TODO handle dates properly
+        final Property animalIDProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasAnimalID"));
+        final Property sexProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasSex"));
+        final Property birthDate = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasBirthDate"));
+        final Property withdrawalDate = this.model.createProperty(
+                String.join("", LKTLogbook.RDF_NS_ABR, ":hasWithdrawalDate")
+        );
+        final Property speciesName = this.model.createProperty(
+                String.join("", LKTLogbook.RDF_NS_ABR, ":hasSpeciesName")
+        );
+        final Property scientificName = this.model.createProperty(
+                String.join("", LKTLogbook.RDF_NS_ABR, ":hasScientificName")
+        );
+        final Property permitNumber = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasPermit"));
+
+        final Resource animal = this.model.createResource(
+                String.join("", LKTLogbook.RDF_NAMESPACE, "Animal#", animalUUID)
+        )
+                .addLiteral(animalIDProp, animalID)
+                .addLiteral(sexProp, currSheet.getAnimalSex())
+                .addLiteral(birthDate, currSheet.getDateOfBirth().toString())
+                .addLiteral(withdrawalDate, currSheet.getDateOfWithdrawal().toString())
+                .addLiteral(speciesName, currSheet.getSpecies())
+                .addLiteral(scientificName, currSheet.getScientificName())
+                .addProperty(permitNumber, permit);
+
+        currSheet.getEntries().stream().forEach(
+                c -> this.addEntry(c, animal)
+        );
+    }
+
+    /**
+     * Adds the data of the current ODS entry to the main RDF model.
+     * @param currEntry Data from the current ODS line entry.
+     * @param animal Resource from the main RDF model containing the information about
+     *  the animal this entry is associated with.
+     */
+    private void addEntry(final LKTLogbookEntry currEntry, final Resource animal) {
+
+        final String project = currEntry.getProject();
+        // add project only once to the rdf model
+        if (!this.projectList.containsKey(project)) {
+            this.projectList.put(project, UUID.randomUUID().toString());
+
+            final Property projName = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasName"));
+            this.model.createResource(
+                    String.join(
+                            "", LKTLogbook.RDF_NAMESPACE,
+                            "Project#", this.projectList.get(project))
+            )
+                    .addLiteral(projName, project);
+        }
+        final Resource projectRes = this.model.getResource(
+                String.join("", LKTLogbook.RDF_NAMESPACE, "Project#", this.projectList.get(project))
+        );
+
+        // TODO replace this with the FOAF namespace!
+        // TODO add middle name
+        // add experimenter only once to the rdf model
+        final String experimenter = String.join(" ", currEntry.getLastName(), currEntry.getFirstName());
+        if (!this.experimenterList.containsKey(experimenter)) {
+            this.experimenterList.put(experimenter, UUID.randomUUID().toString());
+
+            final Property firstName = this.model.createProperty(
+                    String.join("", LKTLogbook.RDF_NS_ABR, ":hasFirstName")
+            );
+            final Property lastName = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasLastName"));
+
+            // TODO add middle name
+            this.model.createResource(
+                    String.join(
+                            "", LKTLogbook.RDF_NAMESPACE,
+                            "Experimenter#", this.experimenterList.get(experimenter))
+            )
+                    .addLiteral(firstName, currEntry.getFirstName())
+                    .addLiteral(lastName, currEntry.getLastName());
+        }
+
+        final Resource experimenterRes = this.model.getResource(
+                String.join("", LKTLogbook.RDF_NAMESPACE, "Experimenter#", this.experimenterList.get(experimenter))
+        );
+
+        // Create current experiment resource
+        final Resource exp = this.addExperimentEntry(currEntry);
+        // Link current experiment to experimenter
+        final Property expmtr = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasExperimenter"));
+        // Link current experiment to animal log
+        final Property animalProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasAnimal"));
+
+        exp.addProperty(expmtr, experimenterRes)
+                .addProperty(animalProp, animal);
+
+        final Property hasExpProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasExperiment"));
+        projectRes.addProperty(hasExpProp, exp);
+
+        // Create current animalLog resource
+        final Resource animalLogEntry = this.addAnimalLogEntry(currEntry);
+        // Link animal log entry to experimenter
+        animalLogEntry.addProperty(expmtr, experimenterRes);
+        // Add animal log entry to the current animal node
+        final Property animalLogEntryProp = this.model.createProperty(
+                String.join("", LKTLogbook.RDF_NS_ABR, ":hasAnimalLogEntry")
+        );
+        animal.addProperty(animalLogEntryProp, animalLogEntry);
+
+    }
+
+    /**
+     * Add Experiment node to the RDF model.
+     * @param currEntry Current entry line of the parsed ODS file.
+     * @return Created experiment node.
+     */
+    private Resource addExperimentEntry(final LKTLogbookEntry currEntry) {
+        final Property d = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":startedAt"));
+        final Property label = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasLabel"));
+        final Property paradigm = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasParadigm"));
+        final Property paradigmSpec = this.model.createProperty(
+                String.join("", LKTLogbook.RDF_NS_ABR, ":hasParadigmSpecifics")
+        );
+
+        final Property expCom = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasComment"));
+        return this.model.createResource(
+                String.join("", LKTLogbook.RDF_NAMESPACE, "Experiment#", currEntry.getImportID())
+        )
+                .addLiteral(d, currEntry.getExperimentDate().toString())
+                .addLiteral(label, currEntry.getExperiment())
+                .addLiteral(paradigm, currEntry.getParadigm())
+                .addLiteral(paradigmSpec, currEntry.getParadigmSpecifics())
+                .addLiteral(expCom, currEntry.getCommentExperiment());
+    }
+
+    /**
+     * Add AnimalLogEntry node to the RDF model.
+     * @param currEntry Current entry line of the parsed ODS file.
+     * @return Created AnimalLogEntryNode.
+     */
+    private Resource addAnimalLogEntry(final LKTLogbookEntry currEntry) {
+        final Property startedProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":startedAt"));
+        final Property animalCommentProp = this.model.createProperty(
+                String.join("", LKTLogbook.RDF_NS_ABR, ":hasComment")
+        );
+        final Property dietProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasDiet"));
+        // TODO include blank node with g as unit
+        final Property weightProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasWeight"));
+        final Property initialWeightProp = this.model.createProperty(
+                String.join("", LKTLogbook.RDF_NS_ABR, ":hasInitialWeightDate")
+        );
+        final Property feedProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasFeed"));
+
+        // TODO check if its actually correct to use the same UUID for experiment AND animalLogEntry
+        return this.model.createResource(
+                String.join("", LKTLogbook.RDF_NAMESPACE, "AnimalLogEntry#", currEntry.getImportID()))
+                .addLiteral(startedProp, currEntry.getExperimentDate().toString())
+                .addLiteral(animalCommentProp, currEntry.getCommentAnimal())
+                .addLiteral(dietProp, currEntry.getIsOnDiet())
+                .addLiteral(weightProp, currEntry.getWeight())
+                .addLiteral(initialWeightProp, currEntry.getIsInitialWeight())
+                .addLiteral(feedProp, currEntry.getFeed());
     }
 }

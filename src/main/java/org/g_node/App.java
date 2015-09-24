@@ -99,7 +99,7 @@ public class App {
             } catch (final ParseException exp) {
                 printHelp.printHelp("Help", useOptions);
                 System.err.println(
-                        String.join("", "\n[Parser error] ", exp.getMessage(), "\n")
+                        String.join("", "\n[Error] ", exp.getMessage(), "\n")
                 );
             }
 

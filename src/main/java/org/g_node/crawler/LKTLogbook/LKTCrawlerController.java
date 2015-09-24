@@ -10,14 +10,21 @@
 
 package org.g_node.crawler.LKTLogbook;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.g_node.crawler.Controller;
+import org.g_node.srv.FileService;
 import org.g_node.srv.RDFService;
 
 /**
@@ -26,6 +33,10 @@ import org.g_node.srv.RDFService;
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
 public class LKTCrawlerController implements Controller {
+    /**
+     * File types that can be processed by this crawler.
+     */
+    private static final List<String> SUPPORTED_INPUT_FILE_TYPES = Collections.singletonList("ODS");
 
     /**
      * The actual crawler this class handles and provides.
@@ -94,23 +105,22 @@ public class LKTCrawlerController implements Controller {
 
     /**
      * Method to parse information from an input file to an output file using
-     * the LKT crawler.
+     * the LKT crawler. Handles all checks related to input file, output file and
+     * file format before the parsing begins.
      * @param cmd Commandline input provided by the user
      */
-    // TODO implement output format check
     public final void run(final CommandLine cmd) {
+
+        System.out.println("[Info] Checking input file...");
+        final String inputFile = cmd.getOptionValue("i");
+        if (!FileService.checkFile(inputFile)
+                || !FileService.checkFileType(inputFile, LKTCrawlerController.SUPPORTED_INPUT_FILE_TYPES)) {
+            return;
+        }
+
+        System.out.println("[Info] Checking output format...");
         final String outputFormat = cmd.getOptionValue("f", "TTL").toUpperCase(Locale.ENGLISH);
-
-        if (RDFService.RDF_FORMAT_MAP.containsKey(outputFormat)) {
-
-            final String defaultOutputFile = String.join(
-                    "", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmm")),
-                    "_out.ttl"
-            );
-            final String outputFile = cmd.getOptionValue("o", defaultOutputFile);
-
-            this.crawler.parseFile(cmd.getOptionValue("i"), outputFile, outputFormat);
-        } else {
+        if (!RDFService.RDF_FORMAT_MAP.containsKey(outputFormat)) {
             System.err.println(
                     String.join("",
                             "[Error] Unsupported output format: '", outputFormat, "'",
@@ -118,7 +128,30 @@ public class LKTCrawlerController implements Controller {
                             RDFService.RDF_FORMAT_MAP.keySet().toString()
                     )
             );
+            return;
         }
-    }
 
+        final String defaultOutputFile = String.join(
+                "", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmm")),
+                "_out.ttl"
+        );
+        final String outputFile = cmd.getOptionValue("o", defaultOutputFile);
+
+        // TODO check if a robuster solution exists. Also check with Kay,
+        // TODO if multiple backup files e.g. with a timestamp should exist.
+        System.out.println("[Info] Creating backup file...");
+        final String backupFile = String.join(
+                "",
+                inputFile.substring(0, inputFile.lastIndexOf(".")),
+                "_backup.ods");
+        try {
+            Files.copy(Paths.get(inputFile), Paths.get(backupFile), StandardCopyOption.REPLACE_EXISTING);
+        } catch (final IOException exc) {
+            System.err.println(String.join(" ", "[Error] creating backup file:", exc.getMessage()));
+            exc.printStackTrace();
+            return;
+        }
+
+        this.crawler.parseFile(inputFile, outputFile, outputFormat);
+    }
 }
