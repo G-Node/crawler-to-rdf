@@ -34,7 +34,6 @@ public class LKTLogbookEntry {
     private final DateTimeFormatter supportedDateTime = DateTimeFormatter.ofPattern(
             LKTLogbookEntry.SUPPORTED_DATE_TIME_PATTERN
     );
-
     /**
      * ImportID of the current entry. ID is used to
      * identify the current entry.
@@ -69,17 +68,9 @@ public class LKTLogbookEntry {
      */
     private LocalDateTime experimentDate;
     /**
-     * First name of the experimenter.
+     * Name of the experimenter. This value is required.
      */
-    private String firstName;
-    /**
-     * Middle name of the experimenter.
-     */
-    private String middleName;
-    /**
-     * Last name of the experimenter. This value is required.
-     */
-    private String lastName;
+    private String experimenterName;
     /**
      * Comment about the experiment.
      */
@@ -258,54 +249,22 @@ public class LKTLogbookEntry {
     }
 
     /**
-     * Return the first name of the experimenter.
+     * Return the name of the experimenter.
      * @return See description.
      */
-    public final String getFirstName() {
-        return this.firstName;
+    public final String getExperimenterName() {
+        return this.experimenterName;
     }
 
     /**
-     * Set the first name of the experimenter.
-     * @param fnm First name of the experimenter.
+     * Set the name of the experimenter.
+     * @param exn Name of the experimenter.
      */
-    public final void setFirstName(final String fnm) {
-        this.firstName = fnm;
-    }
-
-    /**
-     * Return the middle name of the experimenter.
-     * @return See description.
-     */
-    public final String getMiddleName() {
-        return this.middleName;
-    }
-
-    /**
-     * Set the middle name of the experimenter.
-     * @param mnm Middle name of the experimenter.
-     */
-    public final void setMiddleName(final String mnm) {
-        this.middleName = mnm;
-    }
-
-    /**
-     * Return the last name of the experimenter.
-     * @return See description.
-     */
-    public final String getLastName() {
-        return this.lastName;
-    }
-
-    /**
-     * Set the last name of the experimenter.
-     * @param lnm Last name of the experimenter.
-     */
-    public final void setLastName(final String lnm) {
-        if (this.lastName != null && !this.lastName.isEmpty()) {
+    public final void setExperimenterName(final String exn) {
+        if (this.experimenterName != null && !this.experimenterName.isEmpty()) {
             this.setIsEmptyLine(false);
         }
-        this.lastName = lnm;
+        this.experimenterName = exn;
     }
 
     /**
@@ -419,7 +378,7 @@ public class LKTLogbookEntry {
      * Required to check, if an entry is actually empty, but parsed due to
      * existing column format.
      * If any of the required fields project, experiment, experimentDate or
-     * lastName are not empty, then the line does not qualify as an empty
+     * experimenterName are not empty, then the line does not qualify as an empty
      * line any longer and has to be dealt with. If all of the required fields
      * are missing, the entry will simply not be imported.
      * TODO check if the description above is actually still completely true.
@@ -466,7 +425,7 @@ public class LKTLogbookEntry {
         if (this.getExperimentDate() == null) {
             msg = msg.concat(" Experiment date ");
         }
-        if (this.getLastName() == null || this.getLastName().isEmpty()) {
+        if (this.getExperimenterName() == null || this.getExperimenterName().isEmpty()) {
             msg = msg.concat(" Name of experimenter ");
         }
 

@@ -14,6 +14,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.vocabulary.RDFS;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,13 +31,11 @@ import org.jopendocument.dom.spreadsheet.SpreadSheet;
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
 public class LKTLogbook {
-
     /**
      * Line within the ODS file where the header of the
      * experiment description section is found.
      */
     private static final Integer SHEET_HEADER_LINE = 23;
-
     /**
      * String value of the first field of the header
      * of the experiment description section. This string is
@@ -45,7 +44,6 @@ public class LKTLogbook {
      * the next parsing steps.
      */
     private static final String FIRST_HEADER_ENTRY = "ImportID";
-
     /**
      * Namespace used to identify RDF resources and properties specific for the current usecase.
      */
@@ -79,7 +77,6 @@ public class LKTLogbook {
      * Main RDF model containing all the parsed information from the ODS sheet.
      */
     private final Model model = ModelFactory.createDefaultModel();
-
     /**
      * Method for parsing the contents of a provided ODS input file.
      * This method will create a backup file of the original ODS file.
@@ -240,7 +237,7 @@ public class LKTLogbook {
             final boolean checkEmptyReqField = !currEntry.getProject().isEmpty()
                     || !currEntry.getExperiment().isEmpty()
                     || currEntry.getExperimentDate() != null
-                    || !currEntry.getLastName().isEmpty();
+                    || !currEntry.getExperimenterName().isEmpty();
 
             parseEntryMessage = currEntry.isValidEntry();
             if (!currEntry.getIsEmptyLine() && parseEntryMessage.isEmpty()) {
@@ -266,7 +263,6 @@ public class LKTLogbook {
      *  the current single entry.
      */
     private LKTLogbookEntry parseSheetEntriesVariables(final Sheet currSheet, final int currLine) {
-        String[] handleName;
         String checkExperimentDate;
 
         final LKTLogbookEntry currEntry = new LKTLogbookEntry();
@@ -300,13 +296,9 @@ public class LKTLogbook {
             );
         }
 
-        // TODO solve this better, add middle name
-        handleName = currSheet.getCellAt(
-                String.join("", "M", String.valueOf(currLine))
-        ).getTextValue().trim().split("\\s+");
-
-        currEntry.setFirstName(handleName[0]);
-        currEntry.setLastName(handleName[handleName.length - 1]);
+        currEntry.setExperimenterName(currSheet.getCellAt(
+                String.join("", "M", String.valueOf(currLine))).getTextValue()
+        );
         currEntry.setCommentExperiment(currSheet.getCellAt(
                         String.join("", "H", String.valueOf(currLine))).getTextValue()
         );
@@ -361,6 +353,7 @@ public class LKTLogbook {
         this.model.setNsPrefix("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
         this.model.setNsPrefix("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
         this.model.setNsPrefix(LKTLogbook.RDF_NS_ABR, "http://g-node.org/lkt#");
+        this.model.setNsPrefix("foaf", "http://xmlns.com/foaf/0.1/");
 
         final Property permitNr = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasNumber"));
         final Resource permit = this.model.createResource(
@@ -424,26 +417,20 @@ public class LKTLogbook {
                 String.join("", LKTLogbook.RDF_NAMESPACE, "Project#", this.projectList.get(project))
         );
 
-        // TODO replace this with the FOAF namespace!
-        // TODO add middle name
         // add experimenter only once to the rdf model
-        final String experimenter = String.join(" ", currEntry.getLastName(), currEntry.getFirstName());
+        final String experimenter = currEntry.getExperimenterName();
         if (!this.experimenterList.containsKey(experimenter)) {
             this.experimenterList.put(experimenter, UUID.randomUUID().toString());
+            final Property name = this.model.createProperty("foaf:name");
 
-            final Property firstName = this.model.createProperty(
-                    String.join("", LKTLogbook.RDF_NS_ABR, ":hasFirstName")
-            );
-            final Property lastName = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasLastName"));
-
-            // TODO add middle name
             this.model.createResource(
                     String.join(
                             "", LKTLogbook.RDF_NAMESPACE,
                             "Experimenter#", this.experimenterList.get(experimenter))
             )
-                    .addLiteral(firstName, currEntry.getFirstName())
-                    .addLiteral(lastName, currEntry.getLastName());
+                    .addLiteral(name, currEntry.getExperimenterName())
+                    // TODO check if this is actually correct.
+                    .addProperty(RDFS.subClassOf, "foaf:Person");
         }
 
         final Resource experimenterRes = this.model.getResource(

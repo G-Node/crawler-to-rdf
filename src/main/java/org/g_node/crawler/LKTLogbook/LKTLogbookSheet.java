@@ -269,7 +269,6 @@ public class LKTLogbookSheet {
                     )
             );
         }
-
         if (this.permitNumber.isEmpty() || Objects.equals(this.permitNumber, "")) {
             validationMessage.add("Missing permitNumber");
         }
