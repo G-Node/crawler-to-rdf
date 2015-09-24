@@ -60,7 +60,7 @@ public class RDFService {
                     )
             );
             try {
-                RDFDataMgr.write(fos, model, RDFFormat.NTRIPLES);
+                RDFDataMgr.write(fos, model, RDFService.RDF_FORMAT_MAP.get(format));
                 fos.close();
             } catch (IOException ioExc) {
                 System.err.println("[Error] while closing file stream.");
