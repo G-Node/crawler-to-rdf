@@ -12,11 +12,13 @@ package org.g_node.crawler.LKTLogbook;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.Set;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.g_node.crawler.Controller;
+import org.g_node.srv.RDFService;
 
 /**
  * Command class for the LKT crawler.
@@ -73,8 +75,9 @@ public class LKTCrawlerController implements Controller {
                 .longOpt("out-format")
                 .desc(
                         String.join(
-                                "", "Optional: format of the RDF file that will be written. ",
-                                "Default setting is the Turtle (ttl) format."
+                                "", "Optional: format of the RDF file that will be written.\n",
+                                "Supported file formats: ", RDFService.RDF_FORMAT_MAP.keySet().toString(),
+                                "\nDefault setting is the Turtle (TTL) format."
                         )
                 )
                 .hasArg()
@@ -94,21 +97,28 @@ public class LKTCrawlerController implements Controller {
      * the LKT crawler.
      * @param cmd Commandline input provided by the user
      */
+    // TODO implement output format check
     public final void run(final CommandLine cmd) {
-        String outputFormat = "TTL";
-        if (cmd.hasOption("f")) {
-            outputFormat = cmd.getOptionValue("f");
-        }
+        final String outputFormat = cmd.getOptionValue("f", "TTL").toUpperCase(Locale.ENGLISH);
 
-        String outputFile = String.join(
-                "", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmm")),
-                "_out.ttl"
-        );
-        if (cmd.hasOption("o")) {
-            outputFile = cmd.getOptionValue("o");
-        }
+        if (RDFService.RDF_FORMAT_MAP.containsKey(outputFormat)) {
 
-        this.crawler.parseFile(cmd.getOptionValue("i"), outputFile, outputFormat);
+            final String defaultOutputFile = String.join(
+                    "", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmm")),
+                    "_out.ttl"
+            );
+            final String outputFile = cmd.getOptionValue("o", defaultOutputFile);
+
+            this.crawler.parseFile(cmd.getOptionValue("i"), outputFile, outputFormat);
+        } else {
+            System.err.println(
+                    String.join("",
+                            "[Error] Unsupported output format: '", outputFormat, "'",
+                            "\n Please use one of the following: ",
+                            RDFService.RDF_FORMAT_MAP.keySet().toString()
+                    )
+            );
+        }
     }
 
 }

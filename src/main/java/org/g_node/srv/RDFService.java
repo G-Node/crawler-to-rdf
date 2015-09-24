@@ -11,11 +11,15 @@
 package org.g_node.srv;
 
 import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.RDFWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import org.apache.jena.riot.RDFDataMgr;
+import org.apache.jena.riot.RDFFormat;
 
 /**
  * Main service class for saving data to an RDF file.
@@ -23,6 +27,18 @@ import java.io.IOException;
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
 public class RDFService {
+
+    /**
+     * Map returning the RDF formats supported by this service.
+     */
+    public static final Map<String, RDFFormat> RDF_FORMAT_MAP =
+            Collections.unmodifiableMap(new HashMap<String, RDFFormat>() {
+                {
+                    put("TTL", RDFFormat.TURTLE_PRETTY);
+                    put("RDF/XML", RDFFormat.RDFXML);
+                    put("NTRIPLES", RDFFormat.NTRIPLES);
+                }
+            });
 
     /**
      * Write an rdf model to an output file. This method will overwrite any
@@ -34,7 +50,6 @@ public class RDFService {
     public static void writeModelToFile(final String fileName, final Model model, final String format) {
 
         final File file = new File(fileName);
-        final RDFWriter writer = model.getWriter(format);
 
         try {
             final FileOutputStream fos = new FileOutputStream(file);
@@ -45,7 +60,7 @@ public class RDFService {
                     )
             );
             try {
-                writer.write(model, fos, format);
+                RDFDataMgr.write(fos, model, RDFFormat.NTRIPLES);
                 fos.close();
             } catch (IOException ioExc) {
                 System.err.println("[Error] while closing file stream.");
