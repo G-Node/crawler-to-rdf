@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import org.g_node.srv.RDFService;
+import org.g_node.srv.RDFUtils;
 import org.jopendocument.dom.spreadsheet.Sheet;
 import org.jopendocument.dom.spreadsheet.SpreadSheet;
 
@@ -47,7 +48,7 @@ public class LKTLogbook {
     /**
      * Namespace used to identify RDF resources and properties specific for the current usecase.
      */
-    private static final String RDF_NAMESPACE = "http://g-node.org/lkt/";
+    private static final String RDF_NAMESPACE = "http://g-node.org/lkt#";
     /**
      * Namespace prefix.
      */
@@ -153,10 +154,10 @@ public class LKTLogbook {
                 LKTLogbookSheet currLKTLSheet = this.parseSheetVariables(currSheet);
 
                 // TODO come up with a more robust solution
-                final String startCell = String.join("", "A", String.valueOf(LKTLogbook.SHEET_HEADER_LINE));
+                final String checkHeaderCell = String.join("", "A", String.valueOf(LKTLogbook.SHEET_HEADER_LINE));
 
-                if (currSheet.getCellAt(startCell).getTextValue() == null
-                        || !currSheet.getCellAt(startCell).getTextValue().equals(LKTLogbook.FIRST_HEADER_ENTRY)) {
+                if (currSheet.getCellAt(checkHeaderCell).getTextValue() == null
+                        || !currSheet.getCellAt(checkHeaderCell).getTextValue().equals(LKTLogbook.FIRST_HEADER_ENTRY)) {
                     this.parserErrorMessages.add(
                             String.join(
                                     " ", "[Parser error] sheet", sheetName,
@@ -232,7 +233,7 @@ public class LKTLogbook {
 
         for (int i = LKTLogbook.SHEET_HEADER_LINE + 1; i < currSheet.getRowCount(); i = i + 1) {
 
-            final LKTLogbookEntry currEntry = this.parseSheetEntriesVariables(currSheet, i);
+            final LKTLogbookEntry currEntry = this.parseSheetEntriesVariables(currSheet, String.valueOf(i));
 
             final boolean checkEmptyReqField = !currEntry.getProject().isEmpty()
                     || !currEntry.getExperiment().isEmpty()
@@ -262,61 +263,37 @@ public class LKTLogbook {
      * @return The {@link org.g_node.crawler.LKTLogbook.LKTLogbookEntry} containing the parsed values from
      *  the current single entry.
      */
-    private LKTLogbookEntry parseSheetEntriesVariables(final Sheet currSheet, final int currLine) {
+    private LKTLogbookEntry parseSheetEntriesVariables(final Sheet currSheet, final String currLine) {
         String checkExperimentDate;
 
         final LKTLogbookEntry currEntry = new LKTLogbookEntry();
 
-        currEntry.setExistingImportID(currSheet.getCellAt(
-                String.join("", "A", String.valueOf(currLine))).getTextValue()
-        );
-        currEntry.setProject(currSheet.getCellAt(
-                String.join("", "K", String.valueOf(currLine))).getTextValue()
-        );
-        currEntry.setExperiment(currSheet.getCellAt(
-                String.join("", "L", String.valueOf(currLine))).getTextValue()
-        );
-        currEntry.setParadigm(currSheet.getCellAt(
-                String.join("", "C", String.valueOf(currLine))).getTextValue()
-        );
-        currEntry.setParadigmSpecifics(currSheet.getCellAt(
-                String.join("", "D", String.valueOf(currLine))).getTextValue()
-        );
+        currEntry.setExistingImportID(currSheet.getCellAt(String.join("", "A", currLine)).getTextValue());
+        currEntry.setProject(currSheet.getCellAt(String.join("", "K", currLine)).getTextValue());
+        currEntry.setExperiment(currSheet.getCellAt(String.join("", "L", currLine)).getTextValue());
+        currEntry.setParadigm(currSheet.getCellAt(String.join("", "C", currLine)).getTextValue());
+        currEntry.setParadigmSpecifics(currSheet.getCellAt(String.join("", "D", currLine)).getTextValue());
 
         // TODO check if the experimentDate parser error and the empty line messages all still work!
         checkExperimentDate = currEntry.setExperimentDate(currSheet.getCellAt(
-                String.join("", "B", String.valueOf(currLine))).getTextValue()
+                String.join("", "B", currLine)).getTextValue()
         );
         if (!checkExperimentDate.isEmpty()) {
             this.parserErrorMessages.add(
                     String.join(
                             " ", "[Parser error] sheet", currSheet.getName(), "row",
-                            String.valueOf(currLine), checkExperimentDate
+                            currLine, checkExperimentDate
                     )
             );
         }
 
-        currEntry.setExperimenterName(currSheet.getCellAt(
-                String.join("", "M", String.valueOf(currLine))).getTextValue()
-        );
-        currEntry.setCommentExperiment(currSheet.getCellAt(
-                        String.join("", "H", String.valueOf(currLine))).getTextValue()
-        );
-        currEntry.setCommentAnimal(currSheet.getCellAt(
-                String.join("", "I", String.valueOf(currLine))).getTextValue()
-        );
-        currEntry.setFeed(currSheet.getCellAt(
-                String.join("", "J", String.valueOf(currLine))).getTextValue()
-        );
-        currEntry.setIsOnDiet(currSheet.getCellAt(
-                String.join("", "E", String.valueOf(currLine))).getTextValue()
-        );
-        currEntry.setIsInitialWeight(currSheet.getCellAt(
-                String.join("", "F", String.valueOf(currLine))).getTextValue()
-        );
-        currEntry.setWeight(currSheet.getCellAt(
-                        String.join("", "G", String.valueOf(currLine))).getTextValue()
-        );
+        currEntry.setExperimenterName(currSheet.getCellAt(String.join("", "M", currLine)).getTextValue());
+        currEntry.setCommentExperiment(currSheet.getCellAt(String.join("", "H", currLine)).getTextValue());
+        currEntry.setCommentAnimal(currSheet.getCellAt(String.join("", "I", currLine)).getTextValue());
+        currEntry.setFeed(currSheet.getCellAt(String.join("", "J", currLine)).getTextValue());
+        currEntry.setIsOnDiet(currSheet.getCellAt(String.join("", "E", currLine)).getTextValue());
+        currEntry.setIsInitialWeight(currSheet.getCellAt(String.join("", "F", currLine)).getTextValue());
+        currEntry.setWeight(currSheet.getCellAt(String.join("", "G", currLine)).getTextValue());
 
         return currEntry;
     }
@@ -354,27 +331,30 @@ public class LKTLogbook {
         this.model.setNsPrefix("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
         this.model.setNsPrefix(LKTLogbook.RDF_NS_ABR, "http://g-node.org/lkt#");
         this.model.setNsPrefix("foaf", "http://xmlns.com/foaf/0.1/");
+        this.model.setNsPrefix("xs", "http://www.w3.org/2001/XMLSchema#");
 
-        final Property permitNr = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasNumber"));
+        final Property permitNr = this.model.createProperty(String.join("", LKTLogbook.RDF_NAMESPACE, "hasNumber"));
         final Resource permit = this.model.createResource(
                 String.join("", LKTLogbook.RDF_NAMESPACE, "Permit#", UUID.randomUUID().toString())
         )
                 .addLiteral(permitNr, currSheet.getPermitNumber());
 
         // TODO handle dates properly
-        final Property animalIDProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasAnimalID"));
-        final Property sexProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasSex"));
-        final Property birthDate = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasBirthDate"));
+        final Property animalIDProp = this.model.createProperty(
+                String.join("", LKTLogbook.RDF_NAMESPACE, "hasAnimalID")
+        );
+        final Property sexProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NAMESPACE, "hasSex"));
+        final Property birthDate = this.model.createProperty(String.join("", LKTLogbook.RDF_NAMESPACE, "hasBirthDate"));
         final Property withdrawalDate = this.model.createProperty(
-                String.join("", LKTLogbook.RDF_NS_ABR, ":hasWithdrawalDate")
+                String.join("", LKTLogbook.RDF_NAMESPACE, "hasWithdrawalDate")
         );
         final Property speciesName = this.model.createProperty(
-                String.join("", LKTLogbook.RDF_NS_ABR, ":hasSpeciesName")
+                String.join("", LKTLogbook.RDF_NAMESPACE, "hasSpeciesName")
         );
         final Property scientificName = this.model.createProperty(
-                String.join("", LKTLogbook.RDF_NS_ABR, ":hasScientificName")
+                String.join("", LKTLogbook.RDF_NAMESPACE, "hasScientificName")
         );
-        final Property permitNumber = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasPermit"));
+        final Property permitNumber = this.model.createProperty(String.join("", LKTLogbook.RDF_NAMESPACE, "hasPermit"));
 
         final Resource animal = this.model.createResource(
                 String.join("", LKTLogbook.RDF_NAMESPACE, "Animal#", animalUUID)
@@ -383,9 +363,10 @@ public class LKTLogbook {
                 .addLiteral(sexProp, currSheet.getAnimalSex())
                 .addLiteral(birthDate, currSheet.getDateOfBirth().toString())
                 .addLiteral(withdrawalDate, currSheet.getDateOfWithdrawal().toString())
-                .addLiteral(speciesName, currSheet.getSpecies())
-                .addLiteral(scientificName, currSheet.getScientificName())
                 .addProperty(permitNumber, permit);
+
+        RDFUtils.addNonEmptyLiteral(animal, speciesName, currSheet.getSpecies());
+        RDFUtils.addNonEmptyLiteral(animal, scientificName, currSheet.getScientificName());
 
         currSheet.getEntries().stream().forEach(
                 c -> this.addEntry(c, animal)
@@ -405,7 +386,7 @@ public class LKTLogbook {
         if (!this.projectList.containsKey(project)) {
             this.projectList.put(project, UUID.randomUUID().toString());
 
-            final Property projName = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasName"));
+            final Property projName = this.model.createProperty(String.join("", LKTLogbook.RDF_NAMESPACE, "hasName"));
             this.model.createResource(
                     String.join(
                             "", LKTLogbook.RDF_NAMESPACE,
@@ -429,7 +410,7 @@ public class LKTLogbook {
                             "Experimenter#", this.experimenterList.get(experimenter))
             )
                     .addLiteral(name, currEntry.getExperimenterName())
-                    // TODO check if this is actually corre
+                    // TODO check if this is actually correct
                     .addProperty(RDFS.subClassOf, "foaf:Person");
         }
 
@@ -440,14 +421,16 @@ public class LKTLogbook {
         // Create current experiment resource
         final Resource exp = this.addExperimentEntry(currEntry);
         // Link current experiment to experimenter
-        final Property expmtr = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasExperimenter"));
+        final Property expmtr = this.model.createProperty(String.join("", LKTLogbook.RDF_NAMESPACE, "hasExperimenter"));
         // Link current experiment to animal log
-        final Property animalProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasAnimal"));
+        final Property animalProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NAMESPACE, "hasAnimal"));
 
         exp.addProperty(expmtr, experimenterRes)
                 .addProperty(animalProp, animal);
 
-        final Property hasExpProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasExperiment"));
+        final Property hasExpProp = this.model.createProperty(
+                String.join("", LKTLogbook.RDF_NAMESPACE, "hasExperiment")
+        );
         projectRes.addProperty(hasExpProp, exp);
 
         // Create current animalLog resource
@@ -468,22 +451,26 @@ public class LKTLogbook {
      * @return Created experiment node.
      */
     private Resource addExperimentEntry(final LKTLogbookEntry currEntry) {
-        final Property d = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":startedAt"));
-        final Property label = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasLabel"));
-        final Property paradigm = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasParadigm"));
+        final Property d = this.model.createProperty(String.join("", LKTLogbook.RDF_NAMESPACE, "startedAt"));
+        final Property label = this.model.createProperty(String.join("", LKTLogbook.RDF_NAMESPACE, "hasLabel"));
+        final Property paradigm = this.model.createProperty(String.join("", LKTLogbook.RDF_NAMESPACE, "hasParadigm"));
         final Property paradigmSpec = this.model.createProperty(
-                String.join("", LKTLogbook.RDF_NS_ABR, ":hasParadigmSpecifics")
+                String.join("", LKTLogbook.RDF_NAMESPACE, "hasParadigmSpecifics")
         );
 
-        final Property expCom = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasComment"));
-        return this.model.createResource(
+        final Property expCom = this.model.createProperty(String.join("", LKTLogbook.RDF_NAMESPACE, "hasComment"));
+
+        final Resource res = this.model.createResource(
                 String.join("", LKTLogbook.RDF_NAMESPACE, "Experiment#", currEntry.getImportID())
         )
                 .addLiteral(d, currEntry.getExperimentDate().toString())
-                .addLiteral(label, currEntry.getExperiment())
-                .addLiteral(paradigm, currEntry.getParadigm())
-                .addLiteral(paradigmSpec, currEntry.getParadigmSpecifics())
-                .addLiteral(expCom, currEntry.getCommentExperiment());
+                .addLiteral(label, currEntry.getExperiment());
+
+        RDFUtils.addNonEmptyLiteral(res, paradigm, currEntry.getParadigm());
+        RDFUtils.addNonEmptyLiteral(res, paradigmSpec, currEntry.getParadigmSpecifics());
+        RDFUtils.addNonEmptyLiteral(res, expCom, currEntry.getCommentExperiment());
+
+        return res;
     }
 
     /**
@@ -492,26 +479,29 @@ public class LKTLogbook {
      * @return Created AnimalLogEntryNode.
      */
     private Resource addAnimalLogEntry(final LKTLogbookEntry currEntry) {
-        final Property startedProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":startedAt"));
+        final Property startedProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NAMESPACE, "startedAt"));
         final Property animalCommentProp = this.model.createProperty(
-                String.join("", LKTLogbook.RDF_NS_ABR, ":hasComment")
+                String.join("", LKTLogbook.RDF_NAMESPACE, "hasComment")
         );
-        final Property dietProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasDiet"));
+        final Property dietProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NAMESPACE, "hasDiet"));
         // TODO include blank node with g as unit
-        final Property weightProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasWeight"));
+        final Property weightProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NAMESPACE, "hasWeight"));
         final Property initialWeightProp = this.model.createProperty(
-                String.join("", LKTLogbook.RDF_NS_ABR, ":hasInitialWeightDate")
+                String.join("", LKTLogbook.RDF_NAMESPACE, "hasInitialWeightDate")
         );
-        final Property feedProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_ABR, ":hasFeed"));
+        final Property feedProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NAMESPACE, "hasFeed"));
 
         // TODO check if its actually correct to use the same UUID for experiment AND animalLogEntry
-        return this.model.createResource(
+        final Resource res = this.model.createResource(
                 String.join("", LKTLogbook.RDF_NAMESPACE, "AnimalLogEntry#", currEntry.getImportID()))
                 .addLiteral(startedProp, currEntry.getExperimentDate().toString())
-                .addLiteral(animalCommentProp, currEntry.getCommentAnimal())
                 .addLiteral(dietProp, currEntry.getIsOnDiet())
                 .addLiteral(weightProp, currEntry.getWeight())
-                .addLiteral(initialWeightProp, currEntry.getIsInitialWeight())
-                .addLiteral(feedProp, currEntry.getFeed());
+                .addLiteral(initialWeightProp, currEntry.getIsInitialWeight());
+
+        RDFUtils.addNonEmptyLiteral(res, animalCommentProp, currEntry.getCommentAnimal());
+        RDFUtils.addNonEmptyLiteral(res, feedProp, currEntry.getFeed());
+
+        return res;
     }
 }
