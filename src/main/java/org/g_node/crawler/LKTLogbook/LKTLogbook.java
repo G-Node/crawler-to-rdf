@@ -429,7 +429,7 @@ public class LKTLogbook {
                             "Experimenter#", this.experimenterList.get(experimenter))
             )
                     .addLiteral(name, currEntry.getExperimenterName())
-                    // TODO check if this is actually correct.
+                    // TODO check if this is actually corre
                     .addProperty(RDFS.subClassOf, "foaf:Person");
         }
 
