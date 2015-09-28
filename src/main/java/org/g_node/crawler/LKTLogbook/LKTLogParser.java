@@ -46,7 +46,6 @@ public class LKTLogParser {
      * the next parsing steps.
      */
     private static final String FIRST_HEADER_ENTRY = "ImportID";
-
     /**
      * Namespace used to identify RDF resources and properties specific for the current usecase.
      */
@@ -301,7 +300,16 @@ public class LKTLogParser {
         currEntry.setFeed(currSheet.getCellAt(String.join("", "J", currLine)).getTextValue());
         currEntry.setIsOnDiet(currSheet.getCellAt(String.join("", "E", currLine)).getTextValue());
         currEntry.setIsInitialWeight(currSheet.getCellAt(String.join("", "F", currLine)).getTextValue());
-        currEntry.setWeight(currSheet.getCellAt(String.join("", "G", currLine)).getTextValue());
+
+        final String msg = currEntry.setWeight(currSheet.getCellAt(String.join("", "G", currLine)).getTextValue());
+        if (!"".equals(msg)) {
+            this.parserErrorMessages.add(
+                    String.join(
+                            "", "[Parser error] sheet ", currSheet.getName(), " row ",
+                            currLine, " ", msg
+                    )
+            );
+        }
 
         return currEntry;
     }
@@ -335,7 +343,6 @@ public class LKTLogParser {
 
         // TODO handle dates properly
         // TODO check if namespaces should be handled somewhere else
-        // TODO include datatype float
         this.model.setNsPrefix("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
         this.model.setNsPrefix("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
         this.model.setNsPrefix("xs", "http://www.w3.org/2001/XMLSchema#");
@@ -396,8 +403,8 @@ public class LKTLogParser {
             this.localRes(this.experimenterList.get(experimenter))
                     .addProperty(RDF.type, this.localRes("Experimenter"))
                     .addLiteral(name, currEntry.getExperimenterName())
-                    // TODO check if this is actually correct or if the subclass
-                    // TODO is supposed to be found only in the definition
+                    // TODO Check if this is actually correct or if the subclass
+                    // TODO is supposed to be found only in the definition.
                     .addProperty(RDFS.subClassOf, personRes);
         }
 
@@ -454,7 +461,7 @@ public class LKTLogParser {
                 .addLiteral(this.localProp("hasDiet"), currEntry.getIsOnDiet())
                 .addLiteral(this.localProp("hasInitialWeightDate"), currEntry.getIsInitialWeight());
 
-        if (currEntry.getWeight() != null && !"".equals(currEntry.getWeight())) {
+        if (currEntry.getWeight() != null) {
             final Resource weight = this.model.createResource()
                     .addLiteral(this.localProp("hasValue"), currEntry.getWeight())
                     .addLiteral(this.localProp("hasUnit"), "g");

@@ -92,7 +92,7 @@ public class LKTLogParserEntry {
     /**
      * Weight of the animal at the time of the current entry.
      */
-    private String weight;
+    private Float weight;
     /**
      * Boolean value if the current entry should
      * be treated as an empty line and therefore
@@ -316,16 +316,31 @@ public class LKTLogParserEntry {
      * Return the animal weight of the current entry.
      * @return See description.
      */
-    public final String getWeight() {
+    public final Float getWeight() {
         return this.weight;
     }
 
     /**
      * Set animal weight for the current entry.
      * @param wght Animal weight.
+     * @return Emtpy string if all is well, error message if the conversion failed.
      */
-    public final void setWeight(final String wght) {
-        this.weight = wght;
+    // TODO Everything in here is ugly as sin, sorry...
+    // TODO Refactor parser errors as well as the handling of the decimal place conversion.
+    public final String setWeight(final String wght) {
+
+        String msg = "";
+
+        if (wght != null && !"".equals(wght)) {
+            try {
+                final String normWght = wght.replace(",", ".");
+                this.weight = Float.parseFloat(normWght);
+            } catch (NumberFormatException e) {
+                msg = String.join("", "Invalid weight: ", wght);
+            }
+        }
+
+        return msg;
     }
 
     /**
