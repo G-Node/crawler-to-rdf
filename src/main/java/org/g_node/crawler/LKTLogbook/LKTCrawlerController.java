@@ -10,10 +10,6 @@
 
 package org.g_node.crawler.LKTLogbook;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
@@ -136,21 +132,6 @@ public class LKTCrawlerController implements Controller {
                 "_out.ttl"
         );
         final String outputFile = cmd.getOptionValue("o", defaultOutputFile);
-
-        // TODO check if a robuster solution exists. Also check with Kay,
-        // TODO if multiple backup files e.g. with a timestamp should exist.
-        System.out.println("[Info] Creating backup file...");
-        final String backupFile = String.join(
-                "",
-                inputFile.substring(0, inputFile.lastIndexOf(".")),
-                "_backup.ods");
-        try {
-            Files.copy(Paths.get(inputFile), Paths.get(backupFile), StandardCopyOption.REPLACE_EXISTING);
-        } catch (final IOException exc) {
-            System.err.println(String.join(" ", "[Error] creating backup file:", exc.getMessage()));
-            exc.printStackTrace();
-            return;
-        }
 
         this.crawler.parseFile(inputFile, outputFile, outputFormat);
     }
