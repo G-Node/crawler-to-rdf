@@ -21,7 +21,7 @@ import java.util.Objects;
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
-public class LKTLogbookSheet {
+public class LKTLogParserSheet {
 
     /**
      * Pattern that all Date values have to be formatted in
@@ -32,8 +32,8 @@ public class LKTLogbookSheet {
      * Formatter used to test Date values
      * for the pattern {@link #SUPPORTED_DATE_PATTERN}.
      */
-    private final DateTimeFormatter supportedDate = DateTimeFormatter.ofPattern(LKTLogbookSheet.SUPPORTED_DATE_PATTERN);
-
+    private final DateTimeFormatter supportedDate = DateTimeFormatter
+                                        .ofPattern(LKTLogParserSheet.SUPPORTED_DATE_PATTERN);
     /**
      * Animal ID of the current ODS sheet. Required value.
      */
@@ -66,12 +66,12 @@ public class LKTLogbookSheet {
     /**
      * ArrayList containing all parsed experiment entries of the current ODS.
      */
-    private ArrayList<LKTLogbookEntry> entries;
+    private ArrayList<LKTLogParserEntry> entries;
 
     /**
      * Constructor.
      */
-    public LKTLogbookSheet() {
+    public LKTLogParserSheet() {
         this.entries = new ArrayList<>(0);
     }
 
@@ -134,7 +134,7 @@ public class LKTLogbookSheet {
             } else {
                 errMsg = String.join(
                         "", "Invalid Date of birth format (", dob,
-                        "). Please check the date and use format '", LKTLogbookSheet.SUPPORTED_DATE_PATTERN, "'"
+                        "). Please check the date and use format '", LKTLogParserSheet.SUPPORTED_DATE_PATTERN, "'"
                 );
             }
         }
@@ -166,7 +166,7 @@ public class LKTLogbookSheet {
             } else {
                 errMsg = String.join(
                         "", "Invalid Date of withdrawal format (", dow,
-                        "). Please check the date and use format '", LKTLogbookSheet.SUPPORTED_DATE_PATTERN, "'"
+                        "). Please check the date and use format '", LKTLogParserSheet.SUPPORTED_DATE_PATTERN, "'"
                 );
             }
         }
@@ -223,26 +223,26 @@ public class LKTLogbookSheet {
     }
 
     /**
-     * Returns ArrayList of parsed {@link org.g_node.crawler.LKTLogbook.LKTLogbookEntry} of the current ODS sheet.
+     * Returns ArrayList of parsed {@link LKTLogParserEntry} of the current ODS sheet.
      * @return Returns the {@link #entries} array.
      */
-    public final ArrayList<LKTLogbookEntry> getEntries() {
+    public final ArrayList<LKTLogParserEntry> getEntries() {
         return this.entries;
     }
 
     /**
-     * Method adds an ArrayList of {@link org.g_node.crawler.LKTLogbook.LKTLogbookEntry} to the {@link #entries} array.
-     * @param ent ArrayList of parsed {@link org.g_node.crawler.LKTLogbook.LKTLogbookEntry}.
+     * Method adds an ArrayList of {@link LKTLogParserEntry} to the {@link #entries} array.
+     * @param ent ArrayList of parsed {@link LKTLogParserEntry}.
      */
-    public final void setEntries(final ArrayList<LKTLogbookEntry> ent) {
+    public final void setEntries(final ArrayList<LKTLogParserEntry> ent) {
         this.entries = ent;
     }
 
     /**
      * Method adds a single logbook entry to the {@link #entries} array.
-     * @param entry Parsed {@link org.g_node.crawler.LKTLogbook.LKTLogbookEntry}.
+     * @param entry Parsed {@link LKTLogParserEntry}.
      */
-    public final void addEntry(final LKTLogbookEntry entry) {
+    public final void addEntry(final LKTLogParserEntry entry) {
         this.entries.add(entry);
     }
 

@@ -28,7 +28,7 @@ import org.g_node.srv.RDFService;
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
-public class LKTCrawlerController implements Controller {
+public class LKTLogController implements Controller {
     /**
      * File types that can be processed by this crawler.
      */
@@ -37,13 +37,13 @@ public class LKTCrawlerController implements Controller {
     /**
      * The actual crawler this class handles and provides.
      */
-    private LKTLogbook crawler;
+    private LKTLogParser crawler;
 
     /**
      * Constructor.
-     * @param crl Instance of the {@link org.g_node.crawler.LKTLogbook.LKTLogbook} crawler.
+     * @param crl Instance of the {@link LKTLogParser} crawler.
      */
-    public LKTCrawlerController(final LKTLogbook crl) {
+    public LKTLogController(final LKTLogParser crl) {
         this.crawler = crl;
     }
 
@@ -110,7 +110,7 @@ public class LKTCrawlerController implements Controller {
         System.out.println("[Info] Checking input file...");
         final String inputFile = cmd.getOptionValue("i");
         if (!FileService.checkFile(inputFile)
-                || !FileService.checkFileType(inputFile, LKTCrawlerController.SUPPORTED_INPUT_FILE_TYPES)) {
+                || !FileService.checkFileType(inputFile, LKTLogController.SUPPORTED_INPUT_FILE_TYPES)) {
             return;
         }
 
@@ -133,6 +133,7 @@ public class LKTCrawlerController implements Controller {
         );
         final String outputFile = cmd.getOptionValue("o", defaultOutputFile);
 
+        System.out.println("[Info] Parsing input file...");
         this.crawler.parseFile(inputFile, outputFile, outputFormat);
     }
 }

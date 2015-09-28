@@ -19,8 +19,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.g_node.crawler.Controller;
-import org.g_node.crawler.LKTLogbook.LKTCrawlerController;
-import org.g_node.crawler.LKTLogbook.LKTLogbook;
+import org.g_node.crawler.LKTLogbook.LKTLogController;
+import org.g_node.crawler.LKTLogbook.LKTLogParser;
 
 /**
  * Main application class used to parse command line input and pass
@@ -61,7 +61,7 @@ public class App {
      * The short hand is required to select and run the intended crawler.
      */
     public final void register() {
-        this.crawlers.put("lkt", new LKTCrawlerController(new LKTLogbook()));
+        this.crawlers.put("lkt", new LKTLogController(new LKTLogParser()));
     }
 
     /**

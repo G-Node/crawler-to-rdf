@@ -32,7 +32,7 @@ import org.jopendocument.dom.spreadsheet.SpreadSheet;
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
-public class LKTLogbook {
+public class LKTLogParser {
     /**
      * Line within the ODS file where the header of the
      * experiment description section is found.
@@ -114,7 +114,7 @@ public class LKTLogbook {
                         )
                 );
             } else {
-                final ArrayList<LKTLogbookSheet> allSheets = this.parseSheets(odsFile);
+                final ArrayList<LKTLogParserSheet> allSheets = this.parseSheets(odsFile);
                 allSheets.forEach(
                         s -> System.out.println(
                                 String.join(
@@ -147,10 +147,10 @@ public class LKTLogbook {
      * If parsing errors occur,  the corresponding message will be added to {@link #parserErrorMessages}.
      * Parsing will continue to collect further possible parser errors.
      * @param odsFile Input file.
-     * @return ArrayList containing parsed {@link org.g_node.crawler.LKTLogbook.LKTLogbookSheet}.
+     * @return ArrayList containing parsed {@link LKTLogParserSheet}.
      */
-    private ArrayList<LKTLogbookSheet> parseSheets(final File odsFile) {
-        final ArrayList<LKTLogbookSheet> allSheets = new ArrayList<>(0);
+    private ArrayList<LKTLogParserSheet> parseSheets(final File odsFile) {
+        final ArrayList<LKTLogParserSheet> allSheets = new ArrayList<>(0);
         Sheet currSheet;
 
         try {
@@ -159,18 +159,19 @@ public class LKTLogbook {
                 currSheet = SpreadSheet.createFromFile(odsFile).getSheet(i);
                 final String sheetName = currSheet.getName();
 
-                LKTLogbookSheet currLKTLSheet = this.parseSheetVariables(currSheet);
+                LKTLogParserSheet currLKTLSheet = this.parseSheetVariables(currSheet);
 
                 // TODO come up with a more robust solution
-                final String checkHeaderCell = String.join("", "A", String.valueOf(LKTLogbook.SHEET_HEADER_LINE));
+                final String checkHeaderCell = currSheet.getCellAt(
+                                    String.join("", "A", String.valueOf(LKTLogParser.SHEET_HEADER_LINE))
+                                ).getTextValue();
 
-                if (currSheet.getCellAt(checkHeaderCell).getTextValue() == null
-                        || !currSheet.getCellAt(checkHeaderCell).getTextValue().equals(LKTLogbook.FIRST_HEADER_ENTRY)) {
+                if (checkHeaderCell == null || !checkHeaderCell.equals(LKTLogParser.FIRST_HEADER_ENTRY)) {
                     this.parserErrorMessages.add(
                             String.join(
                                     "", "[Parser error] sheet ", sheetName,
                                     ", HeaderEntry 'ImportID' not found at required line A.",
-                                    String.valueOf(LKTLogbook.SHEET_HEADER_LINE)
+                                    String.valueOf(LKTLogParser.SHEET_HEADER_LINE)
                             )
                     );
                 } else {
@@ -188,10 +189,10 @@ public class LKTLogbook {
     /**
      * Method for retrieving all sheet specific data from the current ODS sheet.
      * @param currSheet The current sheet from the ODS file.
-     * @return The current {@link org.g_node.crawler.LKTLogbook.LKTLogbookSheet} containing all parsed values.
+     * @return The current {@link LKTLogParserSheet} containing all parsed values.
      */
-    private LKTLogbookSheet parseSheetVariables(final Sheet currSheet) {
-        final LKTLogbookSheet currLKTLSheet  = new LKTLogbookSheet();
+    private LKTLogParserSheet parseSheetVariables(final Sheet currSheet) {
+        final LKTLogParserSheet currLKTLSheet  = new LKTLogParserSheet();
         final String sheetName = currSheet.getName();
         ArrayList<String> parseSheetMessage;
         String checkDB;
@@ -231,17 +232,17 @@ public class LKTLogbook {
      * Method for parsing the experiment entries of an animal sheet.
      * If parsing errors occur, the corresponding message will be added to {@link #parserErrorMessages}.
      * Parsing will continue to collect further possible parser errors.
-     * @param currSheet The current sheet of the parsed ODS file.
-     * @param currLKTLSheet The current {@link org.g_node.crawler.LKTLogbook.LKTLogbookSheet}.
-     * @return The current {@link org.g_node.crawler.LKTLogbook.LKTLogbookSheet} containing the parsed
+     * @param currFileSheet The current sheet of the parsed ODS file.
+     * @param currLKTSheet The current {@link LKTLogParserSheet}.
+     * @return The current {@link LKTLogParserSheet} containing the parsed
      *  experiment entries.
      */
-    private LKTLogbookSheet parseSheetEntries(final Sheet currSheet, final LKTLogbookSheet currLKTLSheet) {
+    private LKTLogParserSheet parseSheetEntries(final Sheet currFileSheet, final LKTLogParserSheet currLKTSheet) {
         String parseEntryMessage;
 
-        for (int i = LKTLogbook.SHEET_HEADER_LINE + 1; i < currSheet.getRowCount(); i = i + 1) {
+        for (int i = LKTLogParser.SHEET_HEADER_LINE + 1; i < currFileSheet.getRowCount(); i = i + 1) {
 
-            final LKTLogbookEntry currEntry = this.parseSheetEntriesVariables(currSheet, String.valueOf(i));
+            final LKTLogParserEntry currEntry = this.parseSheetEntriesVariables(currFileSheet, String.valueOf(i));
 
             final boolean checkEmptyReqField = !currEntry.getProject().isEmpty()
                     || !currEntry.getExperiment().isEmpty()
@@ -250,17 +251,17 @@ public class LKTLogbook {
 
             parseEntryMessage = currEntry.isValidEntry();
             if (!currEntry.getIsEmptyLine() && parseEntryMessage.isEmpty()) {
-                currLKTLSheet.addEntry(currEntry);
+                currLKTSheet.addEntry(currEntry);
             } else if (!currEntry.getIsEmptyLine() && checkEmptyReqField) {
                 this.parserErrorMessages.add(
                         String.join(
-                                "", "[Parser error] sheet ", currSheet.getName(), " row ",
+                                "", "[Parser error] sheet ", currFileSheet.getName(), " row ",
                                 String.valueOf(i), ", missing value: ", parseEntryMessage
                         )
                 );
             }
         }
-        return currLKTLSheet;
+        return currLKTSheet;
     }
 
     /**
@@ -268,13 +269,13 @@ public class LKTLogbook {
      * ODS sheet.
      * @param currSheet The current ODS sheet.
      * @param currLine Number of the current line in the current ODS sheet.
-     * @return The {@link org.g_node.crawler.LKTLogbook.LKTLogbookEntry} containing the parsed values from
+     * @return The {@link LKTLogParserEntry} containing the parsed values from
      *  the current single entry.
      */
-    private LKTLogbookEntry parseSheetEntriesVariables(final Sheet currSheet, final String currLine) {
+    private LKTLogParserEntry parseSheetEntriesVariables(final Sheet currSheet, final String currLine) {
         String checkExperimentDate;
 
-        final LKTLogbookEntry currEntry = new LKTLogbookEntry();
+        final LKTLogParserEntry currEntry = new LKTLogParserEntry();
 
         currEntry.setProject(currSheet.getCellAt(String.join("", "K", currLine)).getTextValue());
         currEntry.setExperiment(currSheet.getCellAt(String.join("", "L", currLine)).getTextValue());
@@ -312,7 +313,7 @@ public class LKTLogbook {
      * @param outputFile Name and path of the designated output file.
      * @param outputFormat RDF output format.
      */
-    private void createRDFModel(final ArrayList<LKTLogbookSheet> allSheets,
+    private void createRDFModel(final ArrayList<LKTLogParserSheet> allSheets,
                                 final String outputFile, final String outputFormat) {
         allSheets.stream().forEach(
                 this::addAnimal
@@ -326,7 +327,7 @@ public class LKTLogbook {
      * centric.
      * @param currSheet Data from the current sheet.
      */
-    private void addAnimal(final LKTLogbookSheet currSheet) {
+    private void addAnimal(final LKTLogParserSheet currSheet) {
         final String animalID = currSheet.getAnimalID();
         if (!this.animalList.containsKey(animalID)) {
             this.animalList.put(animalID, UUID.randomUUID().toString());
@@ -337,8 +338,8 @@ public class LKTLogbook {
         this.model.setNsPrefix("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
         this.model.setNsPrefix("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
         this.model.setNsPrefix("xs", "http://www.w3.org/2001/XMLSchema#");
-        this.model.setNsPrefix(LKTLogbook.RDF_NS_FOAF_ABR, LKTLogbook.RDF_NS_FOAF);
-        this.model.setNsPrefix(LKTLogbook.RDF_NS_ABR, LKTLogbook.RDF_NS);
+        this.model.setNsPrefix(LKTLogParser.RDF_NS_FOAF_ABR, LKTLogParser.RDF_NS_FOAF);
+        this.model.setNsPrefix(LKTLogParser.RDF_NS_ABR, LKTLogParser.RDF_NS);
 
         final Resource permit = this.localRes(UUID.randomUUID().toString())
                 .addProperty(RDF.type, this.localRes("Permit"))
@@ -366,7 +367,7 @@ public class LKTLogbook {
      * @param animal Resource from the main RDF model containing the information about
      *  the animal this entry is associated with.
      */
-    private void addEntry(final LKTLogbookEntry currEntry, final Resource animal) {
+    private void addEntry(final LKTLogParserEntry currEntry, final Resource animal) {
 
         final String project = currEntry.getProject();
         // add project only once to the rdf model
@@ -379,7 +380,7 @@ public class LKTLogbook {
         }
         // Fetch project resource
         final Resource projectRes = this.model.getResource(
-                String.join("", LKTLogbook.RDF_NS, this.projectList.get(project))
+                String.join("", LKTLogParser.RDF_NS, this.projectList.get(project))
         );
 
         // Add experimenter only once to the RDF model
@@ -388,8 +389,8 @@ public class LKTLogbook {
 
             this.experimenterList.put(experimenter, UUID.randomUUID().toString());
 
-            final Property name = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_FOAF, "name"));
-            final Resource personRes = this.model.createResource(String.join("", LKTLogbook.RDF_NS_FOAF, "Person"));
+            final Property name = this.model.createProperty(String.join("", LKTLogParser.RDF_NS_FOAF, "name"));
+            final Resource personRes = this.model.createResource(String.join("", LKTLogParser.RDF_NS_FOAF, "Person"));
 
             this.localRes(this.experimenterList.get(experimenter))
                     .addProperty(RDF.type, this.localRes("Experimenter"))
@@ -401,7 +402,7 @@ public class LKTLogbook {
 
         // Fetch experimenter resource
         final Resource experimenterRes = this.model.getResource(
-                String.join("", LKTLogbook.RDF_NS, this.experimenterList.get(experimenter))
+                String.join("", LKTLogParser.RDF_NS, this.experimenterList.get(experimenter))
         );
 
         // Create current experiment resource
@@ -425,7 +426,7 @@ public class LKTLogbook {
      * @param currEntry Current entry line of the parsed ODS file.
      * @return Created experiment node.
      */
-    private Resource addExperimentEntry(final LKTLogbookEntry currEntry) {
+    private Resource addExperimentEntry(final LKTLogParserEntry currEntry) {
 
         final Resource experiment = this.localRes(UUID.randomUUID().toString())
                 .addProperty(RDF.type, this.localRes("Experiment"))
@@ -445,7 +446,7 @@ public class LKTLogbook {
      * @param currEntry Current entry line of the parsed ODS file.
      * @return Created AnimalLogEntryNode.
      */
-    private Resource addAnimalLogEntry(final LKTLogbookEntry currEntry) {
+    private Resource addAnimalLogEntry(final LKTLogParserEntry currEntry) {
         // TODO include blank node with g as unit
         // TODO include datatypes int and boolean
         final Resource res = this.localRes(UUID.randomUUID().toString())
@@ -469,7 +470,7 @@ public class LKTLogbook {
      */
     private Resource localRes(final String resName) {
         return this.model.createResource(
-                String.join("", LKTLogbook.RDF_NS, resName)
+                String.join("", LKTLogParser.RDF_NS, resName)
         );
     }
 
@@ -481,7 +482,7 @@ public class LKTLogbook {
      */
     private Property localProp(final String propName) {
         return this.model.createProperty(
-                String.join("", LKTLogbook.RDF_NS, propName)
+                String.join("", LKTLogParser.RDF_NS, propName)
         );
     }
 }

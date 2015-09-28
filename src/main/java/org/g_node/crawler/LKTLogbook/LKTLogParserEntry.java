@@ -19,7 +19,7 @@ import java.time.format.DateTimeParseException;
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
-public class LKTLogbookEntry {
+public class LKTLogParserEntry {
 
     /**
      * Pattern that all DateTime values have to be formatted in
@@ -31,7 +31,7 @@ public class LKTLogbookEntry {
      * for the pattern {@link #SUPPORTED_DATE_TIME_PATTERN}.
      */
     private final DateTimeFormatter supportedDateTime = DateTimeFormatter.ofPattern(
-            LKTLogbookEntry.SUPPORTED_DATE_TIME_PATTERN
+            LKTLogParserEntry.SUPPORTED_DATE_TIME_PATTERN
     );
     /**
      * String identifier, short description of the project
@@ -205,7 +205,7 @@ public class LKTLogbookEntry {
             if (expdt != null && !expdt.isEmpty()) {
                 errMsg = String.join(
                         "", "Invalid experiment date format (", expdt,
-                        "). Please check the date and use format '", LKTLogbookEntry.SUPPORTED_DATE_TIME_PATTERN, "'"
+                        "). Please check the date and use format '", LKTLogParserEntry.SUPPORTED_DATE_TIME_PATTERN, "'"
                 );
             }
         }
