@@ -335,6 +335,7 @@ public class LKTLogParser {
 
         // TODO handle dates properly
         // TODO check if namespaces should be handled somewhere else
+        // TODO include datatype float
         this.model.setNsPrefix("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
         this.model.setNsPrefix("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
         this.model.setNsPrefix("xs", "http://www.w3.org/2001/XMLSchema#");
@@ -447,14 +448,19 @@ public class LKTLogParser {
      * @return Created AnimalLogEntryNode.
      */
     private Resource addAnimalLogEntry(final LKTLogParserEntry currEntry) {
-        // TODO include blank node with g as unit
-        // TODO include datatypes int and boolean
         final Resource res = this.localRes(UUID.randomUUID().toString())
                 .addProperty(RDF.type, this.localRes("AnimalLogEntry"))
                 .addLiteral(this.localProp("startedAt"), currEntry.getExperimentDate().toString())
                 .addLiteral(this.localProp("hasDiet"), currEntry.getIsOnDiet())
-                .addLiteral(this.localProp("hasWeight"), currEntry.getWeight())
                 .addLiteral(this.localProp("hasInitialWeightDate"), currEntry.getIsInitialWeight());
+
+        if (currEntry.getWeight() != null && !"".equals(currEntry.getWeight())) {
+            final Resource weight = this.model.createResource()
+                    .addLiteral(this.localProp("hasValue"), currEntry.getWeight())
+                    .addLiteral(this.localProp("hasUnit"), "g");
+
+            res.addProperty(this.localProp("hasWeight"), weight);
+        }
 
         RDFUtils.addNonEmptyLiteral(res, RDFS.comment, currEntry.getCommentAnimal());
         RDFUtils.addNonEmptyLiteral(res, this.localProp("hasFeed"), currEntry.getFeed());
