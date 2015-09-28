@@ -102,15 +102,15 @@ public class LKTLogbook {
             // TODO remove later
             System.out.println(
                     String.join(
-                            " ", "[Info] File has # sheets:",
+                            "", "[Info] File has # sheets: ",
                             String.valueOf(SpreadSheet.createFromFile(odsFile).getSheetCount()))
             );
 
             if (!(SpreadSheet.createFromFile(odsFile).getSheetCount() > 0)) {
                 this.parserErrorMessages.add(
                         String.join(
-                                " ", "[Parser error] File", inputFile,
-                                "does not contain valid data sheets"
+                                "", "[Parser error] File ", inputFile,
+                                " does not contain valid data sheets."
                         )
                 );
             } else {
@@ -118,8 +118,8 @@ public class LKTLogbook {
                 allSheets.forEach(
                         s -> System.out.println(
                                 String.join(
-                                        " ", "[Info] CurrSheet:", s.getAnimalID(),
-                                        ", number of entries:",
+                                        "", "[Info] CurrSheet: ", s.getAnimalID(),
+                                        ", number of entries: ",
                                         String.valueOf(s.getEntries().size())
                                 )
                         )
@@ -168,8 +168,8 @@ public class LKTLogbook {
                         || !currSheet.getCellAt(checkHeaderCell).getTextValue().equals(LKTLogbook.FIRST_HEADER_ENTRY)) {
                     this.parserErrorMessages.add(
                             String.join(
-                                    " ", "[Parser error] sheet", sheetName,
-                                    ", HeaderEntry 'ImportID' not found at required line A",
+                                    "", "[Parser error] sheet ", sheetName,
+                                    ", HeaderEntry 'ImportID' not found at required line A.",
                                     String.valueOf(LKTLogbook.SHEET_HEADER_LINE)
                             )
                     );
@@ -179,7 +179,7 @@ public class LKTLogbook {
                 }
             }
         } catch (final IOException exp) {
-            System.err.println(String.join(" ", "[Error] reading from input file:", exp.getMessage()));
+            System.err.println(String.join("", "[Error] reading from input file: ", exp.getMessage()));
             exp.printStackTrace();
         }
         return allSheets;
@@ -211,17 +211,17 @@ public class LKTLogbook {
             if (!parseSheetMessage.isEmpty()) {
                 parseSheetMessage.forEach(
                         m -> this.parserErrorMessages.add(
-                                String.join(" ", "[Parser error] sheet", sheetName, ",", m)
+                                String.join("", "[Parser error] sheet ", sheetName, ", ", m)
                         )
                 );
             }
             // check valid date of birth
             if (!checkDB.isEmpty()) {
-                this.parserErrorMessages.add(String.join(" ", "[Parser error] sheet", sheetName, ",", checkDB));
+                this.parserErrorMessages.add(String.join("", "[Parser error] sheet ", sheetName, ", ", checkDB));
             }
             // check valid date of withdrawal
             if (!checkDW.isEmpty()) {
-                this.parserErrorMessages.add(String.join(" ", "[Parser error] sheet", sheetName, ",", checkDW));
+                this.parserErrorMessages.add(String.join("", "[Parser error] sheet ", sheetName, ", ", checkDW));
             }
         }
         return currLKTLSheet;
@@ -254,8 +254,8 @@ public class LKTLogbook {
             } else if (!currEntry.getIsEmptyLine() && checkEmptyReqField) {
                 this.parserErrorMessages.add(
                         String.join(
-                                " ", "[Parser error] sheet", currSheet.getName(), "row",
-                                String.valueOf(i), ", missing value:", parseEntryMessage
+                                "", "[Parser error] sheet ", currSheet.getName(), " row ",
+                                String.valueOf(i), ", missing value: ", parseEntryMessage
                         )
                 );
             }
@@ -289,8 +289,8 @@ public class LKTLogbook {
         if (!checkExperimentDate.isEmpty()) {
             this.parserErrorMessages.add(
                     String.join(
-                            " ", "[Parser error] sheet", currSheet.getName(), "row",
-                            currLine, checkExperimentDate
+                            "", "[Parser error] sheet ", currSheet.getName(), " row ",
+                            currLine, "\n\t", checkExperimentDate
                     )
             );
         }
@@ -459,7 +459,6 @@ public class LKTLogbook {
                 String.join("", LKTLogbook.RDF_NS, "hasAnimalLogEntry")
         );
         animal.addProperty(animalLogEntryProp, animalLogEntry);
-
     }
 
     /**
