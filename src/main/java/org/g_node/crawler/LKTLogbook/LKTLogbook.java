@@ -14,6 +14,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
 import java.io.File;
 import java.io.IOException;
@@ -45,15 +46,23 @@ public class LKTLogbook {
      * the next parsing steps.
      */
     private static final String FIRST_HEADER_ENTRY = "ImportID";
+
     /**
      * Namespace used to identify RDF resources and properties specific for the current usecase.
      */
-    private static final String RDF_NAMESPACE = "http://g-node.org/lkt#";
+    private static final String RDF_NS =  "http://g-node.org/lkt/";
     /**
      * Namespace prefix.
      */
     private static final String RDF_NS_ABR = "lkt";
-
+    /**
+     * Namespace used to identify FOAF RDF resources.
+     */
+    private static final String RDF_NS_FOAF = "http://xmlns.com/foaf/0.1/";
+    /**
+     * FOAF Namespace prefix.
+     */
+    private static final String RDF_NS_FOAF_ABR = "foaf";
     /**
      * ArrayList containing all messages that occurred while parsing the ODS file.
      * All parser errors connected to missing values or incorrect value formats should
@@ -61,7 +70,6 @@ public class LKTLogbook {
      * mistakes ideally all at once before running the crawler again.
      */
     private final ArrayList<String> parserErrorMessages = new ArrayList<>(0);
-
     /**
      * Map containing all projects with their newly created UUIDs of the parsed ODS sheet.
      */
@@ -329,36 +337,40 @@ public class LKTLogbook {
         // TODO fix namespace issue
         this.model.setNsPrefix("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
         this.model.setNsPrefix("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
-        this.model.setNsPrefix(LKTLogbook.RDF_NS_ABR, "http://g-node.org/lkt#");
-        this.model.setNsPrefix("foaf", "http://xmlns.com/foaf/0.1/");
         this.model.setNsPrefix("xs", "http://www.w3.org/2001/XMLSchema#");
+        this.model.setNsPrefix(LKTLogbook.RDF_NS_FOAF_ABR, LKTLogbook.RDF_NS_FOAF);
+        this.model.setNsPrefix(LKTLogbook.RDF_NS_ABR, LKTLogbook.RDF_NS);
 
-        final Property permitNr = this.model.createProperty(String.join("", LKTLogbook.RDF_NAMESPACE, "hasNumber"));
+        final Property permitNr = this.model.createProperty(String.join("", LKTLogbook.RDF_NS, "hasNumber"));
+        final Resource permitRes = this.model.createResource(String.join("", LKTLogbook.RDF_NS, "Permit"));
         final Resource permit = this.model.createResource(
-                String.join("", LKTLogbook.RDF_NAMESPACE, "Permit#", UUID.randomUUID().toString())
-        )
+                    String.join("", LKTLogbook.RDF_NS, UUID.randomUUID().toString())
+                )
+                .addProperty(RDF.type, permitRes)
                 .addLiteral(permitNr, currSheet.getPermitNumber());
 
         // TODO handle dates properly
         final Property animalIDProp = this.model.createProperty(
-                String.join("", LKTLogbook.RDF_NAMESPACE, "hasAnimalID")
+                String.join("", LKTLogbook.RDF_NS, "hasAnimalID")
         );
-        final Property sexProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NAMESPACE, "hasSex"));
-        final Property birthDate = this.model.createProperty(String.join("", LKTLogbook.RDF_NAMESPACE, "hasBirthDate"));
+        final Property sexProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NS, "hasSex"));
+        final Property birthDate = this.model.createProperty(String.join("", LKTLogbook.RDF_NS, "hasBirthDate"));
         final Property withdrawalDate = this.model.createProperty(
-                String.join("", LKTLogbook.RDF_NAMESPACE, "hasWithdrawalDate")
+                String.join("", LKTLogbook.RDF_NS, "hasWithdrawalDate")
         );
         final Property speciesName = this.model.createProperty(
-                String.join("", LKTLogbook.RDF_NAMESPACE, "hasSpeciesName")
+                String.join("", LKTLogbook.RDF_NS, "hasSpeciesName")
         );
         final Property scientificName = this.model.createProperty(
-                String.join("", LKTLogbook.RDF_NAMESPACE, "hasScientificName")
+                String.join("", LKTLogbook.RDF_NS, "hasScientificName")
         );
-        final Property permitNumber = this.model.createProperty(String.join("", LKTLogbook.RDF_NAMESPACE, "hasPermit"));
+        final Property permitNumber = this.model.createProperty(String.join("", LKTLogbook.RDF_NS, "hasPermit"));
 
+        final Resource animalRes = this.model.createResource(String.join("", LKTLogbook.RDF_NS, "Animal"));
         final Resource animal = this.model.createResource(
-                String.join("", LKTLogbook.RDF_NAMESPACE, "Animal#", animalUUID)
-        )
+                    String.join("", LKTLogbook.RDF_NS, animalUUID)
+                )
+                .addProperty(RDF.type, animalRes)
                 .addLiteral(animalIDProp, animalID)
                 .addLiteral(sexProp, currSheet.getAnimalSex())
                 .addLiteral(birthDate, currSheet.getDateOfBirth().toString())
@@ -386,50 +398,55 @@ public class LKTLogbook {
         if (!this.projectList.containsKey(project)) {
             this.projectList.put(project, UUID.randomUUID().toString());
 
-            final Property projName = this.model.createProperty(String.join("", LKTLogbook.RDF_NAMESPACE, "hasName"));
+            final Property projName = this.model.createProperty(String.join("", LKTLogbook.RDF_NS, "hasName"));
+            final Resource projectRes = this.model.createResource(String.join("", LKTLogbook.RDF_NS, "Project"));
             this.model.createResource(
-                    String.join(
-                            "", LKTLogbook.RDF_NAMESPACE,
-                            "Project#", this.projectList.get(project))
-            )
+                        String.join("", LKTLogbook.RDF_NS, this.projectList.get(project))
+                    )
+                    .addProperty(RDF.type, projectRes)
                     .addLiteral(projName, project);
         }
+        // Fetch project resource
         final Resource projectRes = this.model.getResource(
-                String.join("", LKTLogbook.RDF_NAMESPACE, "Project#", this.projectList.get(project))
+                String.join("", LKTLogbook.RDF_NS, this.projectList.get(project))
         );
 
-        // add experimenter only once to the rdf model
+        // Add experimenter only once to the RDF model
         final String experimenter = currEntry.getExperimenterName();
         if (!this.experimenterList.containsKey(experimenter)) {
             this.experimenterList.put(experimenter, UUID.randomUUID().toString());
-            final Property name = this.model.createProperty("foaf:name");
+            final Property name = this.model.createProperty(String.join("", LKTLogbook.RDF_NS_FOAF, "name"));
 
+            final Resource experimenterRes = this.model.createResource(
+                    String.join("", LKTLogbook.RDF_NS, "Experimenter")
+            );
+            final Resource personRes = this.model.createResource(String.join("", LKTLogbook.RDF_NS_FOAF, "Person"));
             this.model.createResource(
-                    String.join(
-                            "", LKTLogbook.RDF_NAMESPACE,
-                            "Experimenter#", this.experimenterList.get(experimenter))
-            )
+                    String.join("", LKTLogbook.RDF_NS, this.experimenterList.get(experimenter)))
+                    .addProperty(RDF.type, experimenterRes)
                     .addLiteral(name, currEntry.getExperimenterName())
-                    // TODO check if this is actually correct
-                    .addProperty(RDFS.subClassOf, "foaf:Person");
+                    // TODO check if this is actually correct or if the subclass
+                    // TODO is supposed to be found only in the definition
+                    .addProperty(RDFS.subClassOf, personRes);
         }
 
+        // Fetch experimenter resource
         final Resource experimenterRes = this.model.getResource(
-                String.join("", LKTLogbook.RDF_NAMESPACE, "Experimenter#", this.experimenterList.get(experimenter))
+                String.join("", LKTLogbook.RDF_NS, this.experimenterList.get(experimenter))
         );
 
         // Create current experiment resource
         final Resource exp = this.addExperimentEntry(currEntry);
         // Link current experiment to experimenter
-        final Property expmtr = this.model.createProperty(String.join("", LKTLogbook.RDF_NAMESPACE, "hasExperimenter"));
+        final Property expmtr = this.model.createProperty(String.join("", LKTLogbook.RDF_NS, "hasExperimenter"));
         // Link current experiment to animal log
-        final Property animalProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NAMESPACE, "hasAnimal"));
+        final Property animalProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NS, "hasAnimal"));
 
         exp.addProperty(expmtr, experimenterRes)
                 .addProperty(animalProp, animal);
 
         final Property hasExpProp = this.model.createProperty(
-                String.join("", LKTLogbook.RDF_NAMESPACE, "hasExperiment")
+                String.join("", LKTLogbook.RDF_NS, "hasExperiment")
         );
         projectRes.addProperty(hasExpProp, exp);
 
@@ -439,7 +456,7 @@ public class LKTLogbook {
         animalLogEntry.addProperty(expmtr, experimenterRes);
         // Add animal log entry to the current animal node
         final Property animalLogEntryProp = this.model.createProperty(
-                String.join("", LKTLogbook.RDF_NS_ABR, ":hasAnimalLogEntry")
+                String.join("", LKTLogbook.RDF_NS, "hasAnimalLogEntry")
         );
         animal.addProperty(animalLogEntryProp, animalLogEntry);
 
@@ -451,26 +468,29 @@ public class LKTLogbook {
      * @return Created experiment node.
      */
     private Resource addExperimentEntry(final LKTLogbookEntry currEntry) {
-        final Property d = this.model.createProperty(String.join("", LKTLogbook.RDF_NAMESPACE, "startedAt"));
-        final Property label = this.model.createProperty(String.join("", LKTLogbook.RDF_NAMESPACE, "hasLabel"));
-        final Property paradigm = this.model.createProperty(String.join("", LKTLogbook.RDF_NAMESPACE, "hasParadigm"));
+        final Property d = this.model.createProperty(String.join("", LKTLogbook.RDF_NS, "startedAt"));
+        final Property label = this.model.createProperty(String.join("", LKTLogbook.RDF_NS, "hasLabel"));
+        final Property paradigm = this.model.createProperty(String.join("", LKTLogbook.RDF_NS, "hasParadigm"));
         final Property paradigmSpec = this.model.createProperty(
-                String.join("", LKTLogbook.RDF_NAMESPACE, "hasParadigmSpecifics")
+                String.join("", LKTLogbook.RDF_NS, "hasParadigmSpecifics")
         );
 
-        final Property expCom = this.model.createProperty(String.join("", LKTLogbook.RDF_NAMESPACE, "hasComment"));
-
-        final Resource res = this.model.createResource(
-                String.join("", LKTLogbook.RDF_NAMESPACE, "Experiment#", currEntry.getImportID())
-        )
+        final Property expCom = this.model.createProperty(String.join("", LKTLogbook.RDF_NS, "hasComment"));
+        final Resource experimentRes = this.model.createResource(
+                String.join("", LKTLogbook.RDF_NS, "Experiment")
+        );
+        final Resource experiment = this.model.createResource(
+                    String.join("", LKTLogbook.RDF_NS, currEntry.getImportID())
+                )
+                .addProperty(RDF.type, experimentRes)
                 .addLiteral(d, currEntry.getExperimentDate().toString())
                 .addLiteral(label, currEntry.getExperiment());
 
-        RDFUtils.addNonEmptyLiteral(res, paradigm, currEntry.getParadigm());
-        RDFUtils.addNonEmptyLiteral(res, paradigmSpec, currEntry.getParadigmSpecifics());
-        RDFUtils.addNonEmptyLiteral(res, expCom, currEntry.getCommentExperiment());
+        RDFUtils.addNonEmptyLiteral(experiment, paradigm, currEntry.getParadigm());
+        RDFUtils.addNonEmptyLiteral(experiment, paradigmSpec, currEntry.getParadigmSpecifics());
+        RDFUtils.addNonEmptyLiteral(experiment, expCom, currEntry.getCommentExperiment());
 
-        return res;
+        return experiment;
     }
 
     /**
@@ -479,21 +499,26 @@ public class LKTLogbook {
      * @return Created AnimalLogEntryNode.
      */
     private Resource addAnimalLogEntry(final LKTLogbookEntry currEntry) {
-        final Property startedProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NAMESPACE, "startedAt"));
+        final Property startedProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NS, "startedAt"));
         final Property animalCommentProp = this.model.createProperty(
-                String.join("", LKTLogbook.RDF_NAMESPACE, "hasComment")
+                String.join("", LKTLogbook.RDF_NS, "hasComment")
         );
-        final Property dietProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NAMESPACE, "hasDiet"));
+        final Property dietProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NS, "hasDiet"));
         // TODO include blank node with g as unit
-        final Property weightProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NAMESPACE, "hasWeight"));
+        final Property weightProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NS, "hasWeight"));
         final Property initialWeightProp = this.model.createProperty(
-                String.join("", LKTLogbook.RDF_NAMESPACE, "hasInitialWeightDate")
+                String.join("", LKTLogbook.RDF_NS, "hasInitialWeightDate")
         );
-        final Property feedProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NAMESPACE, "hasFeed"));
+        final Property feedProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NS, "hasFeed"));
 
         // TODO check if its actually correct to use the same UUID for experiment AND animalLogEntry
+        final Resource animalLogRes = this.model.createResource(
+                String.join("", LKTLogbook.RDF_NS, "AnimalLogEntry")
+        );
         final Resource res = this.model.createResource(
-                String.join("", LKTLogbook.RDF_NAMESPACE, "AnimalLogEntry#", currEntry.getImportID()))
+                    String.join("", LKTLogbook.RDF_NS, currEntry.getImportID())
+                )
+                .addProperty(RDF.type, animalLogRes)
                 .addLiteral(startedProp, currEntry.getExperimentDate().toString())
                 .addLiteral(dietProp, currEntry.getIsOnDiet())
                 .addLiteral(weightProp, currEntry.getWeight())
