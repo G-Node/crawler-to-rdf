@@ -26,6 +26,8 @@ import org.g_node.crawler.LKTLogbook.LKTLogbook;
  * Main application class used to parse command line input and pass
  * information to the appropriate modules.
  *
+ * This application is a prototype, don't hate me if stuff is partially suboptimal or outright sucks.
+ *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
 public class App {
@@ -88,7 +90,6 @@ public class App {
             final Options useOptions = this.crawlers.get(args[0]).options(this.crawlers.keySet());
 
             try {
-
                 final CommandLine cmd = parser.parse(useOptions, args, false);
                 if (cmd.hasOption("h")) {
                     printHelp.printHelp("Help", useOptions);

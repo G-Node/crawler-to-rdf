@@ -13,7 +13,6 @@ package org.g_node.crawler.LKTLogbook;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.UUID;
 
 /**
  * Object containing all information parsed from the individual data rows of an ODS sheet.
@@ -34,11 +33,6 @@ public class LKTLogbookEntry {
     private final DateTimeFormatter supportedDateTime = DateTimeFormatter.ofPattern(
             LKTLogbookEntry.SUPPORTED_DATE_TIME_PATTERN
     );
-    /**
-     * ImportID of the current entry. ID is used to
-     * identify the current entry.
-     */
-    private String importID;
     /**
      * String identifier, short description of the project
      * the current entry belongs to. This value
@@ -100,41 +94,11 @@ public class LKTLogbookEntry {
      */
     private String weight;
     /**
-     * Boolean value if the current entry is an update
-     * or a new entry.
-     */
-    private boolean isUpdate;
-    /**
      * Boolean value if the current entry should
      * be treated as an empty line and therefore
      * not be imported.
      */
     private boolean isEmptyLine = true;
-
-    /**
-     * Return the importID of the current entry.
-     * @return See description.
-     */
-    public final String getImportID() {
-        return this.importID;
-    }
-
-    /**
-     * If an importID already exists, the current entry has already been imported
-     * and has to be treated as an update. If an ID already exists, the
-     * variable isUpdate is set to true.
-     * Otherwise a UUID is created and used as new ID.
-     * @param impid String that is either empty or contains an already
-     *  existing ID.
-     */
-    public final void setExistingImportID(final String impid) {
-        this.importID = impid;
-        if (impid != null && !impid.isEmpty()) {
-            this.setIsUpdate(true);
-        } else {
-            this.importID = UUID.randomUUID().toString();
-        }
-    }
 
     /**
      * Return the project identifier string.
@@ -386,25 +350,6 @@ public class LKTLogbookEntry {
      */
     public final void setIsEmptyLine(final boolean iseline) {
         this.isEmptyLine = iseline;
-    }
-
-    /**
-     * Return boolean value if the current entry is an update or a new entry.
-     * @return See description.
-     */
-    public final boolean getIsUpdate() {
-        return this.isUpdate;
-    }
-
-    /**
-     * Set if the current entry is an update or not. This information
-     * is required, if an entry was already previously imported,
-     * to mark it as an update rather than a new entry.
-     * @param isupd Boolean value, if true, the current entry is
-     *  treated as an update.
-     */
-    public final void setIsUpdate(final boolean isupd) {
-        this.isUpdate = isupd;
     }
 
     /**

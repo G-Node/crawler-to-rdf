@@ -276,7 +276,6 @@ public class LKTLogbook {
 
         final LKTLogbookEntry currEntry = new LKTLogbookEntry();
 
-        currEntry.setExistingImportID(currSheet.getCellAt(String.join("", "A", currLine)).getTextValue());
         currEntry.setProject(currSheet.getCellAt(String.join("", "K", currLine)).getTextValue());
         currEntry.setExperiment(currSheet.getCellAt(String.join("", "L", currLine)).getTextValue());
         currEntry.setParadigm(currSheet.getCellAt(String.join("", "C", currLine)).getTextValue());
@@ -479,7 +478,7 @@ public class LKTLogbook {
                 String.join("", LKTLogbook.RDF_NS, "Experiment")
         );
         final Resource experiment = this.model.createResource(
-                    String.join("", LKTLogbook.RDF_NS, currEntry.getImportID())
+                    String.join("", LKTLogbook.RDF_NS, UUID.randomUUID().toString())
                 )
                 .addProperty(RDF.type, experimentRes)
                 .addLiteral(d, currEntry.getExperimentDate().toString())
@@ -515,7 +514,7 @@ public class LKTLogbook {
                 String.join("", LKTLogbook.RDF_NS, "AnimalLogEntry")
         );
         final Resource res = this.model.createResource(
-                    String.join("", LKTLogbook.RDF_NS, currEntry.getImportID())
+                    String.join("", LKTLogbook.RDF_NS, UUID.randomUUID().toString())
                 )
                 .addProperty(RDF.type, animalLogRes)
                 .addLiteral(startedProp, currEntry.getExperimentDate().toString())
