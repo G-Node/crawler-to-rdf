@@ -28,7 +28,7 @@ public class RDFUtils {
      * @param litStr String containing the value of the Literal.
      */
     public static void addNonEmptyLiteral(final Resource res, final Property p, final String litStr) {
-        if (!litStr.isEmpty()) {
+        if (litStr != null && !litStr.isEmpty()) {
             res.addLiteral(p, litStr);
         }
     }
