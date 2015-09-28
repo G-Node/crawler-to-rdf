@@ -397,13 +397,12 @@ public class LKTLogbook {
         if (!this.projectList.containsKey(project)) {
             this.projectList.put(project, UUID.randomUUID().toString());
 
-            final Property projName = this.model.createProperty(String.join("", LKTLogbook.RDF_NS, "hasName"));
             final Resource projectRes = this.model.createResource(String.join("", LKTLogbook.RDF_NS, "Project"));
             this.model.createResource(
                         String.join("", LKTLogbook.RDF_NS, this.projectList.get(project))
                     )
                     .addProperty(RDF.type, projectRes)
-                    .addLiteral(projName, project);
+                    .addLiteral(RDFS.label, project);
         }
         // Fetch project resource
         final Resource projectRes = this.model.getResource(
@@ -467,13 +466,11 @@ public class LKTLogbook {
      */
     private Resource addExperimentEntry(final LKTLogbookEntry currEntry) {
         final Property d = this.model.createProperty(String.join("", LKTLogbook.RDF_NS, "startedAt"));
-        final Property label = this.model.createProperty(String.join("", LKTLogbook.RDF_NS, "hasLabel"));
         final Property paradigm = this.model.createProperty(String.join("", LKTLogbook.RDF_NS, "hasParadigm"));
         final Property paradigmSpec = this.model.createProperty(
                 String.join("", LKTLogbook.RDF_NS, "hasParadigmSpecifics")
         );
 
-        final Property expCom = this.model.createProperty(String.join("", LKTLogbook.RDF_NS, "hasComment"));
         final Resource experimentRes = this.model.createResource(
                 String.join("", LKTLogbook.RDF_NS, "Experiment")
         );
@@ -482,11 +479,11 @@ public class LKTLogbook {
                 )
                 .addProperty(RDF.type, experimentRes)
                 .addLiteral(d, currEntry.getExperimentDate().toString())
-                .addLiteral(label, currEntry.getExperiment());
+                .addLiteral(RDFS.label, currEntry.getExperiment());
 
         RDFUtils.addNonEmptyLiteral(experiment, paradigm, currEntry.getParadigm());
         RDFUtils.addNonEmptyLiteral(experiment, paradigmSpec, currEntry.getParadigmSpecifics());
-        RDFUtils.addNonEmptyLiteral(experiment, expCom, currEntry.getCommentExperiment());
+        RDFUtils.addNonEmptyLiteral(experiment, RDFS.comment, currEntry.getCommentExperiment());
 
         return experiment;
     }
@@ -498,9 +495,6 @@ public class LKTLogbook {
      */
     private Resource addAnimalLogEntry(final LKTLogbookEntry currEntry) {
         final Property startedProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NS, "startedAt"));
-        final Property animalCommentProp = this.model.createProperty(
-                String.join("", LKTLogbook.RDF_NS, "hasComment")
-        );
         final Property dietProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NS, "hasDiet"));
         // TODO include blank node with g as unit
         final Property weightProp = this.model.createProperty(String.join("", LKTLogbook.RDF_NS, "hasWeight"));
@@ -522,7 +516,7 @@ public class LKTLogbook {
                 .addLiteral(weightProp, currEntry.getWeight())
                 .addLiteral(initialWeightProp, currEntry.getIsInitialWeight());
 
-        RDFUtils.addNonEmptyLiteral(res, animalCommentProp, currEntry.getCommentAnimal());
+        RDFUtils.addNonEmptyLiteral(res, RDFS.comment, currEntry.getCommentAnimal());
         RDFUtils.addNonEmptyLiteral(res, feedProp, currEntry.getFeed());
 
         return res;
