@@ -67,7 +67,7 @@ public class AppTest {
         wrongCrawler[0] = "iDoNotExist";
         currApp.run(wrongCrawler);
         assertThat(this.errStream.toString())
-                .contains("Oh no, selected crawler 'iDoNotExist' does not exist!");
+                .startsWith("Oh no, selected crawler 'iDoNotExist' does not exist!");
     }
 
     @Test
@@ -76,7 +76,7 @@ public class AppTest {
         missingArgs[0] = "lkt";
         currApp.run(missingArgs);
         assertThat(this.errStream.toString())
-                .contains("\n[Error] Missing required option: i");
+                .startsWith("\n[Error] Missing required option: i");
     }
 
     @Test
