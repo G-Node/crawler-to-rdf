@@ -84,19 +84,6 @@
         </configuration>
       </plugin>
 
-      <!-- some standard maven plugins for compilation and jar creation -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.1</version>
-        <configuration>
-          <verbose>false</verbose>
-          <source>1.8</source>
-          <target>1.8</target>
-          <encoding>UTF-8</encoding>
-        </configuration>
-      </plugin>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
@@ -167,6 +154,8 @@
         <artifactId>findbugs-maven-plugin</artifactId>
         <version>3.0.2</version>
         <configuration>
+          <!-- To avoid findbugs errors in dependency jars -->
+          <onlyAnalyze>org.g_node.*</onlyAnalyze>
           <!--
               Enables analysis which takes more memory but finds more bugs.
               If you run out of memory, changes the value of the effort element
