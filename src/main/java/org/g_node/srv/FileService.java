@@ -37,7 +37,7 @@ public class FileService {
 
     /**
      * Method for validating that the provided file is of a supported file
-     * type defined in {@param #fileTypes}.
+     * type defined in the input fileTypes.
      * @param checkFile Path and filename of the provided file.
      * @param fileTypes List containing all supported file types.
      * @return True if the file is of the supported file type, false otherwise.
