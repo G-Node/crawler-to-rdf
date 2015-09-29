@@ -77,8 +77,8 @@ public class App {
             System.err.println(
                     String.join(
                             "", "No crawler selected!",
-                            "\n Please use syntax: 'java crawler-to-rdf.jar [crawler] [crawler options]'",
-                            "\n e.g. 'java crawler-to-rdf.jar lkt -i labbook.ods -o out.ttl'",
+                            "\n Please use syntax: 'java -jar crawler-to-rdf.jar [crawler] [crawler options]'",
+                            "\n e.g. 'java -jar crawler-to-rdf.jar lkt -i labbook.ods -o out.ttl'",
                             "\n Currently available crawlers: ", this.crawlers.keySet().toString()
                     )
             );
