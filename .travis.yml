@@ -11,7 +11,7 @@ before_install:
 jdk:
   - oraclejdk8
 
-after_success:
+before_script:
   - mvn clean test jacoco:report coveralls:jacoco
   - mvn checkstyle:check
   - mvn findbugs:check
