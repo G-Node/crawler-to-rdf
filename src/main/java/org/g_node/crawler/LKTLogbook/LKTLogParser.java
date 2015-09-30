@@ -327,6 +327,7 @@ public class LKTLogParser {
      * Creates an RDF model from the parsed ODS sheet data and writes
      * the model to the designated output file.
      * @param allSheets Data from the parsed ODS sheets.
+     * @param inputFile Name and path of the input file
      * @param outputFile Name and path of the designated output file.
      * @param outputFormat RDF output format.
      */
@@ -346,7 +347,7 @@ public class LKTLogParser {
                 .addProperty(RDF.type, this.localRes("Provenance"))
                 .addProperty(this.localDCProp("source"), inputFile)
                 .addProperty(this.localDCProp("created"),
-                        LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd HHmm")))
+                        LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HH:mm")))
                 .addProperty(this.localDCProp("subject"),
                         "This RDF file was created by parsing data from the file indicated in the source literal");
 
@@ -359,6 +360,7 @@ public class LKTLogParser {
      * that the ODS sheet is centered around the animal, while the RDF model is project
      * centric.
      * @param currSheet Data from the current sheet.
+     * @param provUUID UUID of the provenance resource.
      */
     private void addAnimal(final LKTLogParserSheet currSheet, final String provUUID) {
 
@@ -369,12 +371,12 @@ public class LKTLogParser {
 
         // TODO Handle dates properly
         final Resource permit = this.localRes(UUID.randomUUID().toString())
-                .addProperty(this.localProp("hasProvenance"), this.model.getResource(String.join("", LKTLogParser.RDF_NS, provUUID)))
+                .addProperty(this.localProp("hasProvenance"), this.fetchLocalRes(provUUID))
                 .addProperty(RDF.type, this.localRes("Permit"))
                 .addLiteral(this.localProp("hasNumber"), currSheet.getPermitNumber());
 
         final Resource animal = this.localRes(this.animalList.get(animalID))
-                .addProperty(this.localProp("hasProvenance"), this.model.getResource(String.join("", LKTLogParser.RDF_NS, provUUID)))
+                .addProperty(this.localProp("hasProvenance"), this.fetchLocalRes(provUUID))
                 .addProperty(RDF.type, this.localRes("Animal"))
                 .addLiteral(this.localProp("hasAnimalID"), animalID)
                 .addLiteral(this.localProp("hasSex"), currSheet.getAnimalSex())
@@ -395,6 +397,7 @@ public class LKTLogParser {
      * @param currEntry Data from the current ODS line entry.
      * @param animal Resource from the main RDF model containing the information about
      *  the animal this entry is associated with.
+     * @param provUUID UUID of the provenance resource.
      */
     private void addEntry(final LKTLogParserEntry currEntry, final Resource animal, final String provUUID) {
 
@@ -404,14 +407,12 @@ public class LKTLogParser {
 
             this.projectList.put(project, UUID.randomUUID().toString());
             this.localRes(this.projectList.get(project))
-                    .addProperty(this.localProp("hasProvenance"), this.model.getResource(String.join("", LKTLogParser.RDF_NS, provUUID)))
+                    .addProperty(this.localProp("hasProvenance"), this.fetchLocalRes(provUUID))
                     .addProperty(RDF.type, this.localRes("Project"))
                     .addLiteral(RDFS.label, project);
         }
         // Fetch project resource
-        final Resource projectRes = this.model.getResource(
-                String.join("", LKTLogParser.RDF_NS, this.projectList.get(project))
-        );
+        final Resource projectRes = this.fetchLocalRes(this.projectList.get(project));
 
         // Add experimenter only once to the RDF model
         final String experimenter = currEntry.getExperimenterName();
@@ -423,7 +424,7 @@ public class LKTLogParser {
             final Resource personRes = this.model.createResource(String.join("", LKTLogParser.RDF_NS_FOAF, "Person"));
 
             this.localRes(this.experimenterList.get(experimenter))
-                    .addProperty(this.localProp("hasProvenance"), this.model.getResource(String.join("", LKTLogParser.RDF_NS, provUUID)))
+                    .addProperty(this.localProp("hasProvenance"), this.fetchLocalRes(provUUID))
                     .addProperty(RDF.type, this.localRes("Experimenter"))
                     .addLiteral(name, currEntry.getExperimenterName())
                     // TODO Check if this is actually correct or if the subclass
@@ -432,14 +433,12 @@ public class LKTLogParser {
         }
 
         // Fetch experimenter resource
-        final Resource experimenterRes = this.model.getResource(
-                String.join("", LKTLogParser.RDF_NS, this.experimenterList.get(experimenter))
-        );
+        final Resource experimenterRes = this.fetchLocalRes(this.experimenterList.get(experimenter));
 
         // Create current experiment resource
         final Resource exp = this.addExperimentEntry(currEntry);
         // Link current experiment to experimenter and animal log
-        exp.addProperty(this.localProp("hasProvenance"), this.model.getResource(String.join("", LKTLogParser.RDF_NS, provUUID)))
+        exp.addProperty(this.localProp("hasProvenance"), this.fetchLocalRes(provUUID))
                 .addProperty(this.localProp("hasExperimenter"), experimenterRes)
                 .addProperty(this.localProp("hasAnimal"), animal);
 
@@ -449,7 +448,7 @@ public class LKTLogParser {
         final Resource animalLogEntry = this.addAnimalLogEntry(currEntry);
         // Link animal log entry to experimenter
         animalLogEntry
-                .addProperty(this.localProp("hasProvenance"), this.model.getResource(String.join("", LKTLogParser.RDF_NS, provUUID)))
+                .addProperty(this.localProp("hasProvenance"), this.fetchLocalRes(provUUID))
                 .addProperty(this.localProp("hasExperimenter"), experimenterRes);
         // Add animal log entry to the current animal node
         animal.addProperty(this.localProp("hasAnimalLogEntry"), animalLogEntry);
@@ -499,6 +498,18 @@ public class LKTLogParser {
         RDFUtils.addNonEmptyLiteral(res, this.localProp("hasFeed"), currEntry.getFeed());
 
         return res;
+    }
+
+    /**
+     * Convenience method for fetching an RDF resource from
+     * an existing UUID.
+     * @param fetchID ID corresponding to the required Resource.
+     * @return Requested Resource.
+     */
+    private Resource fetchLocalRes(final String fetchID) {
+        return this.model.getResource(
+                String.join("", LKTLogParser.RDF_NS, fetchID)
+        );
     }
 
     /**

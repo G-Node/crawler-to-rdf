@@ -225,7 +225,7 @@
         <module name="AnonInnerLength"/>
         <module name="MethodLength"/>
         <module name="ParameterNumber">
-            <property name="max" value="3"/>
+            <property name="max" value="5"/>
         </module>
         <module name="OuterTypeNumber"/>
 
