@@ -51,7 +51,7 @@ public class LKTLogParser {
     /**
      * Namespace used to identify RDF resources and properties specific for the current usecase.
      */
-    private static final String RDF_NS =  "http://g-node.org/lkt/";
+    private static final String RDF_NS =  "http://g-node.org/orcid/0000-0003-4857-1083/lkt/";
     /**
      * Namespace prefix.
      */
