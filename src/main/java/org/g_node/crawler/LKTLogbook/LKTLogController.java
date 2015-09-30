@@ -10,8 +10,6 @@
 
 package org.g_node.crawler.LKTLogbook;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -127,10 +125,12 @@ public class LKTLogController implements Controller {
             return;
         }
 
+        // TODO resolve matching output format
+        final int i = inputFile.lastIndexOf('.');
         final String defaultOutputFile = String.join(
-                "", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmm")),
-                "_out.ttl"
+                "", inputFile.substring(0, i), "_out.ttl"
         );
+
         final String outputFile = cmd.getOptionValue("o", defaultOutputFile);
 
         System.out.println("[Info] Parsing input file...");
