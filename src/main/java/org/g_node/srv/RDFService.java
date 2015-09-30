@@ -41,6 +41,18 @@ public class RDFService {
             });
 
     /**
+     * Map RDF formats to the correct file ending.
+     */
+    public static final Map<String, String> RDF_FORMAT_EXTENSION =
+            Collections.unmodifiableMap(new HashMap<String, String>(3) {
+                {
+                    put("TTL", "ttl");
+                    put("RDF/XML", "rdf");
+                    put("NTRIPLES", "nt");
+                }
+            });
+
+    /**
      * Write an rdf model to an output file. This method will overwrite any
      * files with the same path and filename.
      * @param fileName Path and filename of the output file.
@@ -49,7 +61,12 @@ public class RDFService {
      */
     public static void writeModelToFile(final String fileName, final Model model, final String format) {
 
-        final File file = new File(fileName);
+        String useFileName = fileName;
+        if (!fileName.toLowerCase().endsWith(RDFService.RDF_FORMAT_EXTENSION.get(format))) {
+            useFileName = String.join("", fileName, ".", RDFService.RDF_FORMAT_EXTENSION.get(format));
+        }
+
+        final File file = new File(useFileName);
 
         try {
             final FileOutputStream fos = new FileOutputStream(file);

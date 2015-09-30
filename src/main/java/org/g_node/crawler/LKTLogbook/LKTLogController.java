@@ -69,7 +69,7 @@ public class LKTLogController implements Controller {
                         String.join(
                                 "", "Optional: Path and name of the output file. ",
                                 "Files with the same name will be overwritten. ",
-                                "Default file name uses format [inputFileName]+'_out'"
+                                "Default file name uses format [inputFileName]_out"
                         )
                 )
                 .hasArg()
@@ -133,11 +133,8 @@ public class LKTLogController implements Controller {
             return;
         }
 
-        // TODO resolve matching output format
         final int i = inputFile.lastIndexOf('.');
-        final String defaultOutputFile = String.join(
-                "", inputFile.substring(0, i), "_out.ttl"
-        );
+        final String defaultOutputFile = String.join("", inputFile.substring(0, i), "_out");
 
         final String outputFile = cmd.getOptionValue("o", defaultOutputFile);
 
