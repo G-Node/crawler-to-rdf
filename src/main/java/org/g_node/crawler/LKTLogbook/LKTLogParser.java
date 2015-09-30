@@ -98,7 +98,6 @@ public class LKTLogParser {
         try {
             final File odsFile = new File(inputFile);
 
-            // TODO remove later
             System.out.println(
                     String.join(
                             "", "[Info] File has # sheets: ",
@@ -129,7 +128,6 @@ public class LKTLogParser {
                     this.createRDFModel(allSheets, outputFile, outputFormat);
 
                 } else {
-                    // TODO write to logfile
                     this.parserErrorMessages.add(
                             "\nThere are parser errors present. Please resolve them and run the program again.");
                     this.parserErrorMessages.forEach(System.err::println);
@@ -160,7 +158,7 @@ public class LKTLogParser {
 
                 LKTLogParserSheet currLKTLSheet = this.parseSheetVariables(currSheet);
 
-                // TODO come up with a more robust solution
+                // Solution is not very robust, but coming up with a more robust solution would be wasted effort.
                 final String checkHeaderCell = currSheet.getCellAt(
                                     String.join("", "A", String.valueOf(LKTLogParser.SHEET_HEADER_LINE))
                                 ).getTextValue();
@@ -215,11 +213,11 @@ public class LKTLogParser {
                         )
                 );
             }
-            // check valid date of birth
+            // Check valid date of birth
             if (!checkDB.isEmpty()) {
                 this.parserErrorMessages.add(String.join("", "[Parser error] sheet ", sheetName, ", ", checkDB));
             }
-            // check valid date of withdrawal
+            // Check valid date of withdrawal
             if (!checkDW.isEmpty()) {
                 this.parserErrorMessages.add(String.join("", "[Parser error] sheet ", sheetName, ", ", checkDW));
             }
@@ -341,8 +339,8 @@ public class LKTLogParser {
             this.animalList.put(animalID, UUID.randomUUID().toString());
         }
 
-        // TODO handle dates properly
-        // TODO check if namespaces should be handled somewhere else
+        // TODO Handle dates properly
+        // TODO Check if namespaces should be handled somewhere else
         this.model.setNsPrefix("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
         this.model.setNsPrefix("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
         this.model.setNsPrefix("xs", "http://www.w3.org/2001/XMLSchema#");
