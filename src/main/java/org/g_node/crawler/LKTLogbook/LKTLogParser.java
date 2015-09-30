@@ -18,6 +18,8 @@ import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -62,6 +64,14 @@ public class LKTLogParser {
      * FOAF Namespace prefix.
      */
     private static final String RDF_NS_FOAF_ABR = "foaf";
+    /**
+     * Namespace used to identify Dublin core RDF resources.
+     */
+    private static final String RDF_NS_DC = "http://purl.org/dc/terms/";
+    /**
+     * Dublin core Namespace prefix.
+     */
+    private static final String RDF_NS_DC_ABR = "dc";
     /**
      * ArrayList containing all messages that occurred while parsing the ODS file.
      * All parser errors connected to missing values or incorrect value formats should
@@ -125,7 +135,8 @@ public class LKTLogParser {
 
                 if (this.parserErrorMessages.size() == 0) {
 
-                    this.createRDFModel(allSheets, outputFile, outputFormat);
+                    // TODO Move RDF stuff to its own class and move this call to LKTLogController
+                    this.createRDFModel(allSheets, inputFile, outputFile, outputFormat);
 
                 } else {
                     this.parserErrorMessages.add(
@@ -279,7 +290,7 @@ public class LKTLogParser {
         currEntry.setParadigm(currSheet.getCellAt(String.join("", "C", currLine)).getTextValue());
         currEntry.setParadigmSpecifics(currSheet.getCellAt(String.join("", "D", currLine)).getTextValue());
 
-        // TODO check if the experimentDate parser error and the empty line messages all still work!
+        // TODO Check if the experimentDate parser error and the empty line messages all still work!
         checkExperimentDate = currEntry.setExperimentDate(currSheet.getCellAt(
                 String.join("", "B", currLine)).getTextValue()
         );
@@ -319,11 +330,27 @@ public class LKTLogParser {
      * @param outputFile Name and path of the designated output file.
      * @param outputFormat RDF output format.
      */
-    private void createRDFModel(final ArrayList<LKTLogParserSheet> allSheets,
+    private void createRDFModel(final ArrayList<LKTLogParserSheet> allSheets, final String inputFile,
                                 final String outputFile, final String outputFormat) {
-        allSheets.stream().forEach(
-                this::addAnimal
-        );
+
+        // TODO Check if namespaces should be handled somewhere else
+        this.model.setNsPrefix("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+        this.model.setNsPrefix("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
+        this.model.setNsPrefix("xs", "http://www.w3.org/2001/XMLSchema#");
+        this.model.setNsPrefix(LKTLogParser.RDF_NS_FOAF_ABR, LKTLogParser.RDF_NS_FOAF);
+        this.model.setNsPrefix(LKTLogParser.RDF_NS_DC_ABR, LKTLogParser.RDF_NS_DC);
+        this.model.setNsPrefix(LKTLogParser.RDF_NS_ABR, LKTLogParser.RDF_NS);
+
+        final String provUUID = UUID.randomUUID().toString();
+        this.localRes(provUUID)
+                .addProperty(RDF.type, this.localRes("Provenance"))
+                .addProperty(this.localDCProp("source"), inputFile)
+                .addProperty(this.localDCProp("created"),
+                        LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd HHmm")))
+                .addProperty(this.localDCProp("subject"),
+                        "This RDF file was created by parsing data from the file indicated in the source literal");
+
+        allSheets.stream().forEach(a -> this.addAnimal(a, provUUID));
         RDFService.writeModelToFile(outputFile, this.model, outputFormat);
     }
 
@@ -333,25 +360,21 @@ public class LKTLogParser {
      * centric.
      * @param currSheet Data from the current sheet.
      */
-    private void addAnimal(final LKTLogParserSheet currSheet) {
+    private void addAnimal(final LKTLogParserSheet currSheet, final String provUUID) {
+
         final String animalID = currSheet.getAnimalID();
         if (!this.animalList.containsKey(animalID)) {
             this.animalList.put(animalID, UUID.randomUUID().toString());
         }
 
         // TODO Handle dates properly
-        // TODO Check if namespaces should be handled somewhere else
-        this.model.setNsPrefix("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-        this.model.setNsPrefix("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
-        this.model.setNsPrefix("xs", "http://www.w3.org/2001/XMLSchema#");
-        this.model.setNsPrefix(LKTLogParser.RDF_NS_FOAF_ABR, LKTLogParser.RDF_NS_FOAF);
-        this.model.setNsPrefix(LKTLogParser.RDF_NS_ABR, LKTLogParser.RDF_NS);
-
         final Resource permit = this.localRes(UUID.randomUUID().toString())
+                .addProperty(this.localProp("hasProvenance"), this.model.getResource(String.join("", LKTLogParser.RDF_NS, provUUID)))
                 .addProperty(RDF.type, this.localRes("Permit"))
                 .addLiteral(this.localProp("hasNumber"), currSheet.getPermitNumber());
 
         final Resource animal = this.localRes(this.animalList.get(animalID))
+                .addProperty(this.localProp("hasProvenance"), this.model.getResource(String.join("", LKTLogParser.RDF_NS, provUUID)))
                 .addProperty(RDF.type, this.localRes("Animal"))
                 .addLiteral(this.localProp("hasAnimalID"), animalID)
                 .addLiteral(this.localProp("hasSex"), currSheet.getAnimalSex())
@@ -363,7 +386,7 @@ public class LKTLogParser {
         RDFUtils.addNonEmptyLiteral(animal, this.localProp("hasScientificName"), currSheet.getScientificName());
 
         currSheet.getEntries().stream().forEach(
-                c -> this.addEntry(c, animal)
+                c -> this.addEntry(c, animal, provUUID)
         );
     }
 
@@ -373,7 +396,7 @@ public class LKTLogParser {
      * @param animal Resource from the main RDF model containing the information about
      *  the animal this entry is associated with.
      */
-    private void addEntry(final LKTLogParserEntry currEntry, final Resource animal) {
+    private void addEntry(final LKTLogParserEntry currEntry, final Resource animal, final String provUUID) {
 
         final String project = currEntry.getProject();
         // add project only once to the rdf model
@@ -381,6 +404,7 @@ public class LKTLogParser {
 
             this.projectList.put(project, UUID.randomUUID().toString());
             this.localRes(this.projectList.get(project))
+                    .addProperty(this.localProp("hasProvenance"), this.model.getResource(String.join("", LKTLogParser.RDF_NS, provUUID)))
                     .addProperty(RDF.type, this.localRes("Project"))
                     .addLiteral(RDFS.label, project);
         }
@@ -399,6 +423,7 @@ public class LKTLogParser {
             final Resource personRes = this.model.createResource(String.join("", LKTLogParser.RDF_NS_FOAF, "Person"));
 
             this.localRes(this.experimenterList.get(experimenter))
+                    .addProperty(this.localProp("hasProvenance"), this.model.getResource(String.join("", LKTLogParser.RDF_NS, provUUID)))
                     .addProperty(RDF.type, this.localRes("Experimenter"))
                     .addLiteral(name, currEntry.getExperimenterName())
                     // TODO Check if this is actually correct or if the subclass
@@ -414,7 +439,8 @@ public class LKTLogParser {
         // Create current experiment resource
         final Resource exp = this.addExperimentEntry(currEntry);
         // Link current experiment to experimenter and animal log
-        exp.addProperty(this.localProp("hasExperimenter"), experimenterRes)
+        exp.addProperty(this.localProp("hasProvenance"), this.model.getResource(String.join("", LKTLogParser.RDF_NS, provUUID)))
+                .addProperty(this.localProp("hasExperimenter"), experimenterRes)
                 .addProperty(this.localProp("hasAnimal"), animal);
 
         projectRes.addProperty(this.localProp("hasExperiment"), exp);
@@ -422,7 +448,9 @@ public class LKTLogParser {
         // Create current animalLog resource
         final Resource animalLogEntry = this.addAnimalLogEntry(currEntry);
         // Link animal log entry to experimenter
-        animalLogEntry.addProperty(this.localProp("hasExperimenter"), experimenterRes);
+        animalLogEntry
+                .addProperty(this.localProp("hasProvenance"), this.model.getResource(String.join("", LKTLogParser.RDF_NS, provUUID)))
+                .addProperty(this.localProp("hasExperimenter"), experimenterRes);
         // Add animal log entry to the current animal node
         animal.addProperty(this.localProp("hasAnimalLogEntry"), animalLogEntry);
     }
@@ -496,4 +524,17 @@ public class LKTLogParser {
                 String.join("", LKTLogParser.RDF_NS, propName)
         );
     }
+
+    /**
+     * Convenience method for creating an RDF property with the
+     * Dublin core Namespace.
+     * @param propName Contains the name of the property.
+     * @return The created RDF Property.
+     */
+    private Property localDCProp(final String propName) {
+        return this.model.createProperty(
+                String.join("", LKTLogParser.RDF_NS_DC, propName)
+        );
+    }
+
 }
