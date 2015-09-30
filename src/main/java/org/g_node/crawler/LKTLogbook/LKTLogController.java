@@ -69,7 +69,7 @@ public class LKTLogController implements Controller {
                         String.join(
                                 "", "Optional: Path and name of the output file. ",
                                 "Files with the same name will be overwritten. ",
-                                "Default file name uses format 'yyyyMMddHHmm_out.ttl'"
+                                "Default file name uses format [inputFileName]+'_out'"
                         )
                 )
                 .hasArg()
@@ -107,8 +107,16 @@ public class LKTLogController implements Controller {
 
         System.out.println("[Info] Checking input file...");
         final String inputFile = cmd.getOptionValue("i");
-        if (!FileService.checkFile(inputFile)
-                || !FileService.checkFileType(inputFile, LKTLogController.SUPPORTED_INPUT_FILE_TYPES)) {
+        if (!FileService.checkFile(inputFile)) {
+            System.err.println(String.join("", "[Error] Input file ", inputFile, " does not exist."));
+            return;
+        } else if (!FileService.checkFileType(inputFile, LKTLogController.SUPPORTED_INPUT_FILE_TYPES)) {
+            System.err.println(
+                    String.join(
+                            "", "[Error] Invalid input file type: ", inputFile,
+                            "\n\tOnly the following file types are supported: ",
+                            LKTLogController.SUPPORTED_INPUT_FILE_TYPES.toString())
+            );
             return;
         }
 

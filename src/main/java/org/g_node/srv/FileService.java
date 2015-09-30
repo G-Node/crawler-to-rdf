@@ -27,12 +27,10 @@ public class FileService {
      * @return True if the file exists, false otherwise.
      */
     public static boolean checkFile(final String checkFile) {
-        final boolean correctFile = Files.exists(Paths.get(checkFile))
+
+        return Files.exists(Paths.get(checkFile))
                 && Files.exists(Paths.get(checkFile).toAbsolutePath());
-        if (!correctFile) {
-            System.err.println(String.join("", "[Error] Input file ", checkFile, " does not exist."));
-        }
-        return correctFile;
+
     }
 
     /**
@@ -43,7 +41,9 @@ public class FileService {
      * @return True if the file is of the supported file type, false otherwise.
      */
     public static boolean checkFileType(final String checkFile, final List<String> fileTypes) {
+
         boolean correctFileType;
+
         final int i = checkFile.lastIndexOf('.');
         if (i > 0) {
             final String checkExtension = checkFile.substring(i + 1);
@@ -52,13 +52,6 @@ public class FileService {
             correctFileType = false;
         }
 
-        if (!correctFileType) {
-            System.err.println(
-                    String.join(
-                            "", "[Error] Invalid input file type: ", checkFile,
-                            "\n\tOnly the following file types are supported: ", fileTypes.toString())
-            );
-        }
         return correctFileType;
     }
 }
