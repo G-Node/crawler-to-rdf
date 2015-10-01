@@ -10,6 +10,7 @@
 
 package org.g_node.crawler.LKTLogbook;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -31,7 +32,13 @@ public class LKTLogController implements Controller {
      * File types that can be processed by this crawler.
      */
     private static final List<String> SUPPORTED_INPUT_FILE_TYPES = Collections.singletonList("ODS");
-
+    /**
+     * ArrayList containing all messages that occurred while parsing the input file(s).
+     * All parser errors connected to missing values or incorrect value formats should
+     * be collected and written to a logfile, so that users can correct these
+     * mistakes ideally all at once before running the crawler again.
+     */
+    private ArrayList<String> parserErrorMsg = new ArrayList<>(0);
     /**
      * The actual crawler this class handles and provides.
      */
@@ -139,6 +146,14 @@ public class LKTLogController implements Controller {
         final String outputFile = cmd.getOptionValue("o", defaultOutputFile);
 
         System.out.println("[Info] Parsing input file...");
-        this.crawler.parseFile(inputFile, outputFile, outputFormat);
+        this.crawler.parseFile(inputFile, outputFile, outputFormat, this.parserErrorMsg);
+
+        if (this.parserErrorMsg.size() != 0) {
+            this.parserErrorMsg.forEach(System.err::println);
+            return;
+        }
+
+        System.out.println("Hurra, no parser errors!");
+
     }
 }

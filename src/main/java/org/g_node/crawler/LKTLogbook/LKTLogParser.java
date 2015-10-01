@@ -73,13 +73,6 @@ public class LKTLogParser {
      */
     private static final String RDF_NS_DC_ABR = "dc";
     /**
-     * ArrayList containing all messages that occurred while parsing the ODS file.
-     * All parser errors connected to missing values or incorrect value formats should
-     * be collected and written to a logfile, so that users can correct these
-     * mistakes ideally all at once before running the crawler again.
-     */
-    private final ArrayList<String> parserErrorMessages = new ArrayList<>(0);
-    /**
      * Map containing all projects with their newly created UUIDs of the parsed ODS sheet.
      */
     private final Map<String, String> projectList = new HashMap<>();
@@ -96,13 +89,26 @@ public class LKTLogParser {
      */
     private final Model model = ModelFactory.createDefaultModel();
     /**
+     * Reference of the parserErrorMessages in the corresponding controller class.
+     * ArrayList containing all messages that occurred while parsing the input file(s).
+     * All parser errors connected to missing values or incorrect value formats should
+     * be collected and written to a logfile, so that users can correct these
+     * mistakes ideally all at once before running the crawler again.
+     */
+    private ArrayList<String> parserErrorMessages;
+    /**
      * Method for parsing the contents of a provided ODS input file.
      * This method will create a backup file of the original ODS file.
      * @param inputFile ODS file specific to Kay Thurleys usecase.
      * @param outputFile RDF output file.
      * @param outputFormat Format of the RDF output file.
+     * @param parserErrMsg ArrayList collecting all parserErrorMessages in the corresponding
+     *                     {@link LKTLogController}.
      */
-    public final void parseFile(final String inputFile, final String outputFile, final String outputFormat) {
+    public final void parseFile(final String inputFile, final String outputFile,
+                                final String outputFormat, final ArrayList<String> parserErrMsg) {
+
+        this.parserErrorMessages = parserErrMsg;
 
         System.out.println("[Info] Starting to parse provided file...");
         try {
@@ -115,20 +121,17 @@ public class LKTLogParser {
             );
 
             if (!(SpreadSheet.createFromFile(odsFile).getSheetCount() > 0)) {
-                this.parserErrorMessages.add(
-                        String.join(
-                                "", "[Parser error] File ", inputFile,
-                                " does not contain valid data sheets."
-                        )
-                );
+                this.parserErrorMessages.add(String.join(
+                        "", "[Parser error] File ", inputFile,
+                        " does not contain valid data sheets."
+                ));
             } else {
                 final ArrayList<LKTLogParserSheet> allSheets = this.parseSheets(odsFile);
                 allSheets.forEach(
                         s -> System.out.println(
                                 String.join(
                                         "", "[Info] CurrSheet: ", s.getAnimalID(),
-                                        ", number of entries: ",
-                                        String.valueOf(s.getEntries().size())
+                                        ", number of entries: ", String.valueOf(s.getEntries().size())
                                 )
                         )
                 );
@@ -141,11 +144,10 @@ public class LKTLogParser {
                 } else {
                     this.parserErrorMessages.add(
                             "\nThere are parser errors present. Please resolve them and run the program again.");
-                    this.parserErrorMessages.forEach(System.err::println);
                 }
             }
         } catch (final IOException exp) {
-            System.err.println(String.join(" ", "[Error] reading from input file:", exp.getMessage()));
+            this.parserErrorMessages.add(String.join("", "[Error] reading from input file: ", exp.getMessage()));
             exp.printStackTrace();
         }
     }
@@ -158,6 +160,7 @@ public class LKTLogParser {
      * @return ArrayList containing parsed {@link LKTLogParserSheet}.
      */
     private ArrayList<LKTLogParserSheet> parseSheets(final File odsFile) {
+
         final ArrayList<LKTLogParserSheet> allSheets = new ArrayList<>(0);
         Sheet currSheet;
 
@@ -175,20 +178,20 @@ public class LKTLogParser {
                                 ).getTextValue();
 
                 if (checkHeaderCell == null || !checkHeaderCell.equals(LKTLogParser.FIRST_HEADER_ENTRY)) {
-                    this.parserErrorMessages.add(
-                            String.join(
-                                    "", "[Parser error] sheet ", sheetName,
-                                    ", HeaderEntry 'ImportID' not found at required line A.",
-                                    String.valueOf(LKTLogParser.SHEET_HEADER_LINE)
-                            )
-                    );
+                    this.parserErrorMessages.add(String.join(
+                            "", "[Parser error] sheet ", sheetName,
+                            ", HeaderEntry 'ImportID' not found at required line A.",
+                            String.valueOf(LKTLogParser.SHEET_HEADER_LINE)
+                        ));
+
                 } else {
                     currLKTLSheet = this.parseSheetEntries(currSheet, currLKTLSheet);
                     allSheets.add(currLKTLSheet);
                 }
             }
         } catch (final IOException exp) {
-            System.err.println(String.join("", "[Error] reading from input file: ", exp.getMessage()));
+            this.parserErrorMessages.add(String.join("", "[Error] reading from input file: ", exp.getMessage()));
+
             exp.printStackTrace();
         }
         return allSheets;
@@ -200,6 +203,7 @@ public class LKTLogParser {
      * @return The current {@link LKTLogParserSheet} containing all parsed values.
      */
     private LKTLogParserSheet parseSheetVariables(final Sheet currSheet) {
+
         final LKTLogParserSheet currLKTLSheet  = new LKTLogParserSheet();
         final String sheetName = currSheet.getName();
         ArrayList<String> parseSheetMessage;
@@ -219,9 +223,7 @@ public class LKTLogParser {
         if (!parseSheetMessage.isEmpty() || !checkDB.isEmpty() || !checkDW.isEmpty()) {
             if (!parseSheetMessage.isEmpty()) {
                 parseSheetMessage.forEach(
-                        m -> this.parserErrorMessages.add(
-                                String.join("", "[Parser error] sheet ", sheetName, ", ", m)
-                        )
+                        m -> this.parserErrorMessages.add(String.join("", "[Parser error] sheet ", sheetName, ", ", m))
                 );
             }
             // Check valid date of birth
@@ -246,6 +248,7 @@ public class LKTLogParser {
      *  experiment entries.
      */
     private LKTLogParserSheet parseSheetEntries(final Sheet currFileSheet, final LKTLogParserSheet currLKTSheet) {
+
         String parseEntryMessage;
 
         for (int i = LKTLogParser.SHEET_HEADER_LINE + 1; i < currFileSheet.getRowCount(); i = i + 1) {
@@ -261,12 +264,10 @@ public class LKTLogParser {
             if (!currEntry.getIsEmptyLine() && parseEntryMessage.isEmpty()) {
                 currLKTSheet.addEntry(currEntry);
             } else if (!currEntry.getIsEmptyLine() && checkEmptyReqField) {
-                this.parserErrorMessages.add(
-                        String.join(
-                                "", "[Parser error] sheet ", currFileSheet.getName(), " row ",
-                                String.valueOf(i), ", missing value: ", parseEntryMessage
-                        )
-                );
+                this.parserErrorMessages.add(String.join(
+                        "", "[Parser error] sheet ", currFileSheet.getName(), " row ",
+                        String.valueOf(i), ", missing value: ", parseEntryMessage
+                ));
             }
         }
         return currLKTSheet;
@@ -281,6 +282,7 @@ public class LKTLogParser {
      *  the current single entry.
      */
     private LKTLogParserEntry parseSheetEntriesVariables(final Sheet currSheet, final String currLine) {
+
         String checkExperimentDate;
 
         final LKTLogParserEntry currEntry = new LKTLogParserEntry();
@@ -295,12 +297,10 @@ public class LKTLogParser {
                 String.join("", "B", currLine)).getTextValue()
         );
         if (!checkExperimentDate.isEmpty()) {
-            this.parserErrorMessages.add(
-                    String.join(
-                            "", "[Parser error] sheet ", currSheet.getName(), " row ",
-                            currLine, "\n\t", checkExperimentDate
-                    )
-            );
+            this.parserErrorMessages.add(String.join(
+                    "", "[Parser error] sheet ", currSheet.getName(), " row ",
+                    currLine, "\n\t", checkExperimentDate
+            ));
         }
 
         currEntry.setExperimenterName(currSheet.getCellAt(String.join("", "M", currLine)).getTextValue());
@@ -310,14 +310,12 @@ public class LKTLogParser {
         currEntry.setIsOnDiet(currSheet.getCellAt(String.join("", "E", currLine)).getTextValue());
         currEntry.setIsInitialWeight(currSheet.getCellAt(String.join("", "F", currLine)).getTextValue());
 
-        final String msg = currEntry.setWeight(currSheet.getCellAt(String.join("", "G", currLine)).getTextValue());
-        if (!"".equals(msg)) {
-            this.parserErrorMessages.add(
-                    String.join(
-                            "", "[Parser error] sheet ", currSheet.getName(), " row ",
-                            currLine, " ", msg
-                    )
-            );
+        final String currMsg = currEntry.setWeight(currSheet.getCellAt(String.join("", "G", currLine)).getTextValue());
+        if (!"".equals(currMsg)) {
+            this.parserErrorMessages.add(String.join(
+                    "", "[Parser error] sheet ", currSheet.getName(),
+                    " row ", currLine, " ", currMsg
+            ));
         }
 
         return currEntry;
