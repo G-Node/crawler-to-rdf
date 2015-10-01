@@ -146,14 +146,15 @@ public class LKTLogController implements Controller {
         final String outputFile = cmd.getOptionValue("o", defaultOutputFile);
 
         System.out.println("[Info] Parsing input file...");
-        this.crawler.parseFile(inputFile, outputFile, outputFormat, this.parserErrorMsg);
+        final ArrayList<LKTLogParserSheet> allSheets = this.crawler.parseFile(inputFile, this.parserErrorMsg);
 
         if (this.parserErrorMsg.size() != 0) {
             this.parserErrorMsg.forEach(System.err::println);
             return;
         }
 
-        System.out.println("Hurra, no parser errors!");
-
+        System.out.println("[Info] Converting parsed data to RDF...");
+        final LKTLogToRDF convRDF = new LKTLogToRDF();
+        convRDF.createRDFModel(allSheets, inputFile, outputFile, outputFormat);
     }
 }
