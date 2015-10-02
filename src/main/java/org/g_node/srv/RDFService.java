@@ -61,12 +61,7 @@ public class RDFService {
      */
     public static void writeModelToFile(final String fileName, final Model model, final String format) {
 
-        String useFileName = fileName;
-        if (!fileName.toLowerCase().endsWith(RDFService.RDF_FORMAT_EXTENSION.get(format))) {
-            useFileName = String.join("", fileName, ".", RDFService.RDF_FORMAT_EXTENSION.get(format));
-        }
-
-        final File file = new File(useFileName);
+        final File file = new File(fileName);
 
         try {
             final FileOutputStream fos = new FileOutputStream(file);
