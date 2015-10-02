@@ -143,7 +143,11 @@ public class LKTLogController implements Controller {
         final int i = inputFile.lastIndexOf('.');
         final String defaultOutputFile = String.join("", inputFile.substring(0, i), "_out");
 
-        final String outputFile = cmd.getOptionValue("o", defaultOutputFile);
+        String outputFile = cmd.getOptionValue("o", defaultOutputFile);
+
+        if (!outputFile.toLowerCase().endsWith(RDFService.RDF_FORMAT_EXTENSION.get(outputFormat))) {
+            outputFile = String.join("", outputFile, ".", RDFService.RDF_FORMAT_EXTENSION.get(outputFormat));
+        }
 
         System.out.println("[Info] Parsing input file...");
         final ArrayList<LKTLogParserSheet> allSheets = this.crawler.parseFile(inputFile, this.parserErrorMsg);
