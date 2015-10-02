@@ -16,6 +16,8 @@ import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
+
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -70,6 +72,11 @@ public class LKTLogToRDF {
      */
     private final Model model = ModelFactory.createDefaultModel();
     /**
+     * Absolute path of the output file used as namespace for the output rdf file.
+     */
+    private String localFileNS;
+
+    /**
      * Creates an RDF model from the parsed ODS sheet data and writes
      * the model to the designated output file.
      * @param allSheets Data from the parsed ODS sheets.
@@ -80,6 +87,9 @@ public class LKTLogToRDF {
     public final void createRDFModel(final ArrayList<LKTLogParserSheet> allSheets, final String inputFile,
                                 final String outputFile, final String outputFormat) {
 
+        // TODO For now leave the namespace of the instances empty so that they refer only to the same
+        // TODO document. Use the custom namespace only for actual properties and classes.
+        // TODO Also check which namespace to use for the properties and classes (neuroontology).
         // TODO Check if namespaces should be handled somewhere else
         this.model.setNsPrefix("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
         this.model.setNsPrefix("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
@@ -88,13 +98,19 @@ public class LKTLogToRDF {
         this.model.setNsPrefix(LKTLogToRDF.RDF_NS_DC_ABR, LKTLogToRDF.RDF_NS_DC);
         this.model.setNsPrefix(LKTLogToRDF.RDF_NS_ABR, LKTLogToRDF.RDF_NS);
 
+        // TODO Using the just the filename as local namespace does not really work, since the RDF/XML format
+        // TODO complains about malformed URIref. Check if the current solution is a usable one.
+        this.localFileNS = String.join("", RDF_NS, Paths.get(outputFile).toAbsolutePath().toString(), "/");
+        this.model.setNsPrefix("", this.localFileNS);
+
         final String provUUID = UUID.randomUUID().toString();
+
         this.localRes(provUUID)
-                .addProperty(RDF.type, this.localRes("Provenance"))
-                .addProperty(this.localDCProp("source"), inputFile)
-                .addProperty(this.localDCProp("created"),
+                .addProperty(RDF.type, this.mainRes("Provenance"))
+                .addProperty(this.dcProp("source"), inputFile)
+                .addProperty(this.dcProp("created"),
                         LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HH:mm")))
-                .addProperty(this.localDCProp("subject"),
+                .addProperty(this.dcProp("subject"),
                         "This RDF file was created by parsing data from the file indicated in the source literal");
 
         allSheets.stream().forEach(a -> this.addAnimal(a, provUUID));
@@ -118,21 +134,21 @@ public class LKTLogToRDF {
 
         // TODO Handle dates properly
         final Resource permit = this.localRes(UUID.randomUUID().toString())
-                .addProperty(this.localProp("hasProvenance"), this.fetchLocalRes(provUUID))
-                .addProperty(RDF.type, this.localRes("Permit"))
-                .addLiteral(this.localProp("hasNumber"), currSheet.getPermitNumber());
+                .addProperty(this.mainProp("hasProvenance"), this.fetchLocalRes(provUUID))
+                .addProperty(RDF.type, this.mainRes("Permit"))
+                .addLiteral(this.mainProp("hasNumber"), currSheet.getPermitNumber());
 
         final Resource animal = this.localRes(this.animalList.get(animalID))
-                .addProperty(this.localProp("hasProvenance"), this.fetchLocalRes(provUUID))
-                .addProperty(RDF.type, this.localRes("Animal"))
-                .addLiteral(this.localProp("hasAnimalID"), animalID)
-                .addLiteral(this.localProp("hasSex"), currSheet.getAnimalSex())
-                .addLiteral(this.localProp("hasBirthDate"), currSheet.getDateOfBirth().toString())
-                .addLiteral(this.localProp("hasWithdrawalDate"), currSheet.getDateOfWithdrawal().toString())
-                .addProperty(this.localProp("hasPermit"), permit);
+                        .addProperty(this.mainProp("hasProvenance"), this.fetchLocalRes(provUUID))
+                .addProperty(RDF.type, this.mainRes("Animal"))
+                .addLiteral(this.mainProp("hasAnimalID"), animalID)
+                .addLiteral(this.mainProp("hasSex"), currSheet.getAnimalSex())
+                .addLiteral(this.mainProp("hasBirthDate"), currSheet.getDateOfBirth().toString())
+                .addLiteral(this.mainProp("hasWithdrawalDate"), currSheet.getDateOfWithdrawal().toString())
+                .addProperty(this.mainProp("hasPermit"), permit);
 
-        RDFUtils.addNonEmptyLiteral(animal, this.localProp("hasSpeciesName"), currSheet.getSpecies());
-        RDFUtils.addNonEmptyLiteral(animal, this.localProp("hasScientificName"), currSheet.getScientificName());
+        RDFUtils.addNonEmptyLiteral(animal, this.mainProp("hasSpeciesName"), currSheet.getSpecies());
+        RDFUtils.addNonEmptyLiteral(animal, this.mainProp("hasScientificName"), currSheet.getScientificName());
 
         currSheet.getEntries().stream().forEach(
                 c -> this.addEntry(c, animal, provUUID)
@@ -154,8 +170,8 @@ public class LKTLogToRDF {
 
             this.projectList.put(project, UUID.randomUUID().toString());
             this.localRes(this.projectList.get(project))
-                    .addProperty(this.localProp("hasProvenance"), this.fetchLocalRes(provUUID))
-                    .addProperty(RDF.type, this.localRes("Project"))
+                    .addProperty(this.mainProp("hasProvenance"), this.fetchLocalRes(provUUID))
+                    .addProperty(RDF.type, this.mainRes("Project"))
                     .addLiteral(RDFS.label, project);
         }
         // Fetch project resource
@@ -171,8 +187,8 @@ public class LKTLogToRDF {
             final Resource personRes = this.model.createResource(String.join("", LKTLogToRDF.RDF_NS_FOAF, "Person"));
 
             this.localRes(this.experimenterList.get(experimenter))
-                    .addProperty(this.localProp("hasProvenance"), this.fetchLocalRes(provUUID))
-                    .addProperty(RDF.type, this.localRes("Experimenter"))
+                    .addProperty(this.mainProp("hasProvenance"), this.fetchLocalRes(provUUID))
+                    .addProperty(RDF.type, this.mainRes("Experimenter"))
                     .addLiteral(name, currEntry.getExperimenterName())
                             // TODO Check if this is actually correct or if the subclass
                             // TODO is supposed to be found only in the definition.
@@ -185,20 +201,20 @@ public class LKTLogToRDF {
         // Create current experiment resource
         final Resource exp = this.addExperimentEntry(currEntry);
         // Link current experiment to experimenter and animal log
-        exp.addProperty(this.localProp("hasProvenance"), this.fetchLocalRes(provUUID))
-                .addProperty(this.localProp("hasExperimenter"), experimenterRes)
-                .addProperty(this.localProp("hasAnimal"), animal);
+        exp.addProperty(this.mainProp("hasProvenance"), this.fetchLocalRes(provUUID))
+                .addProperty(this.mainProp("hasExperimenter"), experimenterRes)
+                .addProperty(this.mainProp("hasAnimal"), animal);
 
-        projectRes.addProperty(this.localProp("hasExperiment"), exp);
+        projectRes.addProperty(this.mainProp("hasExperiment"), exp);
 
         // Create current animalLog resource
         final Resource animalLogEntry = this.addAnimalLogEntry(currEntry);
         // Link animal log entry to experimenter
         animalLogEntry
-                .addProperty(this.localProp("hasProvenance"), this.fetchLocalRes(provUUID))
-                .addProperty(this.localProp("hasExperimenter"), experimenterRes);
+                .addProperty(this.mainProp("hasProvenance"), this.fetchLocalRes(provUUID))
+                .addProperty(this.mainProp("hasExperimenter"), experimenterRes);
         // Add animal log entry to the current animal node
-        animal.addProperty(this.localProp("hasAnimalLogEntry"), animalLogEntry);
+        animal.addProperty(this.mainProp("hasAnimalLogEntry"), animalLogEntry);
     }
 
     /**
@@ -209,12 +225,12 @@ public class LKTLogToRDF {
     private Resource addExperimentEntry(final LKTLogParserEntry currEntry) {
 
         final Resource experiment = this.localRes(UUID.randomUUID().toString())
-                .addProperty(RDF.type, this.localRes("Experiment"))
-                .addLiteral(this.localProp("startedAt"), currEntry.getExperimentDate().toString())
+                .addProperty(RDF.type, this.mainRes("Experiment"))
+                .addLiteral(this.mainProp("startedAt"), currEntry.getExperimentDate().toString())
                 .addLiteral(RDFS.label, currEntry.getExperiment());
 
-        RDFUtils.addNonEmptyLiteral(experiment, this.localProp("hasParadigm"), currEntry.getParadigm());
-        RDFUtils.addNonEmptyLiteral(experiment, this.localProp("hasParadigmSpecifics"),
+        RDFUtils.addNonEmptyLiteral(experiment, this.mainProp("hasParadigm"), currEntry.getParadigm());
+        RDFUtils.addNonEmptyLiteral(experiment, this.mainProp("hasParadigmSpecifics"),
                 currEntry.getParadigmSpecifics());
         RDFUtils.addNonEmptyLiteral(experiment, RDFS.comment, currEntry.getCommentExperiment());
 
@@ -228,21 +244,21 @@ public class LKTLogToRDF {
      */
     private Resource addAnimalLogEntry(final LKTLogParserEntry currEntry) {
         final Resource res = this.localRes(UUID.randomUUID().toString())
-                .addProperty(RDF.type, this.localRes("AnimalLogEntry"))
-                .addLiteral(this.localProp("startedAt"), currEntry.getExperimentDate().toString())
-                .addLiteral(this.localProp("hasDiet"), currEntry.getIsOnDiet())
-                .addLiteral(this.localProp("hasInitialWeightDate"), currEntry.getIsInitialWeight());
+                .addProperty(RDF.type, this.mainRes("AnimalLogEntry"))
+                .addLiteral(this.mainProp("startedAt"), currEntry.getExperimentDate().toString())
+                .addLiteral(this.mainProp("hasDiet"), currEntry.getIsOnDiet())
+                .addLiteral(this.mainProp("hasInitialWeightDate"), currEntry.getIsInitialWeight());
 
         if (currEntry.getWeight() != null) {
             final Resource weight = this.model.createResource()
-                    .addLiteral(this.localProp("hasValue"), currEntry.getWeight())
-                    .addLiteral(this.localProp("hasUnit"), "g");
+                    .addLiteral(this.mainProp("hasValue"), currEntry.getWeight())
+                    .addLiteral(this.mainProp("hasUnit"), "g");
 
-            res.addProperty(this.localProp("hasWeight"), weight);
+            res.addProperty(this.mainProp("hasWeight"), weight);
         }
 
         RDFUtils.addNonEmptyLiteral(res, RDFS.comment, currEntry.getCommentAnimal());
-        RDFUtils.addNonEmptyLiteral(res, this.localProp("hasFeed"), currEntry.getFeed());
+        RDFUtils.addNonEmptyLiteral(res, this.mainProp("hasFeed"), currEntry.getFeed());
 
         return res;
     }
@@ -255,17 +271,29 @@ public class LKTLogToRDF {
      */
     private Resource fetchLocalRes(final String fetchID) {
         return this.model.getResource(
-                String.join("", LKTLogToRDF.RDF_NS, fetchID)
+                String.join("", this.localFileNS, fetchID)
         );
     }
 
     /**
      * Convenience method for creating an RDF resource with the
-     * Namespace used by this crawler.
+     * absolut path of the output file as namespace.
      * @param resName Contains the name of the resource.
      * @return The created RDF Resource.
      */
     private Resource localRes(final String resName) {
+        return this.model.createResource(
+                String.join("", this.localFileNS, resName)
+        );
+    }
+
+    /**
+     * Convenience method for creating an RDF resource with the
+     * Namespace used by this crawler to define Classes and Properties.
+     * @param resName Contains the name of the resource.
+     * @return The created RDF Resource.
+     */
+    private Resource mainRes(final String resName) {
         return this.model.createResource(
                 String.join("", LKTLogToRDF.RDF_NS, resName)
         );
@@ -277,7 +305,7 @@ public class LKTLogToRDF {
      * @param propName Contains the name of the property.
      * @return The created RDF Property.
      */
-    private Property localProp(final String propName) {
+    private Property mainProp(final String propName) {
         return this.model.createProperty(
                 String.join("", LKTLogToRDF.RDF_NS, propName)
         );
@@ -289,10 +317,9 @@ public class LKTLogToRDF {
      * @param propName Contains the name of the property.
      * @return The created RDF Property.
      */
-    private Property localDCProp(final String propName) {
+    private Property dcProp(final String propName) {
         return this.model.createProperty(
                 String.join("", LKTLogToRDF.RDF_NS_DC, propName)
         );
     }
-
 }
