@@ -18,6 +18,7 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.log4j.Logger;
 import org.g_node.crawler.Controller;
 import org.g_node.crawler.LKTLogbook.LKTLogController;
 import org.g_node.crawler.LKTLogbook.LKTLogParser;
@@ -31,6 +32,11 @@ import org.g_node.crawler.LKTLogbook.LKTLogParser;
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
 public class App {
+
+    /**
+     * Access to the main LOGGER.
+     */
+    private static final Logger LOGGER = Logger.getLogger(App.class.getName());
 
     /**
      * Registry containing all crawlers implemented
@@ -51,9 +57,16 @@ public class App {
      * @param args User provided commandline arguments.
      */
     public static void main(final String[] args) {
-        final App currApp = new App();
-        currApp.register();
-        currApp.run(args);
+
+        try {
+            // TODO add timestamp to logfile
+            App.LOGGER.info("Starting logfile");
+            final App currApp = new App();
+            currApp.register();
+            currApp.run(args);
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
