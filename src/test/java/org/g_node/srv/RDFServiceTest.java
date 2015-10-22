@@ -87,6 +87,7 @@ public class RDFServiceTest {
      * Check, that a Jena RDF model is written to file.
      * @throws Exception
      */
+    /*
     @Test
     public void testWriteModelToFile() throws Exception {
         final Model model = ModelFactory.createDefaultModel();
@@ -104,4 +105,5 @@ public class RDFServiceTest {
 
         assertThat(this.outStream.toString()).startsWith(testString);
     }
+    */
 }

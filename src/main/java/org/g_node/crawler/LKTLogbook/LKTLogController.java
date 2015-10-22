@@ -18,6 +18,7 @@ import java.util.Set;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.log4j.Logger;
 import org.g_node.crawler.Controller;
 import org.g_node.srv.FileService;
 import org.g_node.srv.RDFService;
@@ -28,6 +29,10 @@ import org.g_node.srv.RDFService;
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
 public class LKTLogController implements Controller {
+    /**
+     * Access to the main LOGGER.
+     */
+    private static final Logger LOGGER = Logger.getLogger(LKTLogController.class.getName());
     /**
      * File types that can be processed by this crawler.
      */
@@ -112,27 +117,29 @@ public class LKTLogController implements Controller {
      */
     public final void run(final CommandLine cmd) {
 
-        System.out.println("[Info] Checking input file...");
+        LKTLogController.LOGGER.info("Checking input file...");
         final String inputFile = cmd.getOptionValue("i");
         if (!FileService.checkFile(inputFile)) {
-            System.err.println(String.join("", "[Error] Input file ", inputFile, " does not exist."));
+            LKTLogController.LOGGER.error(
+                    String.join("", "Input file ", inputFile, " does not exist.")
+            );
             return;
         } else if (!FileService.checkFileType(inputFile, LKTLogController.SUPPORTED_INPUT_FILE_TYPES)) {
-            System.err.println(
+            LKTLogController.LOGGER.error(
                     String.join(
-                            "", "[Error] Invalid input file type: ", inputFile,
+                            "", "Invalid input file type: ", inputFile,
                             "\n\tOnly the following file types are supported: ",
                             LKTLogController.SUPPORTED_INPUT_FILE_TYPES.toString())
             );
             return;
         }
 
-        System.out.println("[Info] Checking output format...");
+        LKTLogController.LOGGER.info("Checking output format...");
         final String outputFormat = cmd.getOptionValue("f", "TTL").toUpperCase(Locale.ENGLISH);
         if (!RDFService.RDF_FORMAT_MAP.containsKey(outputFormat)) {
-            System.err.println(
+            LKTLogController.LOGGER.error(
                     String.join("",
-                            "[Error] Unsupported output format: '", outputFormat, "'",
+                            "Unsupported output format: '", outputFormat, "'",
                             "\n Please use one of the following: ",
                             RDFService.RDF_FORMAT_MAP.keySet().toString()
                     )
@@ -149,15 +156,15 @@ public class LKTLogController implements Controller {
             outputFile = String.join("", outputFile, ".", RDFService.RDF_FORMAT_EXTENSION.get(outputFormat));
         }
 
-        System.out.println("[Info] Parsing input file...");
+        LKTLogController.LOGGER.info("Parsing input file...");
         final ArrayList<LKTLogParserSheet> allSheets = this.crawler.parseFile(inputFile, this.parserErrorMsg);
 
         if (this.parserErrorMsg.size() != 0) {
-            this.parserErrorMsg.forEach(System.err::println);
+            this.parserErrorMsg.forEach(LKTLogController.LOGGER::error);
             return;
         }
 
-        System.out.println("[Info] Converting parsed data to RDF...");
+        LKTLogController.LOGGER.info("Converting parsed data to RDF...");
         final LKTLogToRDF convRDF = new LKTLogToRDF();
         convRDF.createRDFModel(allSheets, inputFile, outputFile, outputFormat);
     }

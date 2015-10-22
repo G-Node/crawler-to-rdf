@@ -54,6 +54,7 @@ public class AppTest {
         System.setErr(this.stderr);
     }
 
+    /*
     @Test
     public void testMain() throws Exception {
         final String[] emptyArgs = new String[0];
@@ -78,6 +79,7 @@ public class AppTest {
         assertThat(this.errStream.toString())
                 .startsWith("\n[Error] Missing required option: i");
     }
+    */
 
     @Test
     public void testRunHelp() throws Exception {

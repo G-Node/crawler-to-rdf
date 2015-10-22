@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
+import org.apache.log4j.Logger;
 
 /**
  * Main service class for saving data to an RDF file.
@@ -53,6 +54,11 @@ public class RDFService {
             });
 
     /**
+     * Access to the main LOGGER.
+     */
+    private static final Logger LOGGER = Logger.getLogger(RDFService.class.getName());
+
+    /**
      * Write an rdf model to an output file. This method will overwrite any
      * files with the same path and filename.
      * @param fileName Path and filename of the output file.
@@ -65,9 +71,9 @@ public class RDFService {
 
         try {
             final FileOutputStream fos = new FileOutputStream(file);
-            System.out.println(
+            RDFService.LOGGER.info(
                     String.join(
-                            "", "[Info] Writing data to RDF file, ",
+                            "", "Writing data to RDF file, ",
                             fileName, " using format '", format, "'"
                     )
             );
@@ -75,11 +81,12 @@ public class RDFService {
                 RDFDataMgr.write(fos, model, RDFService.RDF_FORMAT_MAP.get(format));
                 fos.close();
             } catch (IOException ioExc) {
-                System.err.println("[Error] while closing file stream.");
+                RDFService.LOGGER.error("Error closing file stream.");
             }
         } catch (FileNotFoundException exc) {
-            System.err.println(String.join(
-                    "", "[Error] Could not open output file ", fileName));
+            RDFService.LOGGER.error(
+                    String.join("", "Could not open output file ", fileName)
+            );
         }
     }
 }
