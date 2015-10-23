@@ -160,6 +160,7 @@ public class LKTLogController implements Controller {
         final ArrayList<LKTLogParserSheet> allSheets = this.crawler.parseFile(inputFile, this.parserErrorMsg);
 
         if (this.parserErrorMsg.size() != 0) {
+            LKTLogController.LOGGER.error("");
             this.parserErrorMsg.forEach(LKTLogController.LOGGER::error);
             return;
         }

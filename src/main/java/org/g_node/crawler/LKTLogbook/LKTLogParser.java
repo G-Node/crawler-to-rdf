@@ -92,7 +92,7 @@ public class LKTLogParser {
 
                 if (this.parserErrorMessages.size() > 0) {
                     this.parserErrorMessages.add(
-                            "\nThere are parser errors present. Please resolve them and run the program again.");
+                            "\n\tThere are parser errors present. Please resolve them and run the program again.");
                 }
             }
         } catch (final IOException exp) {
