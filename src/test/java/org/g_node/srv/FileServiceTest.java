@@ -10,15 +10,12 @@
 
 package org.g_node.srv;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
-
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -38,39 +35,23 @@ public class FileServiceTest {
     private final String testFolderName = "fileservicetest";
     private final String testFileName = "test.txt";
     private final Path testFileFolder = Paths.get(tmpRoot, testFolderName);
-    private PrintStream stdout;
-    private PrintStream stderr;
 
     /**
-     * Redirect Error and Out stream and create a testfolder and the main
-     * test file in the java temp directory.
+     * Create a testfolder and the main test file in the java temp directory.
      * @throws Exception
      */
     @Before
     public void setUp() throws Exception {
-        final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-        final ByteArrayOutputStream errStream = new ByteArrayOutputStream();
-
-        this.stdout = System.out;
-        this.stderr = System.err;
-
-        System.setOut(new PrintStream(outStream));
-        System.setErr(new PrintStream(errStream));
-
         final File currTestFile = this.testFileFolder.resolve(this.testFileName).toFile();
         FileUtils.write(currTestFile, "This is a normal test file");
     }
 
     /**
-     * Reset Error and Out stream to the console and remove all created
-     * folders and files after the tests are done.
+     * Remove all created folders and files after the tests are done.
      * @throws Exception
      */
     @After
     public void tearDown() throws Exception {
-        System.setOut(this.stdout);
-        System.setErr(this.stderr);
-
         if (Files.exists(this.testFileFolder)) {
             FileUtils.deleteDirectory(this.testFileFolder.toFile());
         }
@@ -141,7 +122,5 @@ public class FileServiceTest {
                             .toAbsolutePath().normalize().toString(),
                     testFileTypes)
         ).isTrue();
-
     }
-
 }

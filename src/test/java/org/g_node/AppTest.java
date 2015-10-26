@@ -12,7 +12,10 @@ package org.g_node;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,37 +32,45 @@ public class AppTest {
 
     private App currApp;
     private ByteArrayOutputStream outStream;
-    private ByteArrayOutputStream errStream;
     private PrintStream stdout;
-    private PrintStream stderr;
 
+    /**
+     * Redirect Error and Out stream.
+     * @throws Exception
+     */
     @Before
     public void setUp() throws Exception {
-        this.outStream = new ByteArrayOutputStream();
-        this.errStream = new ByteArrayOutputStream();
 
         this.stdout = System.out;
-        this.stderr = System.err;
+        this.outStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(this.outStream));
 
-        System.setOut(new PrintStream(outStream));
-        System.setErr(new PrintStream(errStream));
+        Logger rootLogger = Logger.getRootLogger();
+        rootLogger.setLevel(Level.INFO);
+        rootLogger.addAppender(
+                new ConsoleAppender(
+                        new PatternLayout("[%-5p] %m%n")
+                )
+        );
 
         this.currApp = new App();
         this.currApp.register();
     }
 
+    /**
+     * Reset Out stream to the console after the tests are done.
+     * @throws Exception
+     */
     @After
     public void tearDown() throws Exception {
         System.setOut(this.stdout);
-        System.setErr(this.stderr);
     }
 
-    /*
     @Test
     public void testMain() throws Exception {
         final String[] emptyArgs = new String[0];
         App.main(emptyArgs);
-        assertThat(this.errStream.toString()).startsWith("No crawler selected!");
+        assertThat(this.outStream.toString()).contains("No crawler selected!");
     }
 
     @Test
@@ -67,8 +78,8 @@ public class AppTest {
         final String[] wrongCrawler = new String[1];
         wrongCrawler[0] = "iDoNotExist";
         currApp.run(wrongCrawler);
-        assertThat(this.errStream.toString())
-                .startsWith("Oh no, selected crawler 'iDoNotExist' does not exist!");
+        assertThat(this.outStream.toString())
+                .contains("Oh no, selected crawler 'iDoNotExist' does not exist!");
     }
 
     @Test
@@ -76,10 +87,9 @@ public class AppTest {
         final String[] missingArgs = new String[1];
         missingArgs[0] = "lkt";
         currApp.run(missingArgs);
-        assertThat(this.errStream.toString())
-                .startsWith("\n[Error] Missing required option: i");
+        assertThat(this.outStream.toString())
+                .contains("Missing required option: i");
     }
-    */
 
     @Test
     public void testRunHelp() throws Exception {
