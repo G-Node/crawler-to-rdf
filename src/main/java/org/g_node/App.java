@@ -18,6 +18,7 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.log4j.Logger;
 import org.g_node.crawler.Controller;
 import org.g_node.crawler.LKTLogbook.LKTLogController;
 import org.g_node.crawler.LKTLogbook.LKTLogParser;
@@ -31,6 +32,11 @@ import org.g_node.crawler.LKTLogbook.LKTLogParser;
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
 public class App {
+
+    /**
+     * Access to the main LOGGER.
+     */
+    private static final Logger LOGGER = Logger.getLogger(App.class.getName());
 
     /**
      * Registry containing all crawlers implemented
@@ -51,9 +57,16 @@ public class App {
      * @param args User provided commandline arguments.
      */
     public static void main(final String[] args) {
-        final App currApp = new App();
-        currApp.register();
-        currApp.run(args);
+
+        try {
+            // TODO add timestamp to logfile
+            App.LOGGER.info("Starting logfile");
+            final App currApp = new App();
+            currApp.register();
+            currApp.run(args);
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -74,12 +87,12 @@ public class App {
     public final void run(final String[] args) {
 
         if (args.length < 1) {
-            System.err.println(
+            App.LOGGER.error(
                     String.join(
-                            "", "No crawler selected!",
-                            "\n Please use syntax: 'java -jar crawler-to-rdf.jar [crawler] [crawler options]'",
-                            "\n e.g. 'java -jar crawler-to-rdf.jar lkt -i labbook.ods -o out.ttl'",
-                            "\n Currently available crawlers: ", this.crawlers.keySet().toString()
+                        "", "No crawler selected!",
+                        "\n\t Please use syntax: 'java -jar crawler-to-rdf.jar [crawler] [crawler options]'",
+                        "\n\t e.g. 'java -jar crawler-to-rdf.jar lkt -i labbook.ods -o out.ttl'",
+                        "\n\t Currently available crawlers: ", this.crawlers.keySet().toString()
                     )
             );
         } else if (this.crawlers.containsKey(args[0])) {
@@ -99,18 +112,18 @@ public class App {
 
             } catch (final ParseException exp) {
                 printHelp.printHelp("Help", useOptions);
-                System.err.println(
-                        String.join("", "\n[Error] ", exp.getMessage(), "\n")
+                App.LOGGER.error(
+                    String.join("", "\n", exp.getMessage(), "\n")
                 );
             }
 
         } else {
-            System.err.println(
+            App.LOGGER.error(
                     String.join(
                             "", "Oh no, selected crawler '", args[0], "' does not exist!",
-                            "\n Please use syntax: 'java crawler-to-rdf.jar [crawler] [crawler options]'",
-                            "\n e.g. 'java crawler-to-rdf.jar lkt -i labbook.ods -o out.ttl'",
-                            "\n Currently available crawlers: ", this.crawlers.keySet().toString()
+                            "\n\t Please use syntax: 'java crawler-to-rdf.jar [crawler] [crawler options]'",
+                            "\n\t e.g. 'java crawler-to-rdf.jar lkt -i labbook.ods -o out.ttl'",
+                            "\n\t Currently available crawlers: ", this.crawlers.keySet().toString()
                     )
             );
         }
