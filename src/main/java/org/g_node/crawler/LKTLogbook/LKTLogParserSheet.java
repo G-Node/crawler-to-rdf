@@ -37,11 +37,11 @@ public class LKTLogParserSheet {
     /**
      * Animal ID of the current ODS sheet. Required value.
      */
-    private String animalID;
+    private String subjectID;
     /**
      * Sex of the animal of the current ODS sheet. Required value.
      */
-    private String animalSex;
+    private String subjectSex;
     /**
      * Date of birth of the animal of the current ODS sheet.
      */
@@ -76,28 +76,28 @@ public class LKTLogParserSheet {
     }
 
     /**
-     * Return the animalID of the animal of the current ODS sheet.
+     * Return the subjectID of the animal of the current ODS sheet.
      * @return See description.
      */
-    public final String getAnimalID() {
-        return this.animalID;
+    public final String getSubjectID() {
+        return this.subjectID;
     }
 
     /**
-     * Set the animalID of the animal of the current ODS sheet.
+     * Set the subjectID of the animal of the current ODS sheet.
      * This entry is required for a sheet to be complete and valid.
      * @param aid ID of the current animal.
      */
-    public final void setAnimalID(final String aid) {
-        this.animalID = aid;
+    public final void setSubjectID(final String aid) {
+        this.subjectID = aid;
     }
 
     /**
      * Return the sex of the animal of the current ODS sheet.
      * @return See description.
      */
-    public final String getAnimalSex() {
-        return this.animalSex;
+    public final String getSubjectSex() {
+        return this.subjectSex;
     }
 
     /**
@@ -105,8 +105,8 @@ public class LKTLogParserSheet {
      * This entry is required for a sheet to be complete and valid.
      * @param asx Sex of the animal, has to be in format "f" or "m".
      */
-    public final void setAnimalSex(final String asx) {
-        this.animalSex = asx;
+    public final void setSubjectSex(final String asx) {
+        this.subjectSex = asx;
     }
 
     /**
@@ -257,15 +257,15 @@ public class LKTLogParserSheet {
 
         final ArrayList<String> validationMessage = new ArrayList<>(0);
 
-        this.checkEntry(validationMessage, this.animalID, "Missing animal ID");
+        this.checkEntry(validationMessage, this.subjectID, "Missing animal ID");
         this.checkEntry(validationMessage, this.permitNumber, "Missing permit number");
         this.checkEntry(validationMessage, this.species, "Missing species entry");
 
-        if (this.animalSex.isEmpty() || Objects.equals(this.animalSex, "")) {
+        if (this.subjectSex.isEmpty() || Objects.equals(this.subjectSex, "")) {
             validationMessage.add("Missing animal sex entry");
-        } else if (!Objects.equals(this.animalSex, "m") && !Objects.equals(this.animalSex, "f")) {
+        } else if (!Objects.equals(this.subjectSex, "m") && !Objects.equals(this.subjectSex, "f")) {
             validationMessage.add(
-                    String.join("", "Invalid animal sex (", this.getAnimalSex(), ")")
+                    String.join("", "Invalid animal sex (", this.getSubjectSex(), ")")
             );
         }
         return validationMessage;

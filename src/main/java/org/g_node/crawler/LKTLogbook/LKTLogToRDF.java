@@ -62,9 +62,9 @@ public class LKTLogToRDF {
      */
     private final Map<String, String> projectList = new HashMap<>();
     /**
-     * Map containing all the animalIDs with their newly created UUIDs of the parsed ODS sheet.
+     * Map containing all the subjectIDs with their newly created UUIDs of the parsed ODS sheet.
      */
-    private final Map<String, String> animalList = new HashMap<>();
+    private final Map<String, String> subjectList = new HashMap<>();
     /**
      * Map containing all the experimenters with their newly created UUIDs contained in the parsed ODS sheet.
      */
@@ -122,7 +122,7 @@ public class LKTLogToRDF {
                 .addProperty(this.dcProp("subject"),
                         "This RDF file was created by parsing data from the file indicated in the source literal");
 
-        allSheets.stream().forEach(a -> this.addAnimal(a, provUUID));
+        allSheets.stream().forEach(a -> this.addSubject(a, provUUID));
 
         RDFService.writeModelToFile(outputFile, this.model, outputFormat);
     }
@@ -134,11 +134,11 @@ public class LKTLogToRDF {
      * @param currSheet Data from the current sheet.
      * @param provUUID UUID of the provenance resource.
      */
-    private void addAnimal(final LKTLogParserSheet currSheet, final String provUUID) {
+    private void addSubject(final LKTLogParserSheet currSheet, final String provUUID) {
 
-        final String animalID = currSheet.getAnimalID();
-        if (!this.animalList.containsKey(animalID)) {
-            this.animalList.put(animalID, UUID.randomUUID().toString());
+        final String subjectID = currSheet.getSubjectID();
+        if (!this.subjectList.containsKey(subjectID)) {
+            this.subjectList.put(subjectID, UUID.randomUUID().toString());
         }
 
         final Resource permit = this.localRes(UUID.randomUUID().toString())
@@ -146,11 +146,11 @@ public class LKTLogToRDF {
                 .addProperty(RDF.type, this.mainRes("Permit"))
                 .addLiteral(this.mainProp("hasNumber"), currSheet.getPermitNumber());
 
-        final Resource animal = this.localRes(this.animalList.get(animalID))
+        final Resource subject = this.localRes(this.subjectList.get(subjectID))
                 .addProperty(this.mainProp("hasProvenance"), this.fetchLocalRes(provUUID))
-                .addProperty(RDF.type, this.mainRes("Animal"))
-                .addLiteral(this.mainProp("hasAnimalID"), animalID)
-                .addLiteral(this.mainProp("hasSex"), currSheet.getAnimalSex())
+                .addProperty(RDF.type, this.mainRes("Subject"))
+                .addLiteral(this.mainProp("hasSubjectID"), subjectID)
+                .addLiteral(this.mainProp("hasSex"), currSheet.getSubjectSex())
                 .addLiteral(
                         this.mainProp("hasBirthDate"),
                         this.mainTypedLiteral(currSheet.getDateOfBirth().toString(), XSDDatatype.XSDdate))
@@ -159,22 +159,22 @@ public class LKTLogToRDF {
                         this.mainTypedLiteral(currSheet.getDateOfWithdrawal().toString(), XSDDatatype.XSDdate))
                 .addProperty(this.mainProp("hasPermit"), permit);
 
-        RDFUtils.addNonEmptyLiteral(animal, this.mainProp("hasSpeciesName"), currSheet.getSpecies());
-        RDFUtils.addNonEmptyLiteral(animal, this.mainProp("hasScientificName"), currSheet.getScientificName());
+        RDFUtils.addNonEmptyLiteral(subject, this.mainProp("hasSpeciesName"), currSheet.getSpecies());
+        RDFUtils.addNonEmptyLiteral(subject, this.mainProp("hasScientificName"), currSheet.getScientificName());
 
         currSheet.getEntries().stream().forEach(
-                c -> this.addEntry(c, animal, provUUID)
+                c -> this.addEntry(c, subject, provUUID)
         );
     }
 
     /**
      * Adds the data of the current ODS entry to the main RDF model.
      * @param currEntry Data from the current ODS line entry.
-     * @param animal Resource from the main RDF model containing the information about
+     * @param subject Resource from the main RDF model containing the information about
      *  the animal this entry is associated with.
      * @param provUUID UUID of the provenance resource.
      */
-    private void addEntry(final LKTLogParserEntry currEntry, final Resource animal, final String provUUID) {
+    private void addEntry(final LKTLogParserEntry currEntry, final Resource subject, final String provUUID) {
 
         final String project = currEntry.getProject();
         // add project only once to the rdf model
@@ -212,21 +212,21 @@ public class LKTLogToRDF {
 
         // Create current experiment resource
         final Resource exp = this.addExperimentEntry(currEntry);
-        // Link current experiment to experimenter and animal log
+        // Link current experiment to experimenter and subject log
         exp.addProperty(this.mainProp("hasProvenance"), this.fetchLocalRes(provUUID))
                 .addProperty(this.mainProp("hasExperimenter"), experimenterRes)
-                .addProperty(this.mainProp("hasAnimal"), animal);
+                .addProperty(this.mainProp("hasSubject"), subject);
 
         projectRes.addProperty(this.mainProp("hasExperiment"), exp);
 
-        // Create current animalLog resource
-        final Resource animalLogEntry = this.addAnimalLogEntry(currEntry);
-        // Link animal log entry to experimenter
-        animalLogEntry
+        // Create current subjectLog resource
+        final Resource subjectLogEntry = this.addSubjectLogEntry(currEntry);
+        // Link subject log entry to experimenter
+        subjectLogEntry
                 .addProperty(this.mainProp("hasProvenance"), this.fetchLocalRes(provUUID))
                 .addProperty(this.mainProp("hasExperimenter"), experimenterRes);
-        // Add animal log entry to the current animal node
-        animal.addProperty(this.mainProp("hasAnimalLogEntry"), animalLogEntry);
+        // Add subject log entry to the current subject node
+        subject.addProperty(this.mainProp("hasSubjectLogEntry"), subjectLogEntry);
     }
 
     /**
@@ -252,13 +252,13 @@ public class LKTLogToRDF {
     }
 
     /**
-     * Add AnimalLogEntry node to the RDF model.
+     * Add SubjectLogEntry node to the RDF model.
      * @param currEntry Current entry line of the parsed ODS file.
-     * @return Created AnimalLogEntryNode.
+     * @return Created SubjectLogEntry node.
      */
-    private Resource addAnimalLogEntry(final LKTLogParserEntry currEntry) {
+    private Resource addSubjectLogEntry(final LKTLogParserEntry currEntry) {
         final Resource res = this.localRes(UUID.randomUUID().toString())
-                .addProperty(RDF.type, this.mainRes("AnimalLogEntry"))
+                .addProperty(RDF.type, this.mainRes("SubjectLogEntry"))
                 .addLiteral(
                         this.mainProp("startedAt"),
                         this.mainTypedLiteral(currEntry.getExperimentDate().toString(), XSDDatatype.XSDdateTime))
@@ -273,7 +273,7 @@ public class LKTLogToRDF {
             res.addProperty(this.mainProp("hasWeight"), weight);
         }
 
-        RDFUtils.addNonEmptyLiteral(res, RDFS.comment, currEntry.getCommentAnimal());
+        RDFUtils.addNonEmptyLiteral(res, RDFS.comment, currEntry.getCommentSubject());
         RDFUtils.addNonEmptyLiteral(res, this.mainProp("hasFeed"), currEntry.getFeed());
 
         return res;

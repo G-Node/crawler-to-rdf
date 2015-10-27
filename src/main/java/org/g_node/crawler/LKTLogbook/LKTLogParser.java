@@ -84,7 +84,7 @@ public class LKTLogParser {
                 allSheets.forEach(
                         s -> LKTLogParser.LOGGER.info(
                                 String.join(
-                                        "", "CurrSheet: ", s.getAnimalID(),
+                                        "", "CurrSheet: ", s.getSubjectID(),
                                         ", number of entries: ", String.valueOf(s.getEntries().size())
                                 )
                         )
@@ -161,8 +161,8 @@ public class LKTLogParser {
         String checkDB;
         String checkDW;
 
-        currLKTLSheet.setAnimalID(currSheet.getCellAt("C2").getTextValue());
-        currLKTLSheet.setAnimalSex(currSheet.getCellAt("C3").getTextValue());
+        currLKTLSheet.setSubjectID(currSheet.getCellAt("C2").getTextValue());
+        currLKTLSheet.setSubjectSex(currSheet.getCellAt("C3").getTextValue());
         checkDB = currLKTLSheet.setDateOfBirth(currSheet.getCellAt("C4").getTextValue());
         checkDW = currLKTLSheet.setDateOfWithdrawal(currSheet.getCellAt("C5").getTextValue());
         currLKTLSheet.setPermitNumber(currSheet.getCellAt("C6").getTextValue());
@@ -256,7 +256,7 @@ public class LKTLogParser {
 
         currEntry.setExperimenterName(currSheet.getCellAt(String.join("", "M", currLine)).getTextValue());
         currEntry.setCommentExperiment(currSheet.getCellAt(String.join("", "H", currLine)).getTextValue());
-        currEntry.setCommentAnimal(currSheet.getCellAt(String.join("", "I", currLine)).getTextValue());
+        currEntry.setCommentSubject(currSheet.getCellAt(String.join("", "I", currLine)).getTextValue());
         currEntry.setFeed(currSheet.getCellAt(String.join("", "J", currLine)).getTextValue());
         currEntry.setIsOnDiet(currSheet.getCellAt(String.join("", "E", currLine)).getTextValue());
         currEntry.setIsInitialWeight(currSheet.getCellAt(String.join("", "F", currLine)).getTextValue());

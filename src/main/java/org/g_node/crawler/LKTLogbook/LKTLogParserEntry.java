@@ -72,7 +72,7 @@ public class LKTLogParserEntry {
     /**
      * Comment about the animal.
      */
-    private String commentAnimal;
+    private String commentSubject;
     /**
      * Description of the food the animal received
      * at the time of the current entry.
@@ -251,16 +251,16 @@ public class LKTLogParserEntry {
      * Return comments about the animal at the current entry.
      * @return See description.
      */
-    public final String getCommentAnimal() {
-        return this.commentAnimal;
+    public final String getCommentSubject() {
+        return this.commentSubject;
     }
 
     /**
      * Set comments about the animal.
      * @param cmtan Comment about the animal.
      */
-    public final void setCommentAnimal(final String cmtan) {
-        this.commentAnimal = cmtan;
+    public final void setCommentSubject(final String cmtan) {
+        this.commentSubject = cmtan;
     }
 
     /**
