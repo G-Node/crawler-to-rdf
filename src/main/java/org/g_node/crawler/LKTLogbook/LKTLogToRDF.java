@@ -10,13 +10,15 @@
 
 package org.g_node.crawler.LKTLogbook;
 
+import com.hp.hpl.jena.datatypes.RDFDatatype;
+import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
+import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
-
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -32,7 +34,7 @@ import org.g_node.srv.RDFUtils;
  */
 public class LKTLogToRDF {
     /**
-     * Namespace used to identify RDF resources and properties specific for the current usecase.
+     * Namespace used to identify RDF resources and properties specific for the current use case.
      */
     private static final String RDF_NS =  "http://g-node.org/orcid/0000-0003-4857-1083/lkt/";
     /**
@@ -109,8 +111,12 @@ public class LKTLogToRDF {
         this.localRes(provUUID)
                 .addProperty(RDF.type, this.mainRes("Provenance"))
                 .addProperty(this.dcProp("source"), inputFile)
-                .addProperty(this.dcProp("created"),
-                        LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HH:mm")))
+                .addLiteral(
+                        this.dcProp("created"),
+                        this.mainTypedLiteral(
+                                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HH:mm")),
+                                XSDDatatype.XSDdateTime)
+                )
                 .addProperty(this.dcProp("subject"),
                         "This RDF file was created by parsing data from the file indicated in the source literal");
 
@@ -133,19 +139,22 @@ public class LKTLogToRDF {
             this.animalList.put(animalID, UUID.randomUUID().toString());
         }
 
-        // TODO Handle dates properly
         final Resource permit = this.localRes(UUID.randomUUID().toString())
                 .addProperty(this.mainProp("hasProvenance"), this.fetchLocalRes(provUUID))
                 .addProperty(RDF.type, this.mainRes("Permit"))
                 .addLiteral(this.mainProp("hasNumber"), currSheet.getPermitNumber());
 
         final Resource animal = this.localRes(this.animalList.get(animalID))
-                        .addProperty(this.mainProp("hasProvenance"), this.fetchLocalRes(provUUID))
+                .addProperty(this.mainProp("hasProvenance"), this.fetchLocalRes(provUUID))
                 .addProperty(RDF.type, this.mainRes("Animal"))
                 .addLiteral(this.mainProp("hasAnimalID"), animalID)
                 .addLiteral(this.mainProp("hasSex"), currSheet.getAnimalSex())
-                .addLiteral(this.mainProp("hasBirthDate"), currSheet.getDateOfBirth().toString())
-                .addLiteral(this.mainProp("hasWithdrawalDate"), currSheet.getDateOfWithdrawal().toString())
+                .addLiteral(
+                        this.mainProp("hasBirthDate"),
+                        this.mainTypedLiteral(currSheet.getDateOfBirth().toString(), XSDDatatype.XSDdate))
+                .addLiteral(
+                        this.mainProp("hasWithdrawalDate"),
+                        this.mainTypedLiteral(currSheet.getDateOfWithdrawal().toString(), XSDDatatype.XSDdate))
                 .addProperty(this.mainProp("hasPermit"), permit);
 
         RDFUtils.addNonEmptyLiteral(animal, this.mainProp("hasSpeciesName"), currSheet.getSpecies());
@@ -227,7 +236,9 @@ public class LKTLogToRDF {
 
         final Resource experiment = this.localRes(UUID.randomUUID().toString())
                 .addProperty(RDF.type, this.mainRes("Experiment"))
-                .addLiteral(this.mainProp("startedAt"), currEntry.getExperimentDate().toString())
+                .addLiteral(
+                        this.mainProp("startedAt"),
+                        this.mainTypedLiteral(currEntry.getExperimentDate().toString(), XSDDatatype.XSDdateTime))
                 .addLiteral(RDFS.label, currEntry.getExperiment());
 
         RDFUtils.addNonEmptyLiteral(experiment, this.mainProp("hasParadigm"), currEntry.getParadigm());
@@ -246,7 +257,9 @@ public class LKTLogToRDF {
     private Resource addAnimalLogEntry(final LKTLogParserEntry currEntry) {
         final Resource res = this.localRes(UUID.randomUUID().toString())
                 .addProperty(RDF.type, this.mainRes("AnimalLogEntry"))
-                .addLiteral(this.mainProp("startedAt"), currEntry.getExperimentDate().toString())
+                .addLiteral(
+                        this.mainProp("startedAt"),
+                        this.mainTypedLiteral(currEntry.getExperimentDate().toString(), XSDDatatype.XSDdateTime))
                 .addLiteral(this.mainProp("hasDiet"), currEntry.getIsOnDiet())
                 .addLiteral(this.mainProp("hasInitialWeightDate"), currEntry.getIsInitialWeight());
 
@@ -312,6 +325,16 @@ public class LKTLogToRDF {
         );
     }
 
+    /**
+     * Convenience method for creating a typed literal with the
+     * Namespace used by this crawler.
+     * @param litVal Contains the value of the Literal.
+     * @param litType Contains the RDFDatatype of the returned Literal.
+     * @return The created typed Literal.
+     */
+    private Literal mainTypedLiteral(final String litVal, final RDFDatatype litType) {
+        return this.model.createTypedLiteral(litVal, litType);
+    }
     /**
      * Convenience method for creating an RDF property with the
      * Dublin core Namespace.
