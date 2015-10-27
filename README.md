@@ -3,4 +3,6 @@
 [![Coverage Status](https://coveralls.io/repos/mpsonntag/crawler-to-rdf/badge.svg?branch=master&service=github)](https://coveralls.io/github/mpsonntag/crawler-to-rdf?branch=master)
 
 # crawler-to-rdf
-Prototype for fetching stuff out of various files and convert it to rdf
+Prototype for fetching stuff out of various files and convert it to rdf.
+
+You can find a beta release jar file [here](https://github.com/mpsonntag/crawler-to-rdf/releases).
