@@ -59,7 +59,7 @@ public class LKTLogParserSheet {
      */
     private String species;
     /**
-     * Scientific species name of the animal of the current ODS sheet.
+     * Scientific species name of the animal of the current ODS sheet. Required value.
      */
     private String scientificName;
 
@@ -257,21 +257,30 @@ public class LKTLogParserSheet {
 
         final ArrayList<String> validationMessage = new ArrayList<>(0);
 
-        if (this.animalID.isEmpty() || Objects.equals(this.animalID, "")) {
-            validationMessage.add("Missing animal ID");
-        }
+        this.checkEntry(validationMessage, this.animalID, "Missing animal ID");
+        this.checkEntry(validationMessage, this.permitNumber, "Missing permit number");
+        this.checkEntry(validationMessage, this.species, "Missing species entry");
+
         if (this.animalSex.isEmpty() || Objects.equals(this.animalSex, "")) {
-            validationMessage.add("Missing animal sex");
+            validationMessage.add("Missing animal sex entry");
         } else if (!Objects.equals(this.animalSex, "m") && !Objects.equals(this.animalSex, "f")) {
             validationMessage.add(
-                    String.join(
-                            "", "Invalid animal sex (", this.getAnimalSex(), ")"
-                    )
+                    String.join("", "Invalid animal sex (", this.getAnimalSex(), ")")
             );
         }
-        if (this.permitNumber.isEmpty() || Objects.equals(this.permitNumber, "")) {
-            validationMessage.add("Missing permitNumber");
-        }
         return validationMessage;
+    }
+
+    /**
+     * Convenience method checking required entries and adding error
+     * messages if required.
+     * @param messageList List of error messages.
+     * @param val Value that is required to be checked.
+     * @param message Error message that's added if a value is missing.
+     */
+    private void checkEntry(final ArrayList<String> messageList, final String val, final String message) {
+        if (val.isEmpty() || Objects.equals(val, "")) {
+            messageList.add(message);
+        }
     }
 }
