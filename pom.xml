@@ -8,7 +8,7 @@
   <groupId>org.g_node</groupId>
   <artifactId>crawler-to-rdf</artifactId>
   <packaging>jar</packaging>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.01-Beta</version>
   <name>crawler-to-rdf</name>
   <url>http://maven.apache.org</url>
 
