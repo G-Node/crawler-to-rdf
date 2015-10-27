@@ -103,7 +103,9 @@ public class LKTLogToRDF {
         // TODO Using the just the filename as local namespace does not really work, since the RDF/XML format
         // TODO complains about malformed URIref. Check if the current solution is a usable one.
         // TODO Check out http://www.w3.org/TR/REC-xml-names/#iri-use to see the w3 opinion on relative URI references.
-        this.localFileNS = String.join("", RDF_NS, Paths.get(outputFile).toAbsolutePath().toString(), "/");
+        // TODO remove "lkt//" dirty fix once the issue above has been resolved
+        this.localFileNS = String.join("", RDF_NS, Paths.get(outputFile).toAbsolutePath().toString(), "/")
+                .replace("lkt//", "lkt/");
         this.model.setNsPrefix("", this.localFileNS);
 
         final String provUUID = UUID.randomUUID().toString();
