@@ -38,6 +38,7 @@ public class RDFService {
                     put("TTL", RDFFormat.TURTLE_PRETTY);
                     put("RDF/XML", RDFFormat.RDFXML);
                     put("NTRIPLES", RDFFormat.NTRIPLES);
+                    put("JSON-LD", RDFFormat.JSONLD);
                 }
             });
 
@@ -50,6 +51,7 @@ public class RDFService {
                     put("TTL", "ttl");
                     put("RDF/XML", "rdf");
                     put("NTRIPLES", "nt");
+                    put("JSON-LD", "jsonld");
                 }
             });
 
