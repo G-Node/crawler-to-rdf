@@ -262,8 +262,13 @@ public class LKTLogToRDF {
                 .addLiteral(
                         this.mainProp("startedAt"),
                         this.mainTypedLiteral(currEntry.getExperimentDate().toString(), XSDDatatype.XSDdateTime))
-                .addLiteral(this.mainProp("hasDiet"), currEntry.getIsOnDiet())
-                .addLiteral(this.mainProp("hasInitialWeightDate"), currEntry.getIsInitialWeight());
+                .addLiteral(
+                        this.mainProp("hasDiet"),
+                        this.mainTypedLiteral(currEntry.getIsOnDiet().toString(), XSDDatatype.XSDboolean))
+                .addLiteral(
+                        this.mainProp("hasInitialWeightDate"),
+                        this.mainTypedLiteral(currEntry.getIsInitialWeight().toString(), XSDDatatype.XSDboolean)
+                );
 
         if (currEntry.getWeight() != null) {
             final Resource weight = this.model.createResource()
