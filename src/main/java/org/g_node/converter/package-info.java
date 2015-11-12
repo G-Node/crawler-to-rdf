@@ -7,8 +7,8 @@
  * modification, are permitted under the terms of the BSD License. See
  * LICENSE file in the root of the Project.
  *
- * Provides all required classes to extract data from an ODS sheet.
- * This crawler is specific for the use case of Kay Thurley, LMU.
+ * Provides all required classes to convert an RDF file into an RDF
+ * file of a different supported RDF format.
  */
 
-package org.g_node.crawler.LKTLogbook;
+package org.g_node.converter;

@@ -8,59 +8,38 @@
  * LICENSE file in the root of the Project.
  */
 
-package org.g_node.crawler.LKTLogbook;
+package org.g_node.converter;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import com.hp.hpl.jena.rdf.model.Model;
+
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.jena.riot.RiotException;
 import org.apache.log4j.Logger;
 import org.g_node.Controller;
 import org.g_node.srv.CtrlCheckService;
 import org.g_node.srv.RDFService;
 
 /**
- * Command class for the LKT crawler.
+ * Controller class for the RDF to RDF converter.
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
-public class LKTLogController implements Controller {
+public class ConvController implements Controller {
     /**
      * Access to the main LOGGER.
      */
-    private static final Logger LOGGER = Logger.getLogger(LKTLogController.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(ConvController.class.getName());
     /**
-     * File types that can be processed by this crawler.
-     */
-    private static final List<String> SUPPORTED_INPUT_FILE_TYPES = Collections.singletonList("ODS");
-    /**
-     * ArrayList containing all messages that occurred while parsing the input file(s).
-     * All parser errors connected to missing values or incorrect value formats should
-     * be collected and written to a logfile, so that users can correct these
-     * mistakes ideally all at once before running the crawler again.
-     */
-    private ArrayList<String> parserErrorMsg = new ArrayList<>(0);
-    /**
-     * The actual crawler this class handles and provides.
-     */
-    private LKTLogParser crawler;
-
-    /**
-     * Constructor.
-     * @param crl Instance of the {@link LKTLogParser} crawler.
-     */
-    public LKTLogController(final LKTLogParser crl) {
-        this.crawler = crl;
-    }
-
-    /**
-     * Method returning the commandline options of the LKT crawler.
-     * @param regTools Set of all registered crawlers.
-     * @return Available {@link CommandLine} {@link Options}.
+     * Method returning the commandline options of the RDF to RDF converter.
+     * @param regTools Set of all registered tools.
+     * @return Available commandline options.
      */
     public final Options options(final Set<String> regTools) {
         final Options options = new Options();
@@ -69,7 +48,7 @@ public class LKTLogController implements Controller {
 
         final Option opIn = Option.builder("i")
                 .longOpt("in-file")
-                .desc("Input file that's supposed to be parsed")
+                .desc("Input RDF file that's supposed to be converted into a different RDF format.")
                 .required()
                 .hasArg()
                 .valueSeparator()
@@ -110,9 +89,7 @@ public class LKTLogController implements Controller {
     }
 
     /**
-     * Method to parse information from an input file to an output file using
-     * the LKT crawler. Handles all checks related to input file, output file and
-     * file format before the parsing begins.
+     * Method converting data from an input RDF file to an RDF file of a different supported RDF format.
      * @param cmd User provided {@link CommandLine} input.
      */
     public final void run(final CommandLine cmd) {
@@ -122,7 +99,11 @@ public class LKTLogController implements Controller {
             return;
         }
 
-        if (!CtrlCheckService.supportedInFileType(inputFile, LKTLogController.SUPPORTED_INPUT_FILE_TYPES)) {
+        final List<String> checkExtension = RDFService.RDF_FORMAT_EXTENSION.values()
+                .stream()
+                .map(c->c.toUpperCase(Locale.ENGLISH))
+                .collect(Collectors.toList());
+        if (!CtrlCheckService.supportedInFileType(inputFile, checkExtension)) {
             return;
         }
 
@@ -133,24 +114,26 @@ public class LKTLogController implements Controller {
 
         final int i = inputFile.lastIndexOf('.');
         final String defaultOutputFile = String.join("", inputFile.substring(0, i), "_out");
-
         String outputFile = cmd.getOptionValue("o", defaultOutputFile);
 
         if (!outputFile.toLowerCase().endsWith(RDFService.RDF_FORMAT_EXTENSION.get(outputFormat))) {
             outputFile = String.join("", outputFile, ".", RDFService.RDF_FORMAT_EXTENSION.get(outputFormat));
         }
 
-        LKTLogController.LOGGER.info("Parsing input file...");
-        final ArrayList<LKTLogParserSheet> allSheets = this.crawler.parseFile(inputFile, this.parserErrorMsg);
+        Model convData;
 
-        if (this.parserErrorMsg.size() != 0) {
-            LKTLogController.LOGGER.error("");
-            this.parserErrorMsg.forEach(LKTLogController.LOGGER::error);
+        try {
+            ConvController.LOGGER.info("Reading input file...");
+            convData = RDFService.openModelFromFile(inputFile);
+
+        } catch (RiotException e) {
+            ConvController.LOGGER.error(e.getMessage());
+            // TODO find out how to print stacktrace to log4j logfile
+            e.printStackTrace();
             return;
         }
 
-        LKTLogController.LOGGER.info("Converting parsed data to RDF...");
-        final LKTLogToRDF convRDF = new LKTLogToRDF();
-        convRDF.createRDFModel(allSheets, inputFile, outputFile, outputFormat);
+        RDFService.writeModelToFile(outputFile, convData, outputFormat);
     }
+
 }

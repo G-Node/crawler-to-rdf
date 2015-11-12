@@ -91,4 +91,16 @@ public class RDFService {
             );
         }
     }
+
+    /**
+     * Open an RDF file, load the data and return the RDF model. Method will not check,
+     * if the file is actually a valid RDF file or if the file extension matches
+     * the content of the file.
+     * @param fileName Path and filename of a valid RDF file.
+     * @return Model created from the data within the provided RDF file.
+     */
+    public static Model openModelFromFile(final String fileName) {
+        return RDFDataMgr.loadModel(fileName);
+    }
+
 }

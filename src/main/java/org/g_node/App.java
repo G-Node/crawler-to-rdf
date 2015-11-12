@@ -21,7 +21,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.log4j.Logger;
-import org.g_node.crawler.Controller;
+import org.g_node.converter.ConvController;
 import org.g_node.crawler.LKTLogbook.LKTLogController;
 import org.g_node.crawler.LKTLogbook.LKTLogParser;
 
@@ -41,21 +41,20 @@ public class App {
     private static final Logger LOGGER = Logger.getLogger(App.class.getName());
 
     /**
-     * Registry containing all crawlers implemented
-     * and available to this application.
+     * Registry containing all crawlers and RDF to RDF converters implemented and available to this application.
      */
-    private final Map<String, Controller> crawlers;
+    private final Map<String, Controller> tools;
 
     /**
      * Constructor.
      */
     App() {
-        this.crawlers = new HashMap<>();
+        this.tools = new HashMap<>();
     }
 
     /**
-     * Main method of the crawler-to-rdf framework. Registers all so far available crawlers and
-     * selects and runs the appropriate crawler dependent on commandline input.
+     * Main method of the crawler-to-rdf framework. Registers all so far available tools and
+     * selects and runs the appropriate crawler or RDF to RDF converter dependent on commandline input.
      * @param args User provided {@link CommandLine} arguments.
      */
     public static void main(final String[] args) {
@@ -73,18 +72,19 @@ public class App {
     }
 
     /**
-     * Method to register all implemented crawlers with their short hand.
-     * The short hand is required to select and run the intended crawler.
+     * Method to register all implemented tools with their short hand.
+     * The short hand is required to select and run the intended crawler or RDF to RDF converter.
      */
     public final void register() {
-        this.crawlers.put("lkt", new LKTLogController(new LKTLogParser()));
+        this.tools.put("lkt", new LKTLogController(new LKTLogParser()));
+        this.tools.put("conv", new ConvController());
     }
 
     /**
      * Method to parse the commandline arguments, provide
      * appropriate error messages if required and run the selected
-     * crawler.
-     * The first argument of the command line has to be the shorthand of the required crawler.
+     * crawler or RDF to RDF converter.
+     * The first argument of the command line has to be the shorthand of the required crawler or RDF to RDF converter.
      * @param args User provided commandline arguments.
      */
     public final void run(final String[] args) {
@@ -92,18 +92,18 @@ public class App {
         if (args.length < 1) {
             App.LOGGER.error(
                     String.join(
-                        "", "No crawler selected!",
-                        "\n\t Please use syntax: 'java -jar crawler-to-rdf.jar [crawler] [crawler options]'",
-                        "\n\t e.g. 'java -jar crawler-to-rdf.jar lkt -i labbook.ods -o out.ttl'",
-                        "\n\t Currently available crawlers: ", this.crawlers.keySet().toString()
+                            "", "No tool selected!",
+                            "\n\t Please use syntax: 'java -jar crawler-to-rdf.jar [tool] [tool options]'",
+                            "\n\t e.g. 'java -jar crawler-to-rdf.jar lkt -i exampleFile.ods -o out.ttl'",
+                            "\n\t Currently available tools: ", this.tools.keySet().toString()
                     )
             );
-        } else if (this.crawlers.containsKey(args[0])) {
+        } else if (this.tools.containsKey(args[0])) {
 
             final HelpFormatter printHelp = new HelpFormatter();
             final CommandLineParser parser = new DefaultParser();
-            final Controller currCrawlerController = this.crawlers.get(args[0]);
-            final Options useOptions = this.crawlers.get(args[0]).options(this.crawlers.keySet());
+            final Controller currCrawlerController = this.tools.get(args[0]);
+            final Options useOptions = this.tools.get(args[0]).options(this.tools.keySet());
 
             try {
                 final CommandLine cmd = parser.parse(useOptions, args, false);
@@ -123,10 +123,10 @@ public class App {
         } else {
             App.LOGGER.error(
                     String.join(
-                            "", "Oh no, selected crawler '", args[0], "' does not exist!",
-                            "\n\t Please use syntax: 'java crawler-to-rdf.jar [crawler] [crawler options]'",
-                            "\n\t e.g. 'java crawler-to-rdf.jar lkt -i labbook.ods -o out.ttl'",
-                            "\n\t Currently available crawlers: ", this.crawlers.keySet().toString()
+                            "", "Oh no, selected tool '", args[0], "' does not exist!",
+                            "\n\t Please use syntax: 'java crawler-to-rdf.jar [tool] [tool options]'",
+                            "\n\t e.g. 'java crawler-to-rdf.jar lkt -i exampleFile.ods -o out.ttl'",
+                            "\n\t Currently available tools: ", this.tools.keySet().toString()
                     )
             );
         }
