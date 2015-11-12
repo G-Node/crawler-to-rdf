@@ -70,7 +70,7 @@ public class AppTest {
     public void testMain() throws Exception {
         final String[] emptyArgs = new String[0];
         App.main(emptyArgs);
-        assertThat(this.outStream.toString()).contains("No crawler selected!");
+        assertThat(this.outStream.toString()).contains("No tool selected!");
     }
 
     @Test
@@ -79,7 +79,7 @@ public class AppTest {
         wrongCrawler[0] = "iDoNotExist";
         currApp.run(wrongCrawler);
         assertThat(this.outStream.toString())
-                .contains("Oh no, selected crawler 'iDoNotExist' does not exist!");
+                .contains("Oh no, selected tool 'iDoNotExist' does not exist!");
     }
 
     @Test
