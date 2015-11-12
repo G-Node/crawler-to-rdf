@@ -283,7 +283,7 @@ public class LKTLogParserEntry {
      * Return a boolean value if the animal is on diet.
      * @return See description.
      */
-    public final boolean getIsOnDiet() {
+    public final Boolean getIsOnDiet() {
         return this.isOnDiet;
     }
 
@@ -300,7 +300,7 @@ public class LKTLogParserEntry {
      * initial weight for diet calculations.
      * @return See description.
      */
-    public final boolean getIsInitialWeight() {
+    public final Boolean getIsInitialWeight() {
         return this.isInitialWeight;
     }
 

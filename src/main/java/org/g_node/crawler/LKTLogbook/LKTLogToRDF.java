@@ -116,9 +116,9 @@ public class LKTLogToRDF {
                 .addLiteral(
                         this.dcProp("created"),
                         this.mainTypedLiteral(
-                                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HH:mm")),
+                                LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
                                 XSDDatatype.XSDdateTime)
-                )
+                        )
                 .addProperty(this.dcProp("subject"),
                         "This RDF file was created by parsing data from the file indicated in the source literal");
 
@@ -240,7 +240,10 @@ public class LKTLogToRDF {
                 .addProperty(RDF.type, this.mainRes("Experiment"))
                 .addLiteral(
                         this.mainProp("startedAt"),
-                        this.mainTypedLiteral(currEntry.getExperimentDate().toString(), XSDDatatype.XSDdateTime))
+                        this.mainTypedLiteral(
+                                currEntry.getExperimentDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+                                XSDDatatype.XSDdateTime)
+                        )
                 .addLiteral(RDFS.label, currEntry.getExperiment());
 
         RDFUtils.addNonEmptyLiteral(experiment, this.mainProp("hasParadigm"), currEntry.getParadigm());
@@ -261,9 +264,17 @@ public class LKTLogToRDF {
                 .addProperty(RDF.type, this.mainRes("SubjectLogEntry"))
                 .addLiteral(
                         this.mainProp("startedAt"),
-                        this.mainTypedLiteral(currEntry.getExperimentDate().toString(), XSDDatatype.XSDdateTime))
-                .addLiteral(this.mainProp("hasDiet"), currEntry.getIsOnDiet())
-                .addLiteral(this.mainProp("hasInitialWeightDate"), currEntry.getIsInitialWeight());
+                        this.mainTypedLiteral(
+                                currEntry.getExperimentDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+                                XSDDatatype.XSDdateTime)
+                        )
+                .addLiteral(
+                        this.mainProp("hasDiet"),
+                        this.mainTypedLiteral(currEntry.getIsOnDiet().toString(), XSDDatatype.XSDboolean))
+                .addLiteral(
+                        this.mainProp("hasInitialWeightDate"),
+                        this.mainTypedLiteral(currEntry.getIsInitialWeight().toString(), XSDDatatype.XSDboolean)
+                );
 
         if (currEntry.getWeight() != null) {
             final Resource weight = this.model.createResource()

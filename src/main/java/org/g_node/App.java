@@ -10,6 +10,8 @@
 
 package org.g_node;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.cli.CommandLine;
@@ -54,13 +56,14 @@ public class App {
     /**
      * Main method of the crawler-to-rdf framework. Registers all so far available crawlers and
      * selects and runs the appropriate crawler dependent on commandline input.
-     * @param args User provided commandline arguments.
+     * @param args User provided {@link CommandLine} arguments.
      */
     public static void main(final String[] args) {
 
+        final String currDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
+        App.LOGGER.info(String.join("", currDateTime, ", Starting RDF crawler logfile."));
+
         try {
-            // TODO add timestamp to logfile
-            App.LOGGER.info("Starting logfile");
             final App currApp = new App();
             currApp.register();
             currApp.run(args);
