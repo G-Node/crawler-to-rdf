@@ -21,6 +21,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.log4j.Logger;
+import org.g_node.converter.ConvController;
 import org.g_node.crawler.LKTLogbook.LKTLogController;
 import org.g_node.crawler.LKTLogbook.LKTLogParser;
 
@@ -76,6 +77,7 @@ public class App {
      */
     public final void register() {
         this.tools.put("lkt", new LKTLogController(new LKTLogParser()));
+        this.tools.put("conv", new ConvController());
     }
 
     /**
