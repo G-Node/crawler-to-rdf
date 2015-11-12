@@ -11,8 +11,12 @@
 package org.g_node.converter;
 
 import com.hp.hpl.jena.rdf.model.Model;
+
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -95,7 +99,11 @@ public class ConvController implements Controller {
             return;
         }
 
-        if (!CtrlCheckService.supportedFileType(inputFile)) {
+        final List<String> checkExtension = RDFService.RDF_FORMAT_EXTENSION.values()
+                .stream()
+                .map(c->c.toUpperCase(Locale.ENGLISH))
+                .collect(Collectors.toList());
+        if (!CtrlCheckService.supportedInFileType(inputFile, checkExtension)) {
             return;
         }
 

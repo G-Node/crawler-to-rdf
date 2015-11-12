@@ -21,7 +21,6 @@ import org.apache.commons.cli.Options;
 import org.apache.log4j.Logger;
 import org.g_node.Controller;
 import org.g_node.srv.CtrlCheckService;
-import org.g_node.srv.FileService;
 import org.g_node.srv.RDFService;
 
 /**
@@ -61,7 +60,7 @@ public class LKTLogController implements Controller {
     /**
      * Method returning the commandline options of the LKT crawler.
      * @param regTools Set of all registered crawlers.
-     * @return Available commandline options.
+     * @return Available {@link CommandLine} {@link Options}.
      */
     public final Options options(final Set<String> regTools) {
         final Options options = new Options();
@@ -114,7 +113,7 @@ public class LKTLogController implements Controller {
      * Method to parse information from an input file to an output file using
      * the LKT crawler. Handles all checks related to input file, output file and
      * file format before the parsing begins.
-     * @param cmd Commandline input provided by the user
+     * @param cmd User provided {@link CommandLine} input.
      */
     public final void run(final CommandLine cmd) {
 
@@ -123,13 +122,7 @@ public class LKTLogController implements Controller {
             return;
         }
 
-        if (!FileService.checkFileType(inputFile, LKTLogController.SUPPORTED_INPUT_FILE_TYPES)) {
-            LKTLogController.LOGGER.error(
-                    String.join(
-                            "", "Invalid input file type: ", inputFile,
-                            "\n\tOnly the following file types are supported: ",
-                            LKTLogController.SUPPORTED_INPUT_FILE_TYPES.toString())
-            );
+        if (!CtrlCheckService.supportedInFileType(inputFile, LKTLogController.SUPPORTED_INPUT_FILE_TYPES)) {
             return;
         }
 
