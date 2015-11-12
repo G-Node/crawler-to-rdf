@@ -7,9 +7,8 @@
  * modification, are permitted under the terms of the BSD License. See
  * LICENSE file in the root of the Project.
  *
- * This package contains the main command interface for
- * the definition of command classes and all implemented
- * crawler classes for the extraction of data from
+ * This package contains all implemented
+ * crawler packages for the extraction of data from
  * various source files.
  */
 

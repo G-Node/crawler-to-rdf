@@ -11,7 +11,8 @@
  * writing this data to RDF output files. The tool is mainly
  * intended to be used as a commandline tool. It furthermore
  * is intended to also contain a collection of various specific
- * parser implementations.
+ * parser implementations. It also provides a small package to convert
+ * files in one supported RDF format into another supported RDF format.
  */
 
 package org.g_node;
