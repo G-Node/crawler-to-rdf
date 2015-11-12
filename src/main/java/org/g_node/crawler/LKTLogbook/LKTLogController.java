@@ -19,7 +19,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.log4j.Logger;
-import org.g_node.crawler.Controller;
+import org.g_node.Controller;
 import org.g_node.srv.FileService;
 import org.g_node.srv.RDFService;
 
@@ -59,10 +59,10 @@ public class LKTLogController implements Controller {
 
     /**
      * Method returning the commandline options of the LKT crawler.
-     * @param regCrawlers Set of all registered crawlers.
+     * @param regTools Set of all registered crawlers.
      * @return Available commandline options.
      */
-    public final Options options(final Set<String> regCrawlers) {
+    public final Options options(final Set<String> regTools) {
         final Options options = new Options();
 
         final Option opHelp = new Option("h", "help", false, "Print this message");
