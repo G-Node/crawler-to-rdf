@@ -20,6 +20,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.log4j.Logger;
 import org.g_node.Controller;
+import org.g_node.srv.CtrlCheckService;
 import org.g_node.srv.FileService;
 import org.g_node.srv.RDFService;
 
@@ -117,14 +118,12 @@ public class LKTLogController implements Controller {
      */
     public final void run(final CommandLine cmd) {
 
-        LKTLogController.LOGGER.info("Checking input file...");
         final String inputFile = cmd.getOptionValue("i");
-        if (!FileService.checkFile(inputFile)) {
-            LKTLogController.LOGGER.error(
-                    String.join("", "Input file ", inputFile, " does not exist.")
-            );
+        if (!CtrlCheckService.existingInputFile(inputFile)) {
             return;
-        } else if (!FileService.checkFileType(inputFile, LKTLogController.SUPPORTED_INPUT_FILE_TYPES)) {
+        }
+
+        if (!FileService.checkFileType(inputFile, LKTLogController.SUPPORTED_INPUT_FILE_TYPES)) {
             LKTLogController.LOGGER.error(
                     String.join(
                             "", "Invalid input file type: ", inputFile,
@@ -134,16 +133,8 @@ public class LKTLogController implements Controller {
             return;
         }
 
-        LKTLogController.LOGGER.info("Checking output format...");
         final String outputFormat = cmd.getOptionValue("f", "TTL").toUpperCase(Locale.ENGLISH);
-        if (!RDFService.RDF_FORMAT_MAP.containsKey(outputFormat)) {
-            LKTLogController.LOGGER.error(
-                    String.join("",
-                            "Unsupported output format: '", outputFormat, "'",
-                            "\n Please use one of the following: ",
-                            RDFService.RDF_FORMAT_MAP.keySet().toString()
-                    )
-            );
+        if (!CtrlCheckService.supportedOutputFormat(outputFormat)) {
             return;
         }
 
