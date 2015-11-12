@@ -10,12 +10,14 @@
 
 package org.g_node.converter;
 
+import java.util.Locale;
 import java.util.Set;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.log4j.Logger;
 import org.g_node.Controller;
+import org.g_node.srv.FileService;
 import org.g_node.srv.RDFService;
 
 /**
@@ -28,11 +30,6 @@ public class ConvController implements Controller {
      * Access to the main LOGGER.
      */
     private static final Logger LOGGER = Logger.getLogger(ConvController.class.getName());
-    /**
-     * ArrayList containing all messages that occurred while converting the input file.
-     */
-    //private ArrayList<String> parserErrorMsg = new ArrayList<>(0);
-
     /**
      * Method returning the commandline options of the RDF to RDF converter.
      * @param regTools Set of all registered tools.
@@ -91,7 +88,39 @@ public class ConvController implements Controller {
      */
     public final void run(final CommandLine cmd) {
 
-        ConvController.LOGGER.info("Checking input RDF file...");
+        //TODO The following partially overlaps with code in the LKTController. Check if this can be unified somehow.
+        ConvController.LOGGER.info("Checking input file...");
+        final String inputFile = cmd.getOptionValue("i");
+        if (!FileService.checkFile(inputFile)) {
+            ConvController.LOGGER.error(
+                    String.join("", "Input file ", inputFile, " does not exist.")
+            );
+            return;
+        }
+
+        ConvController.LOGGER.info("Checking output format...");
+        final String outputFormat = cmd.getOptionValue("f", "TTL").toUpperCase(Locale.ENGLISH);
+        if (!RDFService.RDF_FORMAT_MAP.containsKey(outputFormat)) {
+            ConvController.LOGGER.error(
+                    String.join("",
+                            "Unsupported output format: '", outputFormat, "'",
+                            "\n Please use one of the following: ",
+                            RDFService.RDF_FORMAT_MAP.keySet().toString()
+                    )
+            );
+            return;
+        }
+
+        final int i = inputFile.lastIndexOf('.');
+        final String defaultOutputFile = String.join("", inputFile.substring(0, i), "_out");
+
+        String outputFile = cmd.getOptionValue("o", defaultOutputFile);
+
+        if (!outputFile.toLowerCase().endsWith(RDFService.RDF_FORMAT_EXTENSION.get(outputFormat))) {
+            outputFile = String.join("", outputFile, ".", RDFService.RDF_FORMAT_EXTENSION.get(outputFormat));
+        }
+
+        System.out.println(outputFile);
 
     }
 }
