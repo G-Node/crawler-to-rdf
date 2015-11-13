@@ -13,6 +13,7 @@ package org.g_node.crawler.LKTLogbook;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -193,11 +194,11 @@ public class LKTLogControllerTest {
         this.outStream.reset();
 
         // Test use custom invalid test file.
-        final String invODSTestFile = this.getClass().getResource("/lkt_test_invalid.ods").getPath();
+        final URL invODSTestFile = this.getClass().getResource("/lkt_test_invalid.ods");
 
         args = new String[2];
         args[0] = "-i";
-        args[1] = invODSTestFile;
+        args[1] = Paths.get(invODSTestFile.toURI()).toFile().toString();
 
         cmd = parser.parse(useOptions, args, false);
         this.logCtrl.run(cmd);
@@ -222,10 +223,10 @@ public class LKTLogControllerTest {
         String[] args;
         CommandLine cmd;
 
-        final String validODSTestFile = this.getClass().getResource("/lkt_test.ods").getPath();
+        final URL validODSTestFile = this.getClass().getResource("/lkt_test.ods");
         args = new String[4];
         args[0] = "-i";
-        args[1] = validODSTestFile;
+        args[1] = Paths.get(validODSTestFile.toURI()).toFile().toString();
         args[2] = "-o";
         args[3] = this.testFileFolder.resolve("out.ttl").toString();
 
