@@ -121,23 +121,30 @@ public class LKTLogParser {
                 currSheet = SpreadSheet.createFromFile(odsFile).getSheet(i);
                 final String sheetName = currSheet.getName();
 
-                LKTLogParserSheet currLKTLSheet = this.parseSheetVariables(currSheet);
-
-                // Solution is not very robust, but coming up with a more robust solution would be wasted effort.
-                final String checkHeaderCell = currSheet.getCellAt(
-                                    String.join("", "A", String.valueOf(LKTLogParser.SHEET_HEADER_LINE))
-                                ).getTextValue();
-
-                if (checkHeaderCell == null || !checkHeaderCell.equals(LKTLogParser.FIRST_HEADER_ENTRY)) {
+                if (currSheet.getRowCount() < LKTLogParser.SHEET_HEADER_LINE) {
                     this.parserErrorMessages.add(String.join(
-                            "", "[Parser] sheet ", sheetName,
-                            ", HeaderEntry 'ImportID' not found at required line A.",
-                            String.valueOf(LKTLogParser.SHEET_HEADER_LINE)
+                            "", "[Parser] sheet ", sheetName, " does not contain valid data."
+                    ));
+                } else {
+
+                    LKTLogParserSheet currLKTLSheet = this.parseSheetVariables(currSheet);
+
+                    // Solution is not very robust, but coming up with a more robust solution would be wasted effort.
+                    final String checkHeaderCell = currSheet.getCellAt(
+                            String.join("", "A", String.valueOf(LKTLogParser.SHEET_HEADER_LINE))
+                    ).getTextValue();
+
+                    if (checkHeaderCell == null || !checkHeaderCell.equals(LKTLogParser.FIRST_HEADER_ENTRY)) {
+                        this.parserErrorMessages.add(String.join(
+                                "", "[Parser] sheet ", sheetName,
+                                ", HeaderEntry 'ImportID' not found at required line A.",
+                                String.valueOf(LKTLogParser.SHEET_HEADER_LINE)
                         ));
 
-                } else {
-                    currLKTLSheet = this.parseSheetEntries(currSheet, currLKTLSheet);
-                    allSheets.add(currLKTLSheet);
+                    } else {
+                        currLKTLSheet = this.parseSheetEntries(currSheet, currLKTLSheet);
+                        allSheets.add(currLKTLSheet);
+                    }
                 }
             }
         } catch (final IOException exp) {
