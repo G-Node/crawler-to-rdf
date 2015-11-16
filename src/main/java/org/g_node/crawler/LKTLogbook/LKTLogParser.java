@@ -165,33 +165,29 @@ public class LKTLogParser {
         final LKTLogParserSheet currLKTLSheet  = new LKTLogParserSheet();
         final String sheetName = currSheet.getName();
         ArrayList<String> parseSheetMessage;
-        String checkDB;
-        String checkDW;
+        String checkDateBirth;
+        String checkDateWithdrawal;
 
         currLKTLSheet.setSubjectID(currSheet.getCellAt("C2").getTextValue());
         currLKTLSheet.setSubjectSex(currSheet.getCellAt("C3").getTextValue());
-        checkDB = currLKTLSheet.setDateOfBirth(currSheet.getCellAt("C4").getTextValue());
-        checkDW = currLKTLSheet.setDateOfWithdrawal(currSheet.getCellAt("C5").getTextValue());
+        checkDateBirth = currLKTLSheet.setDateOfBirth(currSheet.getCellAt("C4").getTextValue());
+        checkDateWithdrawal = currLKTLSheet.setDateOfWithdrawal(currSheet.getCellAt("C5").getTextValue());
         currLKTLSheet.setPermitNumber(currSheet.getCellAt("C6").getTextValue());
         currLKTLSheet.setSpecies(currSheet.getCellAt("C7").getTextValue());
         currLKTLSheet.setScientificName(currSheet.getCellAt("C8").getTextValue());
 
         // TODO come up with a better way to deal with date errors
         parseSheetMessage = currLKTLSheet.isValidSheet();
-        if (!parseSheetMessage.isEmpty() || !checkDB.isEmpty() || !checkDW.isEmpty()) {
-            if (!parseSheetMessage.isEmpty()) {
-                parseSheetMessage.forEach(
-                        m -> this.parserErrorMessages.add(String.join("", "[Parser] sheet ", sheetName, ", ", m))
-                );
-            }
-            // Check valid date of birth
-            if (!checkDB.isEmpty()) {
-                this.parserErrorMessages.add(String.join("", "[Parser] sheet ", sheetName, ", ", checkDB));
-            }
-            // Check valid date of withdrawal
-            if (!checkDW.isEmpty()) {
-                this.parserErrorMessages.add(String.join("", "[Parser] sheet ", sheetName, ", ", checkDW));
-            }
+        if (!parseSheetMessage.isEmpty()) {
+            parseSheetMessage.forEach(
+                    m -> this.parserErrorMessages.add(String.join("", "[Parser] sheet ", sheetName, ", ", m))
+            );
+        }
+        if (!checkDateBirth.isEmpty()) {
+            this.parserErrorMessages.add(String.join("", "[Parser] sheet ", sheetName, ", ", checkDateBirth));
+        }
+        if (!checkDateWithdrawal.isEmpty()) {
+            this.parserErrorMessages.add(String.join("", "[Parser] sheet ", sheetName, ", ", checkDateWithdrawal));
         }
         return currLKTLSheet;
     }
