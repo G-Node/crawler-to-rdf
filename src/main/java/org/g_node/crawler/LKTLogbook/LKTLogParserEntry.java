@@ -225,7 +225,7 @@ public class LKTLogParserEntry {
      * @param exn Name of the experimenter.
      */
     public final void setExperimenterName(final String exn) {
-        if (this.experimenterName != null && !this.experimenterName.isEmpty()) {
+        if (exn != null && !exn.isEmpty()) {
             this.setIsEmptyLine(false);
         }
         this.experimenterName = exn;
