@@ -68,33 +68,28 @@ public class LKTLogParser {
         try {
             final File odsFile = new File(inputFile);
 
+            // TODO will raise a null pointer exception, if the file is not an actual ODS file.
             LKTLogParser.LOGGER.info(
                     String.join(
                             "", "File has # sheets: ",
                             String.valueOf(SpreadSheet.createFromFile(odsFile).getSheetCount()))
             );
 
-            if (!(SpreadSheet.createFromFile(odsFile).getSheetCount() > 0)) {
-                this.parserErrorMessages.add(String.join(
-                        "", "[Parser] File ", inputFile,
-                        " does not contain valid data sheets."
-                ));
-            } else {
-                allSheets = this.parseSheets(odsFile);
-                allSheets.forEach(
-                        s -> LKTLogParser.LOGGER.info(
-                                String.join(
-                                        "", "CurrSheet: ", s.getSubjectID(),
-                                        ", number of entries: ", String.valueOf(s.getEntries().size())
-                                )
-                        )
-                );
+            allSheets = this.parseSheets(odsFile);
+            allSheets.forEach(
+                    s -> LKTLogParser.LOGGER.info(
+                            String.join(
+                                    "", "CurrSheet: ", s.getSubjectID(),
+                                    ", number of entries: ", String.valueOf(s.getEntries().size())
+                            )
+                    )
+            );
 
-                if (this.parserErrorMessages.size() > 0) {
-                    this.parserErrorMessages.add(
-                            "\n\tThere are parser errors present. Please resolve them and run the program again.");
-                }
+            if (this.parserErrorMessages.size() > 0) {
+                this.parserErrorMessages.add(
+                        "\n\tThere are parser errors present. Please resolve them and run the program again.");
             }
+
         } catch (final IOException exp) {
             this.parserErrorMessages.add(String.join("", "[Error] reading from input file: ", exp.getMessage()));
             exp.printStackTrace();
