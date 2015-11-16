@@ -13,7 +13,6 @@ package org.g_node.crawler.LKTLogbook;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-
 import org.apache.log4j.Logger;
 import org.jopendocument.dom.spreadsheet.Sheet;
 import org.jopendocument.dom.spreadsheet.SpreadSheet;
@@ -49,6 +48,137 @@ public class LKTLogParser {
      * mistakes ideally all at once before running the crawler again.
      */
     private ArrayList<String> parserErrorMessages;
+    /**
+     * Enumeration required to access fields in the ODS file
+     * associated with basic information about the animal.
+     */
+    private enum AnFieldRange {
+        /**
+         * Animal SubjectID.
+         */
+        SUBJID ("C2"),
+        /**
+         * Animal Sex.
+         */
+        SUBJSEX("C3"),
+        /**
+         * Animal date of birth.
+         */
+        DATEBIRTH("C4"),
+        /**
+         * Animal date of withdrawal from animal housing.
+         */
+        DATEWITHDRAWAL("C5"),
+        /**
+         * Permit number associated with the animal.
+         */
+        PERMITNR("C6"),
+        /**
+         * Common name associated with the animal.
+         */
+        SPECIES("C7"),
+        /**
+         * Animal scientific name.
+         */
+        SCIENTIFICNAME("C8");
+        /**
+         * Field in the ODS sheet where the information of the current enumeration will be parsed from.
+         */
+        private final String field;
+        /**
+         * Enum constructor. Sets the ODS field associated with the current enumeration.
+         * @param odsField String with the ODS field associated with the current enumeration.
+         */
+        AnFieldRange(final String odsField) {
+            this.field = odsField;
+        }
+        /**
+         * Returns the ODS field associated with the current enumeration.
+         * @return See description.
+         */
+        private String getField() {
+            return this.field;
+        }
+    }
+
+    /**
+     * Enumeration required to access columns in the ODS file
+     * associated with information about experiments and log entries.
+     */
+    private enum EntryFieldRange {
+        /**
+         * ID whether the entry has already been imported or not.
+         * Should not be used any more.
+         */
+        IMPORTID("A"),
+        /**
+         * Date and time an experiment has been performed.
+         */
+        DATEEXPERIMENT("B"),
+        /**
+         * Identifier string for the paradigm.
+         */
+        PARADIGM("C"),
+        /**
+         * Specifics of the paradigm.
+         */
+        PARADIGMSPEC("D"),
+        /**
+         * States if the animal is on diet or not.
+         */
+        ISONDIET("E"),
+        /**
+         * States if the entry is used as initial weight or not.
+         */
+        ISINITIALWEIGHT("F"),
+        /**
+         * Weight of the animal.
+         */
+        WEIGHT("G"),
+        /**
+         * Comment about an experiment.
+         */
+        COMMENTEXPERIMENT("H"),
+        /**
+         * Animal log entry.
+         */
+        COMMENTANIMAL("I"),
+        /**
+         * Feed of the animal.
+         */
+        FEED("J"),
+        /**
+         * Identifier string of the project.
+         */
+        PROJECT("K"),
+        /**
+         * Identifier string of the experiment.
+         */
+        EXPERIMENT("L"),
+        /**
+         * Full name of the experimenter.
+         */
+        EXPERIMENTER("M");
+        /**
+         * Column in the ODS sheet where the information of the current enumeration will be parsed from.
+         */
+        private final String column;
+
+        /**
+         * Enum constructor. Sets the ODS column associated with the current enumeration.
+         * @param odsColumn String with the ODS column associated with the current enumeration.
+         */
+        EntryFieldRange(final String odsColumn) {
+            this.column = odsColumn;
+        }
+        /**
+         * Returns the ODS column associated with the current enumeration.
+         * @return See description.
+         */
+        private String getColumn() {
+            return this.column;
+        }
+    }
     /**
      * Method for parsing the contents of a provided ODS input file.
      * This method will create a backup file of the original ODS file.
@@ -132,7 +262,8 @@ public class LKTLogParser {
                     if (checkHeaderCell == null || !checkHeaderCell.equals(LKTLogParser.FIRST_HEADER_ENTRY)) {
                         this.parserErrorMessages.add(String.join(
                                 "", "[Parser] sheet ", sheetName,
-                                ", HeaderEntry 'ImportID' not found at required line A.",
+                                ", HeaderEntry '", LKTLogParser.FIRST_HEADER_ENTRY,
+                                "' not found at required line ", EntryFieldRange.IMPORTID.getColumn(), ".",
                                 String.valueOf(LKTLogParser.SHEET_HEADER_LINE)
                         ));
 
@@ -163,13 +294,20 @@ public class LKTLogParser {
         String checkDateBirth;
         String checkDateWithdrawal;
 
-        currLKTLSheet.setSubjectID(currSheet.getCellAt("C2").getTextValue());
-        currLKTLSheet.setSubjectSex(currSheet.getCellAt("C3").getTextValue());
-        checkDateBirth = currLKTLSheet.setDateOfBirth(currSheet.getCellAt("C4").getTextValue());
-        checkDateWithdrawal = currLKTLSheet.setDateOfWithdrawal(currSheet.getCellAt("C5").getTextValue());
-        currLKTLSheet.setPermitNumber(currSheet.getCellAt("C6").getTextValue());
-        currLKTLSheet.setSpecies(currSheet.getCellAt("C7").getTextValue());
-        currLKTLSheet.setScientificName(currSheet.getCellAt("C8").getTextValue());
+        currLKTLSheet.setSubjectID(
+                currSheet.getCellAt(AnFieldRange.SUBJID.getField()).getTextValue());
+        currLKTLSheet.setSubjectSex(
+                currSheet.getCellAt(AnFieldRange.SUBJSEX.getField()).getTextValue());
+        checkDateBirth = currLKTLSheet.setDateOfBirth(
+                currSheet.getCellAt(AnFieldRange.DATEBIRTH.getField()).getTextValue());
+        checkDateWithdrawal = currLKTLSheet.setDateOfWithdrawal(
+                currSheet.getCellAt(AnFieldRange.DATEWITHDRAWAL.getField()).getTextValue());
+        currLKTLSheet.setPermitNumber(
+                currSheet.getCellAt(AnFieldRange.PERMITNR.getField()).getTextValue());
+        currLKTLSheet.setSpecies(
+                currSheet.getCellAt(AnFieldRange.SPECIES.getField()).getTextValue());
+        currLKTLSheet.setScientificName(
+                currSheet.getCellAt(AnFieldRange.SCIENTIFICNAME.getField()).getTextValue());
 
         // TODO come up with a better way to deal with date errors
         parseSheetMessage = currLKTLSheet.isValidSheet();
@@ -236,14 +374,18 @@ public class LKTLogParser {
 
         final LKTLogParserEntry currEntry = new LKTLogParserEntry();
 
-        currEntry.setProject(currSheet.getCellAt(String.join("", "K", currLine)).getTextValue());
-        currEntry.setExperiment(currSheet.getCellAt(String.join("", "L", currLine)).getTextValue());
-        currEntry.setParadigm(currSheet.getCellAt(String.join("", "C", currLine)).getTextValue());
-        currEntry.setParadigmSpecifics(currSheet.getCellAt(String.join("", "D", currLine)).getTextValue());
+        currEntry.setProject(currSheet.getCellAt(
+                String.join("", EntryFieldRange.PROJECT.getColumn(), currLine)).getTextValue());
+        currEntry.setExperiment(currSheet.getCellAt(
+                String.join("", EntryFieldRange.EXPERIMENT.getColumn(), currLine)).getTextValue());
+        currEntry.setParadigm(currSheet.getCellAt(
+                String.join("", EntryFieldRange.PARADIGM.getColumn(), currLine)).getTextValue());
+        currEntry.setParadigmSpecifics(currSheet.getCellAt(
+                String.join("", EntryFieldRange.PARADIGMSPEC.getColumn(), currLine)).getTextValue());
 
         // TODO Check if the experimentDate parser error and the empty line messages all still work!
         checkExperimentDate = currEntry.setExperimentDate(currSheet.getCellAt(
-                String.join("", "B", currLine)).getTextValue()
+                String.join("", EntryFieldRange.DATEEXPERIMENT.getColumn(), currLine)).getTextValue()
         );
         if (!checkExperimentDate.isEmpty()) {
             this.parserErrorMessages.add(String.join(
@@ -252,14 +394,21 @@ public class LKTLogParser {
             ));
         }
 
-        currEntry.setExperimenterName(currSheet.getCellAt(String.join("", "M", currLine)).getTextValue());
-        currEntry.setCommentExperiment(currSheet.getCellAt(String.join("", "H", currLine)).getTextValue());
-        currEntry.setCommentSubject(currSheet.getCellAt(String.join("", "I", currLine)).getTextValue());
-        currEntry.setFeed(currSheet.getCellAt(String.join("", "J", currLine)).getTextValue());
-        currEntry.setIsOnDiet(currSheet.getCellAt(String.join("", "E", currLine)).getTextValue());
-        currEntry.setIsInitialWeight(currSheet.getCellAt(String.join("", "F", currLine)).getTextValue());
+        currEntry.setExperimenterName(currSheet.getCellAt(
+                String.join("", EntryFieldRange.EXPERIMENTER.getColumn(), currLine)).getTextValue());
+        currEntry.setCommentExperiment(currSheet.getCellAt(
+                String.join("", EntryFieldRange.COMMENTEXPERIMENT.getColumn(), currLine)).getTextValue());
+        currEntry.setCommentSubject(currSheet.getCellAt(
+                String.join("", EntryFieldRange.COMMENTANIMAL.getColumn(), currLine)).getTextValue());
+        currEntry.setFeed(currSheet.getCellAt(
+                String.join("", EntryFieldRange.FEED.getColumn(), currLine)).getTextValue());
+        currEntry.setIsOnDiet(currSheet.getCellAt(
+                String.join("", EntryFieldRange.ISONDIET.getColumn(), currLine)).getTextValue());
+        currEntry.setIsInitialWeight(currSheet.getCellAt(
+                String.join("", EntryFieldRange.ISINITIALWEIGHT.getColumn(), currLine)).getTextValue());
 
-        final String currMsg = currEntry.setWeight(currSheet.getCellAt(String.join("", "G", currLine)).getTextValue());
+        final String currMsg = currEntry.setWeight(currSheet.getCellAt(
+                String.join("", EntryFieldRange.WEIGHT.getColumn(), currLine)).getTextValue());
         if (!"".equals(currMsg)) {
             this.parserErrorMessages.add(String.join(
                     "", "[Parser] sheet ", currSheet.getName(),
