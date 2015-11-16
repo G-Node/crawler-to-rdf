@@ -15,13 +15,13 @@ import com.hp.hpl.jena.rdf.model.Model;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.jena.riot.RiotException;
 import org.apache.log4j.Logger;
 import org.g_node.Controller;
+import org.g_node.srv.CliOptionService;
 import org.g_node.srv.CtrlCheckService;
 import org.g_node.srv.RDFService;
 
@@ -42,41 +42,11 @@ public class ConvController implements Controller {
     public final Options options() {
         final Options options = new Options();
 
-        final Option opHelp = new Option("h", "help", false, "Print this message");
-
-        final Option opIn = Option.builder("i")
-                .longOpt("in-file")
-                .desc("Input RDF file that's supposed to be converted into a different RDF format.")
-                .required()
-                .hasArg()
-                .valueSeparator()
-                .build();
-
-        final Option opOut = Option.builder("o")
-                .longOpt("out-file")
-                .desc(
-                        String.join(
-                                "", "Optional: Path and name of the output file. ",
-                                "Files with the same name will be overwritten. ",
-                                "Default file name uses format [inputFileName]_out"
-                        )
-                )
-                .hasArg()
-                .valueSeparator()
-                .build();
-
-        final Option opFormat = Option.builder("f")
-                .longOpt("out-format")
-                .desc(
-                        String.join(
-                                "", "Optional: format of the RDF file that will be written.\n",
-                                "Supported file formats: ", RDFService.RDF_FORMAT_MAP.keySet().toString(),
-                                "\nDefault setting is the Turtle (TTL) format."
-                        )
-                )
-                .hasArg()
-                .valueSeparator()
-                .build();
+        final Option opHelp = CliOptionService.getHelpOpt("");
+        final Option opIn = CliOptionService.getInFileOpt(
+                "Input RDF file that's supposed to be converted into a different RDF format.");
+        final Option opOut = CliOptionService.getOutFileOpt("");
+        final Option opFormat = CliOptionService.getOutFormatOpt("");
 
         options.addOption(opHelp);
         options.addOption(opIn);
