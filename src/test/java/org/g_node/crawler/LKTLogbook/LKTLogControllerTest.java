@@ -45,7 +45,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class LKTLogControllerTest {
 
     private LKTLogController logCtrl;
-    private Set<String> logSet = new HashSet<>(Arrays.asList("one", "two"));
     private PrintStream stdout;
     private ByteArrayOutputStream outStream;
     private Logger rootLogger;
@@ -101,7 +100,7 @@ public class LKTLogControllerTest {
      */
     @Test
     public void testOptions() throws Exception {
-        Options checkOpt = this.logCtrl.options(this.logSet);
+        Options checkOpt = this.logCtrl.options();
 
         assertThat(checkOpt.getOptions().size()).isEqualTo(4);
 
@@ -133,7 +132,7 @@ public class LKTLogControllerTest {
         SpreadSheet.createEmpty(new DefaultTableModel()).saveAs(ods);
 
         final CommandLineParser parser = new DefaultParser();
-        final Options useOptions = this.logCtrl.options(this.logSet);
+        final Options useOptions = this.logCtrl.options();
         String[] args;
         CommandLine cmd;
 
@@ -219,7 +218,7 @@ public class LKTLogControllerTest {
         FileUtils.write(currOutFile, "");
 
         final CommandLineParser parser = new DefaultParser();
-        final Options useOptions = this.logCtrl.options(this.logSet);
+        final Options useOptions = this.logCtrl.options();
         String[] args;
         CommandLine cmd;
 

@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -59,10 +58,9 @@ public class LKTLogController implements Controller {
 
     /**
      * Method returning the commandline options of the LKT crawler.
-     * @param regTools Set of all registered crawlers.
      * @return Available {@link CommandLine} {@link Options}.
      */
-    public final Options options(final Set<String> regTools) {
+    public final Options options() {
         final Options options = new Options();
 
         final Option opHelp = new Option("h", "help", false, "Print this message");

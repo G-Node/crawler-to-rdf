@@ -40,7 +40,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ConvControllerTest {
 
     private ConvController convCont = new ConvController();
-    private Set<String> convSet = new HashSet<>(Arrays.asList("one", "two"));
 
     /**
      * Ensure a fresh {@link ConvController} at the beginning of each test.
@@ -55,7 +54,7 @@ public class ConvControllerTest {
      */
     @Test
     public void optionsTest() {
-        Options checkOpt = this.convCont.options(this.convSet);
+        Options checkOpt = this.convCont.options();
 
         assertThat(checkOpt.getOptions().size()).isEqualTo(4);
 
@@ -118,7 +117,7 @@ public class ConvControllerTest {
         final String outFileName = testFileFolder.resolve("out.ttl").toString();
 
         final CommandLineParser parser = new DefaultParser();
-        final Options useOptions = this.convCont.options(this.convSet);
+        final Options useOptions = this.convCont.options();
         String[] args;
         CommandLine cmd;
 

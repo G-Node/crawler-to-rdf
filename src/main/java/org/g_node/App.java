@@ -103,7 +103,7 @@ public class App {
             final HelpFormatter printHelp = new HelpFormatter();
             final CommandLineParser parser = new DefaultParser();
             final Controller currCrawlerController = this.tools.get(args[0]);
-            final Options useOptions = this.tools.get(args[0]).options(this.tools.keySet());
+            final Options useOptions = this.tools.get(args[0]).options();
 
             try {
                 final CommandLine cmd = parser.parse(useOptions, args, false);

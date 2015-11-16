@@ -10,7 +10,6 @@
 
 package org.g_node;
 
-import java.util.Set;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 
@@ -23,11 +22,9 @@ public interface Controller {
     /**
      * Method returning available commandline options of the crawler
      * or converter corresponding to the command class.
-     * @param regTools Set of shorthand strings corresponding to
-     *  registered crawlers or converters.
      * @return Constructed set of commandline options.
      */
-    Options options(Set<String> regTools);
+    Options options();
 
     /**
      * Method running the crawler corresponding to the command class.

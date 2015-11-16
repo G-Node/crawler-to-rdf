@@ -14,7 +14,6 @@ import com.hp.hpl.jena.rdf.model.Model;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.cli.CommandLine;
@@ -38,10 +37,9 @@ public class ConvController implements Controller {
     private static final Logger LOGGER = Logger.getLogger(ConvController.class.getName());
     /**
      * Method returning the commandline options of the RDF to RDF converter.
-     * @param regTools Set of all registered tools.
      * @return Available commandline options.
      */
-    public final Options options(final Set<String> regTools) {
+    public final Options options() {
         final Options options = new Options();
 
         final Option opHelp = new Option("h", "help", false, "Print this message");
