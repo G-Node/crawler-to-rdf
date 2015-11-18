@@ -46,23 +46,40 @@ public class LKTLogToRDF {
     /**
      * Map containing all projects with their newly created UUIDs of the parsed ODS sheet.
      */
-    private final Map<String, String> projectList = new HashMap<>();
+    private Map<String, String> projectList;
     /**
      * Map containing all the subjectIDs with their newly created UUIDs of the parsed ODS sheet.
      */
-    private final Map<String, String> subjectList = new HashMap<>();
+    private Map<String, String> subjectList;
     /**
      * Map containing all the experimenters with their newly created UUIDs contained in the parsed ODS sheet.
      */
-    private final Map<String, String> experimenterList = new HashMap<>();
+    private Map<String, String> experimenterList;
     /**
      * Main RDF model containing all the parsed information from the ODS sheet.
      */
-    private final Model model = ModelFactory.createDefaultModel();
+    private Model model;
     /**
      * Absolute path of the output file used as namespace for the output rdf file.
      */
     private String localFileNS;
+
+    /**
+     * Constructor.
+     */
+    public LKTLogToRDF() {
+        this.projectList = new HashMap<>();
+        this.subjectList = new HashMap<>();
+        this.experimenterList = new HashMap<>();
+        this.model = ModelFactory.createDefaultModel();
+
+        this.model.setNsPrefix(RDFUtils.RDF_NS_RDF_ABR, RDFUtils.RDF_NS_RDF);
+        this.model.setNsPrefix(RDFUtils.RDF_NS_RDFS_ABR, RDFUtils.RDF_NS_RDFS);
+        this.model.setNsPrefix(RDFUtils.RDF_NS_XSD_ABR, RDFUtils.RDF_NS_XSD);
+        this.model.setNsPrefix(RDFUtils.RDF_NS_FOAF_ABR, RDFUtils.RDF_NS_FOAF);
+        this.model.setNsPrefix(RDFUtils.RDF_NS_DC_ABR, RDFUtils.RDF_NS_DC);
+        this.model.setNsPrefix(LKTLogToRDF.RDF_NS_ABR, LKTLogToRDF.RDF_NS);
+    }
 
     /**
      * Creates an RDF model from the parsed ODS sheet data and writes
@@ -74,13 +91,6 @@ public class LKTLogToRDF {
      */
     public final void createRDFModel(final ArrayList<LKTLogParserSheet> allSheets, final String inputFile,
                                 final String outputFile, final String outputFormat) {
-
-        this.model.setNsPrefix(RDFUtils.RDF_NS_RDF_ABR, RDFUtils.RDF_NS_RDF);
-        this.model.setNsPrefix(RDFUtils.RDF_NS_RDFS_ABR, RDFUtils.RDF_NS_RDFS);
-        this.model.setNsPrefix(RDFUtils.RDF_NS_XSD_ABR, RDFUtils.RDF_NS_XSD);
-        this.model.setNsPrefix(RDFUtils.RDF_NS_FOAF_ABR, RDFUtils.RDF_NS_FOAF);
-        this.model.setNsPrefix(RDFUtils.RDF_NS_DC_ABR, RDFUtils.RDF_NS_DC);
-        this.model.setNsPrefix(LKTLogToRDF.RDF_NS_ABR, LKTLogToRDF.RDF_NS);
 
         // TODO Using the just the filename as local namespace does not really work, since the RDF/XML format
         // TODO complains about malformed URIref. Check if the current solution is a usable one.
