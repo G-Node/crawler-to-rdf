@@ -17,6 +17,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.vocabulary.DCTerms;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
 import java.nio.file.Paths;
@@ -49,10 +50,6 @@ public class LKTLogToRDF {
      * FOAF Namespace prefix.
      */
     private static final String RDF_NS_FOAF_ABR = "foaf";
-    /**
-     * Namespace used to identify Dublin core RDF resources.
-     */
-    private static final String RDF_NS_DC = "http://purl.org/dc/terms/";
     /**
      * Dublin core Namespace prefix.
      */
@@ -97,7 +94,7 @@ public class LKTLogToRDF {
         this.model.setNsPrefix("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
         this.model.setNsPrefix("xs", "http://www.w3.org/2001/XMLSchema#");
         this.model.setNsPrefix(LKTLogToRDF.RDF_NS_FOAF_ABR, LKTLogToRDF.RDF_NS_FOAF);
-        this.model.setNsPrefix(LKTLogToRDF.RDF_NS_DC_ABR, LKTLogToRDF.RDF_NS_DC);
+        this.model.setNsPrefix(LKTLogToRDF.RDF_NS_DC_ABR, DCTerms.NS);
         this.model.setNsPrefix(LKTLogToRDF.RDF_NS_ABR, LKTLogToRDF.RDF_NS);
 
         // TODO Using the just the filename as local namespace does not really work, since the RDF/XML format
@@ -112,15 +109,14 @@ public class LKTLogToRDF {
 
         this.localRes(provUUID)
                 .addProperty(RDF.type, this.mainRes("Provenance"))
-                .addProperty(this.dcProp("source"), inputFile)
-                .addLiteral(
-                        this.dcProp("created"),
+                .addProperty(DCTerms.source, inputFile)
+                .addLiteral(DCTerms.created,
                         this.mainTypedLiteral(
                                 LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
                                 XSDDatatype.XSDdateTime)
-                        )
-                .addProperty(this.dcProp("subject"),
-                        "This RDF file was created by parsing data from the file indicated in the source literal");
+                )
+                .addProperty(DCTerms.subject,
+                    "This RDF file was created by parsing data from the file indicated in the source literal");
 
         allSheets.stream().forEach(a -> this.addSubject(a, provUUID));
 
@@ -347,16 +343,5 @@ public class LKTLogToRDF {
      */
     private Literal mainTypedLiteral(final String litVal, final RDFDatatype litType) {
         return this.model.createTypedLiteral(litVal, litType);
-    }
-    /**
-     * Convenience method for creating an RDF property with the
-     * Dublin core Namespace.
-     * @param propName Contains the name of the property.
-     * @return The created RDF Property.
-     */
-    private Property dcProp(final String propName) {
-        return this.model.createProperty(
-                String.join("", LKTLogToRDF.RDF_NS_DC, propName)
-        );
     }
 }
