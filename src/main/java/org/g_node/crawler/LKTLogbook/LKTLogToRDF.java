@@ -17,6 +17,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.vocabulary.DCTerms;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
 import java.nio.file.Paths;
@@ -33,50 +34,52 @@ import org.g_node.srv.RDFUtils;
  * Class converting parsed data to RDF.
  */
 public class LKTLogToRDF {
+    // TODO Check if this namespace should be used for the properties and classes (neuroontology).
     /**
      * Namespace used to identify RDF resources and properties specific for the current use case.
      */
     private static final String RDF_NS =  "http://g-node.org/orcid/0000-0003-4857-1083/lkt/";
     /**
-     * Namespace prefix.
+     * Namespace prefix of the LKT use case.
      */
     private static final String RDF_NS_ABR = "lkt";
     /**
-     * Namespace used to identify FOAF RDF resources.
-     */
-    private static final String RDF_NS_FOAF = "http://xmlns.com/foaf/0.1/";
-    /**
-     * FOAF Namespace prefix.
-     */
-    private static final String RDF_NS_FOAF_ABR = "foaf";
-    /**
-     * Namespace used to identify Dublin core RDF resources.
-     */
-    private static final String RDF_NS_DC = "http://purl.org/dc/terms/";
-    /**
-     * Dublin core Namespace prefix.
-     */
-    private static final String RDF_NS_DC_ABR = "dc";
-    /**
      * Map containing all projects with their newly created UUIDs of the parsed ODS sheet.
      */
-    private final Map<String, String> projectList = new HashMap<>();
+    private Map<String, String> projectList;
     /**
      * Map containing all the subjectIDs with their newly created UUIDs of the parsed ODS sheet.
      */
-    private final Map<String, String> subjectList = new HashMap<>();
+    private Map<String, String> subjectList;
     /**
      * Map containing all the experimenters with their newly created UUIDs contained in the parsed ODS sheet.
      */
-    private final Map<String, String> experimenterList = new HashMap<>();
+    private Map<String, String> experimenterList;
     /**
      * Main RDF model containing all the parsed information from the ODS sheet.
      */
-    private final Model model = ModelFactory.createDefaultModel();
+    private Model model;
     /**
      * Absolute path of the output file used as namespace for the output rdf file.
      */
     private String localFileNS;
+
+    /**
+     * Constructor.
+     */
+    public LKTLogToRDF() {
+        this.projectList = new HashMap<>();
+        this.subjectList = new HashMap<>();
+        this.experimenterList = new HashMap<>();
+        this.model = ModelFactory.createDefaultModel();
+
+        this.model.setNsPrefix(RDFUtils.RDF_NS_RDF_ABR, RDFUtils.RDF_NS_RDF);
+        this.model.setNsPrefix(RDFUtils.RDF_NS_RDFS_ABR, RDFUtils.RDF_NS_RDFS);
+        this.model.setNsPrefix(RDFUtils.RDF_NS_XSD_ABR, RDFUtils.RDF_NS_XSD);
+        this.model.setNsPrefix(RDFUtils.RDF_NS_FOAF_ABR, RDFUtils.RDF_NS_FOAF);
+        this.model.setNsPrefix(RDFUtils.RDF_NS_DC_ABR, RDFUtils.RDF_NS_DC);
+        this.model.setNsPrefix(LKTLogToRDF.RDF_NS_ABR, LKTLogToRDF.RDF_NS);
+    }
 
     /**
      * Creates an RDF model from the parsed ODS sheet data and writes
@@ -88,17 +91,6 @@ public class LKTLogToRDF {
      */
     public final void createRDFModel(final ArrayList<LKTLogParserSheet> allSheets, final String inputFile,
                                 final String outputFile, final String outputFormat) {
-
-        // TODO For now leave the namespace of the instances empty so that they refer only to the same
-        // TODO document. Use the custom namespace only for actual properties and classes.
-        // TODO Also check which namespace to use for the properties and classes (neuroontology).
-        // TODO Check if namespaces should be handled somewhere else
-        this.model.setNsPrefix("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-        this.model.setNsPrefix("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
-        this.model.setNsPrefix("xs", "http://www.w3.org/2001/XMLSchema#");
-        this.model.setNsPrefix(LKTLogToRDF.RDF_NS_FOAF_ABR, LKTLogToRDF.RDF_NS_FOAF);
-        this.model.setNsPrefix(LKTLogToRDF.RDF_NS_DC_ABR, LKTLogToRDF.RDF_NS_DC);
-        this.model.setNsPrefix(LKTLogToRDF.RDF_NS_ABR, LKTLogToRDF.RDF_NS);
 
         // TODO Using the just the filename as local namespace does not really work, since the RDF/XML format
         // TODO complains about malformed URIref. Check if the current solution is a usable one.
@@ -112,14 +104,13 @@ public class LKTLogToRDF {
 
         this.localRes(provUUID)
                 .addProperty(RDF.type, this.mainRes("Provenance"))
-                .addProperty(this.dcProp("source"), inputFile)
-                .addLiteral(
-                        this.dcProp("created"),
+                .addLiteral(DCTerms.source, inputFile)
+                .addLiteral(DCTerms.created,
                         this.mainTypedLiteral(
                                 LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
                                 XSDDatatype.XSDdateTime)
-                        )
-                .addProperty(this.dcProp("subject"),
+                )
+                .addLiteral(DCTerms.subject,
                         "This RDF file was created by parsing data from the file indicated in the source literal");
 
         allSheets.stream().forEach(a -> this.addSubject(a, provUUID));
@@ -195,8 +186,8 @@ public class LKTLogToRDF {
 
             this.experimenterList.put(experimenter, UUID.randomUUID().toString());
 
-            final Property name = this.model.createProperty(String.join("", LKTLogToRDF.RDF_NS_FOAF, "name"));
-            final Resource personRes = this.model.createResource(String.join("", LKTLogToRDF.RDF_NS_FOAF, "Person"));
+            final Property name = this.model.createProperty(String.join("", RDFUtils.RDF_NS_FOAF, "name"));
+            final Resource personRes = this.model.createResource(String.join("", RDFUtils.RDF_NS_FOAF, "Person"));
 
             this.localRes(this.experimenterList.get(experimenter))
                     .addProperty(this.mainProp("hasProvenance"), this.fetchLocalRes(provUUID))
@@ -347,16 +338,5 @@ public class LKTLogToRDF {
      */
     private Literal mainTypedLiteral(final String litVal, final RDFDatatype litType) {
         return this.model.createTypedLiteral(litVal, litType);
-    }
-    /**
-     * Convenience method for creating an RDF property with the
-     * Dublin core Namespace.
-     * @param propName Contains the name of the property.
-     * @return The created RDF Property.
-     */
-    private Property dcProp(final String propName) {
-        return this.model.createProperty(
-                String.join("", LKTLogToRDF.RDF_NS_DC, propName)
-        );
     }
 }

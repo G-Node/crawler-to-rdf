@@ -12,13 +12,57 @@ package org.g_node.srv;
 
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.vocabulary.DCTerms;
+import com.hp.hpl.jena.vocabulary.RDF;
+import com.hp.hpl.jena.vocabulary.RDFS;
+import com.hp.hpl.jena.vocabulary.XSD;
 
 /**
  * Class contains small helper functions when dealing with Jena RDF models.
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
-public class RDFUtils {
+public final class RDFUtils {
+    /**
+     * Namespace used to identify RDF resources.
+     */
+    public static final String RDF_NS_RDF = RDF.getURI();
+    /**
+     * RDF namespace prefix.
+     */
+    public static final String RDF_NS_RDF_ABR = "rdf";
+    /**
+     * Namespace used to identify RDFS resources.
+     */
+    public static final String RDF_NS_RDFS = RDFS.getURI();
+    /**
+     * RDFS namespace prefix.
+     */
+    public static final String RDF_NS_RDFS_ABR = "rdfs";
+    /**
+     * Namespace used to identify XSD resources.
+     */
+    public static final String RDF_NS_XSD = XSD.getURI();
+    /**
+     * XSD namespace prefix.
+     */
+    public static final String RDF_NS_XSD_ABR = "xs";
+    /**
+     * Namespace used to identify FOAF RDF resources.
+     */
+    public static final String RDF_NS_FOAF = "http://xmlns.com/foaf/0.1/";
+    /**
+     * FOAF Namespace prefix.
+     */
+    public static final String RDF_NS_FOAF_ABR = "foaf";
+    /**
+     * Namespace used to identify Dublin core resources.
+     */
+    public static final String RDF_NS_DC = DCTerms.NS;
+    /**
+     * Dublin core Namespace prefix.
+     */
+    public static final String RDF_NS_DC_ABR = "dc";
 
     /**
      * Method adds an RDF Literal only to a Jena Resource, if the Literal String
