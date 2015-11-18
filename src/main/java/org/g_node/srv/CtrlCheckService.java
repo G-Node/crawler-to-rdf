@@ -17,7 +17,7 @@ import org.apache.log4j.Logger;
 /**
  * Class providing checks common to converters and crawlers implemented in this service.
  */
-public class CtrlCheckService {
+public final class CtrlCheckService {
     /**
      * Access to the main LOGGER.
      */

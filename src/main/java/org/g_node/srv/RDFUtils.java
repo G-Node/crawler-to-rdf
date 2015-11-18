@@ -22,7 +22,7 @@ import com.hp.hpl.jena.vocabulary.XSD;
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
-public class RDFUtils {
+public final class RDFUtils {
     /**
      * Namespace used to identify RDF resources.
      */

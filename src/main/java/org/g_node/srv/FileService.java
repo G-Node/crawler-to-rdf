@@ -20,7 +20,7 @@ import java.util.Locale;
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
-public class FileService {
+public final class FileService {
     /**
      * Method for validating that the file actually exists.
      * @param checkFile Path and filename of the provided file.

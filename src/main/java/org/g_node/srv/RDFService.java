@@ -27,7 +27,7 @@ import org.apache.log4j.Logger;
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
-public class RDFService {
+public final class RDFService {
 
     /**
      * Map returning the RDF formats supported by this service.
