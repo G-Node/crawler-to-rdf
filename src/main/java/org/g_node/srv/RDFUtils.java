@@ -63,7 +63,14 @@ public final class RDFUtils {
      * Dublin core Namespace prefix.
      */
     public static final String RDF_NS_DC_ABR = "dc";
-
+    /**
+     * Core Ontology for neuroscientific metadata defined by the G-Node.
+      */
+    public static final String RDF_NS_GN_ONT = "https://github.com/G-Node/neuro-ontology/";
+    /**
+     * G-Node ontology namespace prefix.
+     */
+    public static final String RDF_NS_GN_ONT_ABR = "gn";
     /**
      * Method adds an RDF Literal only to a Jena Resource, if the Literal String
      * actually contains a value.
