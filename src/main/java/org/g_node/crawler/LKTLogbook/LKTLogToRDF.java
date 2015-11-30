@@ -23,11 +23,13 @@ import com.hp.hpl.jena.vocabulary.RDFS;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import org.g_node.srv.RDFService;
 import org.g_node.srv.RDFUtils;
+import org.g_node.srv.Utils;
 
 /**
  * Class converting parsed data to RDF.
@@ -77,8 +79,11 @@ public class LKTLogToRDF {
     }
 
     /**
-     * Creates an RDF model from the parsed ODS sheet data and writes
-     * the model to the designated output file.
+     * Adds all data from a parsed ODS sheet to an RDF model and writes the results to a designated output file.
+     * Data specific notes:
+     * This method creates an RDF Provenance class instance, using a hash ID as identifier. This hash ID is
+     * created using the filename of the input file and the current date (XSDDateTime format).
+     * The hash ID is created using the {@link Utils#getHashSHA} method.
      * @param allSheets Data from the parsed ODS sheets.
      * @param inputFile Name and path of the input file
      * @param outputFile Name and path of the designated output file.
@@ -87,45 +92,59 @@ public class LKTLogToRDF {
     public final void createRDFModel(final ArrayList<LKTLogParserSheet> allSheets, final String inputFile,
                                 final String outputFile, final String outputFormat) {
 
-        final String provUUID = UUID.randomUUID().toString();
+        final String provDateTime = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        final String provID = Utils.getHashSHA(new ArrayList<>(Arrays.asList(inputFile, provDateTime)));
 
-        this.createInst(provUUID)
+        this.createInst(provID)
                 .addProperty(RDF.type, this.mainRes("Provenance"))
                 .addLiteral(DCTerms.source, inputFile)
                 .addLiteral(DCTerms.created,
-                        this.mainTypedLiteral(
-                                LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+                        this.mainTypedLiteral(provDateTime,
                                 XSDDatatype.XSDdateTime)
                 )
                 .addLiteral(DCTerms.subject,
                         "This RDF file was created by parsing data from the file indicated in the source literal");
 
-        allSheets.stream().forEach(a -> this.addSubject(a, provUUID));
+        allSheets.stream().forEach(a -> this.addSubject(a, provID));
 
         RDFService.writeModelToFile(outputFile, this.model, outputFormat);
     }
 
     /**
-     * Adds all data of a parsed ODS sheet to the main RDF model. The problem here is
-     * that the ODS sheet is centered around the animal, while the RDF model is project
-     * centric.
+     * The method adds data of a parsed ODS sheet to the main RDF model.
+     * Data specific notes:
+     * This method creates an RDF Subject class instance, using a hash ID as identifier. This hash ID is
+     * created using the current sheets values (in this order) of scientific name, subject ID,
+     * date of birth (XSDDate format).
+     * The method creates an RDF Permit class instance, using a hash ID as identifier. The hash ID is created
+     * using the permit number parsed from the current sheet.
+     * The hash IDs are created using the {@link Utils#getHashSHA} method.
      * @param currSheet Data from the current sheet.
-     * @param provUUID UUID of the provenance resource.
+     * @param provID ID of the current provenance resource.
      */
-    private void addSubject(final LKTLogParserSheet currSheet, final String provUUID) {
+    private void addSubject(final LKTLogParserSheet currSheet, final String provID) {
 
         final String subjectID = currSheet.getSubjectID();
         if (!this.subjectList.containsKey(subjectID)) {
-            this.subjectList.put(subjectID, UUID.randomUUID().toString());
+
+            // TODO A problem with this key could be different writing styles of the scientific name.
+            final ArrayList<String> subjListID = new ArrayList<>(
+                    Arrays.asList(currSheet.getScientificName(),
+                            currSheet.getSubjectID(),
+                            currSheet.getDateOfBirth().toString()));
+
+            this.subjectList.put(subjectID, Utils.getHashSHA(subjListID));
         }
 
-        final Resource permit = this.createInst(UUID.randomUUID().toString())
-                .addProperty(this.mainProp("hasProvenance"), this.fetchInstance(provUUID))
+        final String permitHashID = Utils.getHashSHA(Collections.singletonList(currSheet.getPermitNumber()));
+
+        final Resource permit = this.createInst(permitHashID)
+                .addProperty(this.mainProp("hasProvenance"), this.fetchInstance(provID))
                 .addProperty(RDF.type, this.mainRes("Permit"))
                 .addLiteral(this.mainProp("hasNumber"), currSheet.getPermitNumber());
 
         final Resource subject = this.createInst(this.subjectList.get(subjectID))
-                .addProperty(this.mainProp("hasProvenance"), this.fetchInstance(provUUID))
+                .addProperty(this.mainProp("hasProvenance"), this.fetchInstance(provID))
                 .addProperty(RDF.type, this.mainRes("Subject"))
                 .addLiteral(this.mainProp("hasSubjectID"), subjectID)
                 .addLiteral(this.mainProp("hasSex"), currSheet.getSubjectSex())
@@ -141,87 +160,110 @@ public class LKTLogToRDF {
         RDFUtils.addNonEmptyLiteral(subject, this.mainProp("hasScientificName"), currSheet.getScientificName());
 
         currSheet.getEntries().stream().forEach(
-                c -> this.addEntry(c, subject, provUUID)
+                c -> this.addEntry(c, subject, provID, subjectID)
         );
     }
 
     /**
-     * Adds the data of the current ODS entry to the main RDF model.
+     * The method adds the data of a parsed ODS row to the main RDF model.
+     * Data specific notes:
+     * This method creates an RDF Project class instance, using a hash ID as identifier. This hash ID is
+     * created using the provided project name value of the current entry.
+     * The method creates an RDF Experimenter class instance, using a hash ID as identifier. The hash ID is created
+     * using the full name of a person parsed from the current entry.
+     * The hash IDs are created using the {@link Utils#getHashSHA} method.
      * @param currEntry Data from the current ODS line entry.
      * @param subject Resource from the main RDF model containing the information about
-     *  the animal this entry is associated with.
-     * @param provUUID UUID of the provenance resource.
+     *  the test subject this entry is associated with.
+     * @param provID ID of the current provenance resource.
+     * @param subjectID Plain ID of the current test subject the experiment is connected to. This ID is required
+     *                  to create the Hash IDs for Experiment and SubjectLogEntry instances.
      */
-    private void addEntry(final LKTLogParserEntry currEntry, final Resource subject, final String provUUID) {
+    private void addEntry(final LKTLogParserEntry currEntry, final Resource subject,
+                          final String provID, final String subjectID) {
 
         final String project = currEntry.getProject();
-        // add project only once to the rdf model
+        // Add RDF Project instance only once to the RDF model.
         if (!this.projectList.containsKey(project)) {
 
-            this.projectList.put(project, UUID.randomUUID().toString());
-            this.createInst(this.projectList.get(project))
-                    .addProperty(this.mainProp("hasProvenance"), this.fetchInstance(provUUID))
+            final String projectHashID = Utils.getHashSHA(Collections.singletonList(project));
+            this.projectList.put(project, projectHashID);
+
+            this.createInst(projectHashID)
+                    .addProperty(this.mainProp("hasProvenance"), this.fetchInstance(provID))
                     .addProperty(RDF.type, this.mainRes("Project"))
                     .addLiteral(RDFS.label, project);
         }
-        // Fetch project resource
+        // Fetch RDF Project instance.
         final Resource projectRes = this.fetchInstance(this.projectList.get(project));
 
-        // Add experimenter only once to the RDF model
+        // Add new RDF Experimenter instance only once to the RDF model.
         final String experimenter = currEntry.getExperimenterName();
         if (!this.experimenterList.containsKey(experimenter)) {
 
-            this.experimenterList.put(experimenter, UUID.randomUUID().toString());
+            // TODO Problem: This will be the name as entered,
+            // TODO there is no control over the order of first and last name.
+            this.experimenterList.put(experimenter, Utils.getHashSHA(
+                                            Collections.singletonList(experimenter)));
 
             final Property name = this.model.createProperty(String.join("", RDFUtils.RDF_NS_FOAF, "name"));
             final Resource personRes = this.model.createResource(String.join("", RDFUtils.RDF_NS_FOAF, "Person"));
 
             this.createInst(this.experimenterList.get(experimenter))
-                    .addProperty(this.mainProp("hasProvenance"), this.fetchInstance(provUUID))
+                    .addProperty(this.mainProp("hasProvenance"), this.fetchInstance(provID))
                     .addProperty(RDF.type, this.mainRes("Experimenter"))
-                    .addLiteral(name, currEntry.getExperimenterName())
+                    .addLiteral(name, experimenter)
                             // TODO Check if this is actually correct or if the subclass
                             // TODO is supposed to be found only in the definition.
                     .addProperty(RDFS.subClassOf, personRes);
         }
 
-        // Fetch experimenter resource
+        // Fetch RDF Experimenter instance.
         final Resource experimenterRes = this.fetchInstance(this.experimenterList.get(experimenter));
 
-        // Create current experiment resource
-        final Resource exp = this.addExperimentEntry(currEntry);
-        // Link current experiment to experimenter and subject log
-        exp.addProperty(this.mainProp("hasProvenance"), this.fetchInstance(provUUID))
+        // Create current RDF Experiment instance.
+        final Resource exp = this.addExperimentEntry(currEntry, subjectID);
+        // Link current RDF Experiment instance to RDF Experimenter instance and RDF SubjectLogEntry instance.
+        exp.addProperty(this.mainProp("hasProvenance"), this.fetchInstance(provID))
                 .addProperty(this.mainProp("hasExperimenter"), experimenterRes)
                 .addProperty(this.mainProp("hasSubject"), subject);
 
         projectRes.addProperty(this.mainProp("hasExperiment"), exp);
 
-        // Create current subjectLog resource
-        final Resource subjectLogEntry = this.addSubjectLogEntry(currEntry);
-        // Link subject log entry to experimenter
+        // Create current RDF SubjectLogEntry instance.
+        final Resource subjectLogEntry = this.addSubjectLogEntry(currEntry, subjectID);
+        // Link RDF SubjectLogEntry instance to RDF Experimenter instance.
         subjectLogEntry
-                .addProperty(this.mainProp("hasProvenance"), this.fetchInstance(provUUID))
+                .addProperty(this.mainProp("hasProvenance"), this.fetchInstance(provID))
                 .addProperty(this.mainProp("hasExperimenter"), experimenterRes);
-        // Add subject log entry to the current subject node
+        // Add RDF SubjectLogEntry instance to the current RDF Subject instance.
         subject.addProperty(this.mainProp("hasSubjectLogEntry"), subjectLogEntry);
     }
 
     /**
-     * Add Experiment node to the RDF model.
+     * Create RDF Experiment instance. A hash ID is created as identifier for this instance
+     * using the {@link Utils#getHashSHA} method.
+     * The Hash ID of an RDF Experiment instance uses primary key: SubjectID, Paradigm, Experiment,
+     *      Experimenter, DateTime (XSDDateTime format)
+     * Rational: an experimenter could potentially run two different experiments at the same time with the same
+     * subject, but not within the same paradigm.
      * @param currEntry Current entry line of the parsed ODS file.
-     * @return Created experiment node.
+     * @param subjectID Plain ID of the current test subject the experiment is connected to.
+     * @return Created Experiment instance.
      */
-    private Resource addExperimentEntry(final LKTLogParserEntry currEntry) {
+    private Resource addExperimentEntry(final LKTLogParserEntry currEntry, final String subjectID) {
 
-        final Resource experiment = this.createInst(UUID.randomUUID().toString())
+        final String expDate = currEntry.getExperimentDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        final ArrayList<String> experimentList = new ArrayList<>(Arrays.asList(
+                subjectID, currEntry.getParadigm(), currEntry.getExperiment(),
+                currEntry.getExperimenterName(), expDate));
+
+        final Resource experiment = this.createInst(Utils.getHashSHA(experimentList))
                 .addProperty(RDF.type, this.mainRes("Experiment"))
                 .addLiteral(
                         this.mainProp("startedAt"),
-                        this.mainTypedLiteral(
-                                currEntry.getExperimentDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
-                                XSDDatatype.XSDdateTime)
-                        )
+                        this.mainTypedLiteral(expDate, XSDDatatype.XSDdateTime)
+                )
                 .addLiteral(RDFS.label, currEntry.getExperiment());
 
         RDFUtils.addNonEmptyLiteral(experiment, this.mainProp("hasParadigm"), currEntry.getParadigm());
@@ -233,19 +275,29 @@ public class LKTLogToRDF {
     }
 
     /**
-     * Add SubjectLogEntry node to the RDF model.
+     * Create RDF SubjectLogEntry instance. A hash ID is created as identifier for this instance
+     * using the {@link Utils#getHashSHA} method.
+     * Hash ID of an RDF SubjectLogEntry instance uses primary key:
+     *      SubjectID, Experimenter, DateTime (XSDDateTime format)
+     * Problem: same as with the Hash ID created for Experimenter, the name used here has to be in the
+     * proper order and of the same spelling to create the same Hash ID.
+     * Rational: there can only be one SubjectLogEntry at a particular point in time.
      * @param currEntry Current entry line of the parsed ODS file.
-     * @return Created SubjectLogEntry node.
+     * @param subjectID Plain ID of the current test subject the experiment is connected to.
+     * @return Created SubjectLogEntry instance.
      */
-    private Resource addSubjectLogEntry(final LKTLogParserEntry currEntry) {
-        final Resource res = this.createInst(UUID.randomUUID().toString())
+    private Resource addSubjectLogEntry(final LKTLogParserEntry currEntry, final String subjectID) {
+
+        final String logDate = currEntry.getExperimentDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        final ArrayList<String> subjLogList =
+                new ArrayList<>(Arrays.asList(subjectID, currEntry.getExperimenterName(), logDate));
+
+        final Resource res = this.createInst(Utils.getHashSHA(subjLogList))
                 .addProperty(RDF.type, this.mainRes("SubjectLogEntry"))
                 .addLiteral(
                         this.mainProp("startedAt"),
-                        this.mainTypedLiteral(
-                                currEntry.getExperimentDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
-                                XSDDatatype.XSDdateTime)
-                        )
+                        this.mainTypedLiteral(logDate, XSDDatatype.XSDdateTime)
+                )
                 .addLiteral(
                         this.mainProp("hasDiet"),
                         this.mainTypedLiteral(currEntry.getIsOnDiet().toString(), XSDDatatype.XSDboolean))
