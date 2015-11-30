@@ -26,23 +26,23 @@ import static org.assertj.core.api.Assertions.assertThat;
 public final class UtilsTest {
 
     /**
-     * Method checks that the {@link Utils} getHashSHA256 method returns
+     * Method checks that the {@link Utils} getHashSHA method returns
      * the proper hex hash for a List of String entries.
      */
     @Test
-    public void testGetHashSHA256() {
-        final String checkHexSHA256 = "c82b1b9a0ef4f87e13050b542881d1d158014e6d575f8efa7c4e2043b8c0cdf1";
+    public void testGetHashSHA() {
+        final String checkHexSHA = "e5c055cdf43af5be8972d5a94c8d0182296de89b";
 
         final ArrayList<String> testHashLower = new ArrayList<>(Arrays.asList("hash", "me"));
-        assertThat(checkHexSHA256.equals(Utils.getHashSHA256(testHashLower))).isTrue();
+        assertThat(checkHexSHA.equals(Utils.getHashSHA(testHashLower))).isTrue();
 
         final ArrayList<String> testHashMixed = new ArrayList<>(Arrays.asList("Hash", "Me"));
-        assertThat(checkHexSHA256.equals(Utils.getHashSHA256(testHashMixed))).isTrue();
+        assertThat(checkHexSHA.equals(Utils.getHashSHA(testHashMixed))).isTrue();
 
         final List<String> testHashSingleEntry = Collections.singletonList("Hash me");
-        assertThat(checkHexSHA256.equals(Utils.getHashSHA256(testHashSingleEntry))).isTrue();
+        assertThat(checkHexSHA.equals(Utils.getHashSHA(testHashSingleEntry))).isTrue();
 
         final List<String> testDiff = Collections.singletonList("hashme");
-        assertThat(checkHexSHA256.equals(Utils.getHashSHA256(testDiff))).isFalse();
+        assertThat(checkHexSHA.equals(Utils.getHashSHA(testDiff))).isFalse();
     }
 }

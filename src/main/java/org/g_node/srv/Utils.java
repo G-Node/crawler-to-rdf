@@ -22,18 +22,16 @@ import org.apache.commons.codec.digest.DigestUtils;
  */
 public final class Utils {
     /**
-     * Method converts a List of Strings to Uppercase, joins the individual entries by a blank space
-     * and retrieves a hexadecimal String from the resulting input String using the SHA256 hash algorithm.
+     * Method converts a List of Strings to upper case, joins the individual entries by a blank space
+     * and retrieves a hexadecimal String from the resulting input String using the SHA-1 hash algorithm.
      * @param valueList List of Strings.
-     * @return Hexadecimal String of the SHA256 encoded input Strings.
+     * @return Hexadecimal String of the SHA-1 encoded input Strings.
      */
-    public static String getHashSHA256(final List<String> valueList) {
-
+    public static String getHashSHA(final List<String> valueList) {
         final String collectListValues = valueList.stream()
                 .map(s -> s.toUpperCase(Locale.ENGLISH))
                 .collect(Collectors.joining(" "));
 
-        return DigestUtils.sha256Hex(collectListValues);
+        return DigestUtils.shaHex(collectListValues);
     }
-
 }
