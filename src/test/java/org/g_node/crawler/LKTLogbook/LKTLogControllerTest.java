@@ -188,7 +188,7 @@ public class LKTLogControllerTest {
 
         assertThat(this.outStream.toString()).contains(
                 String.join("",
-                        "[Parser] sheet null does not contain valid data.")
+                        "[Parser] sheet 'null' does not contain valid data.")
         );
         this.outStream.reset();
 

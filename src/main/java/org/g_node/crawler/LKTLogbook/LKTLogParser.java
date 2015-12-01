@@ -250,7 +250,7 @@ public final class LKTLogParser {
 
                 if (currSheet.getRowCount() < LKTLogParser.SHEET_HEADER_LINE) {
                     this.parserErrorMessages.add(String.join(
-                            "", "[Parser] sheet ", sheetName, " does not contain valid data."
+                            "", "[Parser] sheet '", sheetName, "' does not contain valid data."
                     ));
                 } else {
 
@@ -263,8 +263,8 @@ public final class LKTLogParser {
 
                     if (checkHeaderCell == null || !checkHeaderCell.equals(LKTLogParser.FIRST_HEADER_ENTRY)) {
                         this.parserErrorMessages.add(String.join(
-                                "", "[Parser] sheet ", sheetName,
-                                ", HeaderEntry '", LKTLogParser.FIRST_HEADER_ENTRY,
+                                "", "[Parser] sheet '", sheetName,
+                                "', HeaderEntry '", LKTLogParser.FIRST_HEADER_ENTRY,
                                 "' not found at required line ", EntryFieldRange.IMPORTID.getColumn(), ".",
                                 String.valueOf(LKTLogParser.SHEET_HEADER_LINE)
                         ));
@@ -292,6 +292,8 @@ public final class LKTLogParser {
 
         final LKTLogParserSheet currLKTLSheet  = new LKTLogParserSheet();
         final String sheetName = currSheet.getName();
+        final String snMessage = String.join("", "[Parser] sheet '", sheetName, "', ");
+
         ArrayList<String> parseSheetMessage;
         String checkDateBirth;
         String checkDateWithdrawal;
@@ -315,14 +317,14 @@ public final class LKTLogParser {
         parseSheetMessage = currLKTLSheet.isValidSheet();
         if (!parseSheetMessage.isEmpty()) {
             parseSheetMessage.forEach(
-                    m -> this.parserErrorMessages.add(String.join("", "[Parser] sheet ", sheetName, ", ", m))
+                    m -> this.parserErrorMessages.add(String.join("", snMessage, m))
             );
         }
         if (!checkDateBirth.isEmpty()) {
-            this.parserErrorMessages.add(String.join("", "[Parser] sheet ", sheetName, ", ", checkDateBirth));
+            this.parserErrorMessages.add(String.join("", snMessage, checkDateBirth));
         }
         if (!checkDateWithdrawal.isEmpty()) {
-            this.parserErrorMessages.add(String.join("", "[Parser] sheet ", sheetName, ", ", checkDateWithdrawal));
+            this.parserErrorMessages.add(String.join("", snMessage, checkDateWithdrawal));
         }
         return currLKTLSheet;
     }
@@ -367,7 +369,7 @@ public final class LKTLogParser {
 
                 if (checkEntries.containsKey(checkIdentEntry)) {
                     this.parserErrorMessages.add(String.join(
-                            "", "[Parser] sheet ", currFileSheet.getName(), ", rows ",
+                            "", "[Parser] sheet '", currFileSheet.getName(), "', rows ",
                             String.valueOf(checkEntries.get(checkIdentEntry)), " and ", String.valueOf(i),
                             " contain duplicate entries.",
                             "\n\tThe fields 'Date', 'Experiment', 'Paradigm' and 'Experimenter' have to be unique."
@@ -378,7 +380,7 @@ public final class LKTLogParser {
 
             } else if (!currEntry.getIsEmptyLine() && checkEmptyReqField) {
                 this.parserErrorMessages.add(String.join(
-                        "", "[Parser] sheet ", currFileSheet.getName(), " row ",
+                        "", "[Parser] sheet '", currFileSheet.getName(), "' row ",
                         String.valueOf(i), ", missing value: ", parseEntryMessage
                 ));
             }
@@ -416,7 +418,7 @@ public final class LKTLogParser {
         );
         if (!checkExperimentDate.isEmpty()) {
             this.parserErrorMessages.add(String.join(
-                    "", "[Parser] sheet ", currSheet.getName(), " row ",
+                    "", "[Parser] sheet '", currSheet.getName(), "' row ",
                     currLine, "\n\t", checkExperimentDate
             ));
         }
@@ -438,8 +440,8 @@ public final class LKTLogParser {
                 String.join("", EntryFieldRange.WEIGHT.getColumn(), currLine)).getTextValue());
         if (!"".equals(currMsg)) {
             this.parserErrorMessages.add(String.join(
-                    "", "[Parser] sheet ", currSheet.getName(),
-                    " row ", currLine, " ", currMsg
+                    "", "[Parser] sheet '", currSheet.getName(),
+                    "' row ", currLine, " ", currMsg
             ));
         }
 
