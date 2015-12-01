@@ -19,7 +19,7 @@ import java.time.format.DateTimeParseException;
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
-public class LKTLogParserEntry {
+public final class LKTLogParserEntry {
 
     /**
      * Pattern that all DateTime values have to be formatted in
@@ -104,7 +104,7 @@ public class LKTLogParserEntry {
      * Return the project identifier string.
      * @return See description.
      */
-    public final String getProject() {
+    public String getProject() {
         return this.project;
     }
 
@@ -115,7 +115,7 @@ public class LKTLogParserEntry {
      * the variable isEmptyLine is set to false.
      * @param prj String containing the project identifier.
      */
-    public final void setProject(final String prj) {
+    public void setProject(final String prj) {
         if (prj != null && !prj.isEmpty()) {
             this.setIsEmptyLine(false);
         }
@@ -126,7 +126,7 @@ public class LKTLogParserEntry {
      * Return the experiment identifier string.
      * @return See description.
      */
-    public final String getExperiment() {
+    public String getExperiment() {
         return this.experiment;
     }
 
@@ -137,7 +137,7 @@ public class LKTLogParserEntry {
      * the variable isEmptyLine is set to false.
      * @param exp String containing the experiment identifier.
      */
-    public final void setExperiment(final String exp) {
+    public void setExperiment(final String exp) {
         if (exp != null && !exp.isEmpty()) {
             this.setIsEmptyLine(false);
         }
@@ -148,7 +148,7 @@ public class LKTLogParserEntry {
      * Return the paradigm for the current entry.
      * @return See description.
      */
-    public final String getParadigm() {
+    public String getParadigm() {
         return this.paradigm;
     }
 
@@ -156,7 +156,7 @@ public class LKTLogParserEntry {
      * Set the paradigm for the current entry.
      * @param para String containing the paradigm for the current entry.
      */
-    public final void setParadigm(final String para) {
+    public void setParadigm(final String para) {
         this.paradigm = para;
     }
 
@@ -164,7 +164,7 @@ public class LKTLogParserEntry {
      * Return information about the paradigm.
      * @return See description.
      */
-    public final String getParadigmSpecifics() {
+    public String getParadigmSpecifics() {
         return this.paradigmSpecifics;
     }
 
@@ -172,7 +172,7 @@ public class LKTLogParserEntry {
      * Set specific information about the paradigm.
      * @param pspec String containing information about the paradigm.
      */
-    public final void setParadigmSpecifics(final String pspec) {
+    public void setParadigmSpecifics(final String pspec) {
         this.paradigmSpecifics = pspec;
     }
 
@@ -180,7 +180,7 @@ public class LKTLogParserEntry {
      * Return the date of the experiment using format {@link #SUPPORTED_DATE_TIME_PATTERN}.
      * @return See description.
      */
-    public final LocalDateTime getExperimentDate() {
+    public LocalDateTime getExperimentDate() {
         return this.experimentDate;
     }
 
@@ -194,7 +194,7 @@ public class LKTLogParserEntry {
      * @return An error message, if the date was not conform to
      *  {@link #SUPPORTED_DATE_TIME_PATTERN}
      */
-    public final String setExperimentDate(final String expdt) {
+    public String setExperimentDate(final String expdt) {
         String errMsg = "";
         if (expdt != null && !expdt.isEmpty()) {
             this.setIsEmptyLine(false);
@@ -216,7 +216,7 @@ public class LKTLogParserEntry {
      * Return the name of the experimenter.
      * @return See description.
      */
-    public final String getExperimenterName() {
+    public String getExperimenterName() {
         return this.experimenterName;
     }
 
@@ -224,7 +224,7 @@ public class LKTLogParserEntry {
      * Set the name of the experimenter.
      * @param exn Name of the experimenter.
      */
-    public final void setExperimenterName(final String exn) {
+    public void setExperimenterName(final String exn) {
         if (exn != null && !exn.isEmpty()) {
             this.setIsEmptyLine(false);
         }
@@ -235,7 +235,7 @@ public class LKTLogParserEntry {
      * Return comments about the experiment.
      * @return See description.
      */
-    public final String getCommentExperiment() {
+    public String getCommentExperiment() {
         return this.commentExperiment;
     }
 
@@ -243,7 +243,7 @@ public class LKTLogParserEntry {
      * Set comments about the experiment.
      * @param cmtexp Comment about the experiment.
      */
-    public final void setCommentExperiment(final String cmtexp) {
+    public void setCommentExperiment(final String cmtexp) {
         this.commentExperiment = cmtexp;
     }
 
@@ -251,7 +251,7 @@ public class LKTLogParserEntry {
      * Return comments about the animal at the current entry.
      * @return See description.
      */
-    public final String getCommentSubject() {
+    public String getCommentSubject() {
         return this.commentSubject;
     }
 
@@ -259,7 +259,7 @@ public class LKTLogParserEntry {
      * Set comments about the animal.
      * @param cmtan Comment about the animal.
      */
-    public final void setCommentSubject(final String cmtan) {
+    public void setCommentSubject(final String cmtan) {
         this.commentSubject = cmtan;
     }
 
@@ -267,7 +267,7 @@ public class LKTLogParserEntry {
      * Return animal feed information.
      * @return See description.
      */
-    public final String getFeed() {
+    public String getFeed() {
         return this.feed;
     }
 
@@ -275,7 +275,7 @@ public class LKTLogParserEntry {
      * Set the feed for the current entry.
      * @param onfd Information about animal feed.
      */
-    public final void setFeed(final String onfd) {
+    public void setFeed(final String onfd) {
         this.feed = onfd;
     }
 
@@ -283,7 +283,7 @@ public class LKTLogParserEntry {
      * Return a boolean value if the animal is on diet.
      * @return See description.
      */
-    public final Boolean getIsOnDiet() {
+    public Boolean getIsOnDiet() {
         return this.isOnDiet;
     }
 
@@ -291,7 +291,7 @@ public class LKTLogParserEntry {
      * Set if the animal is on diet at the current entry.
      * @param isod Values y or n which are translated to true or false.
      */
-    public final void setIsOnDiet(final String isod) {
+    public void setIsOnDiet(final String isod) {
         this.isOnDiet = isod != null && "y".equals(isod);
     }
 
@@ -300,7 +300,7 @@ public class LKTLogParserEntry {
      * initial weight for diet calculations.
      * @return See description.
      */
-    public final Boolean getIsInitialWeight() {
+    public Boolean getIsInitialWeight() {
         return this.isInitialWeight;
     }
 
@@ -308,7 +308,7 @@ public class LKTLogParserEntry {
      * Set if the current entry is the initial weight for diet calculations.
      * @param isInWeight Values y or n which are translated to true or false.
      */
-    public final void setIsInitialWeight(final String isInWeight) {
+    public void setIsInitialWeight(final String isInWeight) {
         this.isInitialWeight = isInWeight != null && "y".equals(isInWeight);
     }
 
@@ -316,7 +316,7 @@ public class LKTLogParserEntry {
      * Return the animal weight of the current entry.
      * @return See description.
      */
-    public final Float getWeight() {
+    public Float getWeight() {
         return this.weight;
     }
 
@@ -327,7 +327,7 @@ public class LKTLogParserEntry {
      */
     // TODO Everything in here is ugly as sin, sorry...
     // TODO Refactor parser errors as well as the handling of the decimal place conversion.
-    public final String setWeight(final String wght) {
+    public String setWeight(final String wght) {
 
         String msg = "";
 
@@ -347,7 +347,7 @@ public class LKTLogParserEntry {
      * Return boolean value if the current entry contains no values.
      * @return See description.
      */
-    public final boolean getIsEmptyLine() {
+    public boolean getIsEmptyLine() {
         return this.isEmptyLine;
     }
 
@@ -363,7 +363,7 @@ public class LKTLogParserEntry {
      * TODO check if the description above is actually still completely true.
      * @param iseline If true, the current entry contains no values.
      */
-    public final void setIsEmptyLine(final boolean iseline) {
+    public void setIsEmptyLine(final boolean iseline) {
         this.isEmptyLine = iseline;
     }
 
@@ -371,7 +371,7 @@ public class LKTLogParserEntry {
      * Method to check if a data row from a sheet contains all required entries.
      * @return Empty String or a Message containing all missing entries
      */
-    public final String isValidEntry() {
+    public String isValidEntry() {
 
         // TODO maybe solve this better by using optional if there is no entry missing?
         String msg = "";

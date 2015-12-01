@@ -34,7 +34,7 @@ import org.g_node.srv.Utils;
 /**
  * Class converting parsed data to RDF.
  */
-public class LKTLogToRDF {
+public final class LKTLogToRDF {
     /**
      * Namespace used to identify RDF resources and properties specific for the current use case.
      */
@@ -89,7 +89,7 @@ public class LKTLogToRDF {
      * @param outputFile Name and path of the designated output file.
      * @param outputFormat RDF output format.
      */
-    public final void createRDFModel(final ArrayList<LKTLogParserSheet> allSheets, final String inputFile,
+    public void createRDFModel(final ArrayList<LKTLogParserSheet> allSheets, final String inputFile,
                                 final String outputFile, final String outputFormat) {
 
         final String provDateTime = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);

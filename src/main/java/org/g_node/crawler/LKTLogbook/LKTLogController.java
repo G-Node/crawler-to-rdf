@@ -28,7 +28,7 @@ import org.g_node.srv.RDFService;
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
-public class LKTLogController implements Controller {
+public final class LKTLogController implements Controller {
     /**
      * Access to the main LOGGER.
      */
@@ -61,7 +61,7 @@ public class LKTLogController implements Controller {
      * Method returning the commandline options of the LKT crawler.
      * @return Available {@link CommandLine} {@link Options}.
      */
-    public final Options options() {
+    public Options options() {
         final Options options = new Options();
 
         final Option opHelp = CliOptionService.getHelpOpt("");
@@ -83,7 +83,7 @@ public class LKTLogController implements Controller {
      * file format before the parsing begins.
      * @param cmd User provided {@link CommandLine} input.
      */
-    public final void run(final CommandLine cmd) {
+    public void run(final CommandLine cmd) {
 
         final String inputFile = cmd.getOptionValue("i");
         if (!CtrlCheckService.existingInputFile(inputFile)) {

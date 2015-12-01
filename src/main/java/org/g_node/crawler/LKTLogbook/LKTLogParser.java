@@ -22,7 +22,7 @@ import org.jopendocument.dom.spreadsheet.SpreadSheet;
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
-public class LKTLogParser {
+public final class LKTLogParser {
     /**
      * Access to the main LOGGER.
      */
@@ -187,7 +187,7 @@ public class LKTLogParser {
      *                     {@link LKTLogController}.
      * @return Array list containing all data from all parsed ODS sheets.
      */
-    public final ArrayList<LKTLogParserSheet> parseFile(final String inputFile,
+    public ArrayList<LKTLogParserSheet> parseFile(final String inputFile,
                                                         final ArrayList<String> parserErrMsg) {
 
         this.parserErrorMessages = parserErrMsg;
