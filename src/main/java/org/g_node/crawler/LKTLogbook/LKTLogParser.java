@@ -13,6 +13,8 @@ package org.g_node.crawler.LKTLogbook;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.log4j.Logger;
 import org.jopendocument.dom.spreadsheet.Sheet;
 import org.jopendocument.dom.spreadsheet.SpreadSheet;
@@ -22,7 +24,7 @@ import org.jopendocument.dom.spreadsheet.SpreadSheet;
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
-public class LKTLogParser {
+public final class LKTLogParser {
     /**
      * Access to the main LOGGER.
      */
@@ -187,7 +189,7 @@ public class LKTLogParser {
      *                     {@link LKTLogController}.
      * @return Array list containing all data from all parsed ODS sheets.
      */
-    public final ArrayList<LKTLogParserSheet> parseFile(final String inputFile,
+    public ArrayList<LKTLogParserSheet> parseFile(final String inputFile,
                                                         final ArrayList<String> parserErrMsg) {
 
         this.parserErrorMessages = parserErrMsg;
@@ -248,7 +250,7 @@ public class LKTLogParser {
 
                 if (currSheet.getRowCount() < LKTLogParser.SHEET_HEADER_LINE) {
                     this.parserErrorMessages.add(String.join(
-                            "", "[Parser] sheet ", sheetName, " does not contain valid data."
+                            "", "[Parser] sheet '", sheetName, "' does not contain valid data."
                     ));
                 } else {
 
@@ -261,8 +263,8 @@ public class LKTLogParser {
 
                     if (checkHeaderCell == null || !checkHeaderCell.equals(LKTLogParser.FIRST_HEADER_ENTRY)) {
                         this.parserErrorMessages.add(String.join(
-                                "", "[Parser] sheet ", sheetName,
-                                ", HeaderEntry '", LKTLogParser.FIRST_HEADER_ENTRY,
+                                "", "[Parser] sheet '", sheetName,
+                                "', HeaderEntry '", LKTLogParser.FIRST_HEADER_ENTRY,
                                 "' not found at required line ", EntryFieldRange.IMPORTID.getColumn(), ".",
                                 String.valueOf(LKTLogParser.SHEET_HEADER_LINE)
                         ));
@@ -290,6 +292,8 @@ public class LKTLogParser {
 
         final LKTLogParserSheet currLKTLSheet  = new LKTLogParserSheet();
         final String sheetName = currSheet.getName();
+        final String snMessage = String.join("", "[Parser] sheet '", sheetName, "', ");
+
         ArrayList<String> parseSheetMessage;
         String checkDateBirth;
         String checkDateWithdrawal;
@@ -313,14 +317,14 @@ public class LKTLogParser {
         parseSheetMessage = currLKTLSheet.isValidSheet();
         if (!parseSheetMessage.isEmpty()) {
             parseSheetMessage.forEach(
-                    m -> this.parserErrorMessages.add(String.join("", "[Parser] sheet ", sheetName, ", ", m))
+                    m -> this.parserErrorMessages.add(String.join("", snMessage, m))
             );
         }
         if (!checkDateBirth.isEmpty()) {
-            this.parserErrorMessages.add(String.join("", "[Parser] sheet ", sheetName, ", ", checkDateBirth));
+            this.parserErrorMessages.add(String.join("", snMessage, checkDateBirth));
         }
         if (!checkDateWithdrawal.isEmpty()) {
-            this.parserErrorMessages.add(String.join("", "[Parser] sheet ", sheetName, ", ", checkDateWithdrawal));
+            this.parserErrorMessages.add(String.join("", snMessage, checkDateWithdrawal));
         }
         return currLKTLSheet;
     }
@@ -329,6 +333,9 @@ public class LKTLogParser {
      * Method for parsing the experiment entries of an animal sheet.
      * If parsing errors occur, the corresponding message will be added to {@link #parserErrorMessages}.
      * Parsing will continue to collect further possible parser errors.
+     * Use case note: Every entry row is checked for duplicate entries of the field combination
+     * Experiment date, Experimenter, Experiment and Paradigm. If such a duplicate row is detected
+     * a parser error will be created.
      * @param currFileSheet The current sheet of the parsed ODS file.
      * @param currLKTSheet The current {@link LKTLogParserSheet}.
      * @return The current {@link LKTLogParserSheet} containing the parsed
@@ -337,6 +344,9 @@ public class LKTLogParser {
     private LKTLogParserSheet parseSheetEntries(final Sheet currFileSheet, final LKTLogParserSheet currLKTSheet) {
 
         String parseEntryMessage;
+
+        String checkIdentEntry;
+        final Map<String, Integer> checkEntries = new HashMap<>();
 
         for (int i = LKTLogParser.SHEET_HEADER_LINE + 1; i < currFileSheet.getRowCount(); i = i + 1) {
 
@@ -350,12 +360,31 @@ public class LKTLogParser {
             parseEntryMessage = currEntry.isValidEntry();
             if (!currEntry.getIsEmptyLine() && parseEntryMessage.isEmpty()) {
                 currLKTSheet.addEntry(currEntry);
+
+                checkIdentEntry = String.join("",
+                        currEntry.getExperimentDate().toString(),
+                        currEntry.getExperimenterName(),
+                        currEntry.getExperiment(),
+                        currEntry.getParadigm());
+
+                if (checkEntries.containsKey(checkIdentEntry)) {
+                    this.parserErrorMessages.add(String.join(
+                            "", "[Parser] sheet '", currFileSheet.getName(), "', rows ",
+                            String.valueOf(checkEntries.get(checkIdentEntry)), " and ", String.valueOf(i),
+                            " contain duplicate entries.",
+                            "\n\tThe fields 'Date', 'Experiment', 'Paradigm' and 'Experimenter' have to be unique."
+                    ));
+                } else {
+                    checkEntries.put(checkIdentEntry, i);
+                }
+
             } else if (!currEntry.getIsEmptyLine() && checkEmptyReqField) {
                 this.parserErrorMessages.add(String.join(
-                        "", "[Parser] sheet ", currFileSheet.getName(), " row ",
+                        "", "[Parser] sheet '", currFileSheet.getName(), "' row ",
                         String.valueOf(i), ", missing value: ", parseEntryMessage
                 ));
             }
+
         }
         return currLKTSheet;
     }
@@ -389,7 +418,7 @@ public class LKTLogParser {
         );
         if (!checkExperimentDate.isEmpty()) {
             this.parserErrorMessages.add(String.join(
-                    "", "[Parser] sheet ", currSheet.getName(), " row ",
+                    "", "[Parser] sheet '", currSheet.getName(), "' row ",
                     currLine, "\n\t", checkExperimentDate
             ));
         }
@@ -411,8 +440,8 @@ public class LKTLogParser {
                 String.join("", EntryFieldRange.WEIGHT.getColumn(), currLine)).getTextValue());
         if (!"".equals(currMsg)) {
             this.parserErrorMessages.add(String.join(
-                    "", "[Parser] sheet ", currSheet.getName(),
-                    " row ", currLine, " ", currMsg
+                    "", "[Parser] sheet '", currSheet.getName(),
+                    "' row ", currLine, " ", currMsg
             ));
         }
 

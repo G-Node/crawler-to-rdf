@@ -21,7 +21,7 @@ import java.util.Objects;
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
-public class LKTLogParserSheet {
+public final class LKTLogParserSheet {
 
     /**
      * Pattern that all Date values have to be formatted in
@@ -79,7 +79,7 @@ public class LKTLogParserSheet {
      * Return the subjectID of the animal of the current ODS sheet.
      * @return See description.
      */
-    public final String getSubjectID() {
+    public String getSubjectID() {
         return this.subjectID;
     }
 
@@ -88,7 +88,7 @@ public class LKTLogParserSheet {
      * This entry is required for a sheet to be complete and valid.
      * @param aid ID of the current animal.
      */
-    public final void setSubjectID(final String aid) {
+    public void setSubjectID(final String aid) {
         this.subjectID = aid;
     }
 
@@ -96,7 +96,7 @@ public class LKTLogParserSheet {
      * Return the sex of the animal of the current ODS sheet.
      * @return See description.
      */
-    public final String getSubjectSex() {
+    public String getSubjectSex() {
         return this.subjectSex;
     }
 
@@ -105,7 +105,7 @@ public class LKTLogParserSheet {
      * This entry is required for a sheet to be complete and valid.
      * @param asx Sex of the animal, has to be in format "f" or "m".
      */
-    public final void setSubjectSex(final String asx) {
+    public void setSubjectSex(final String asx) {
         this.subjectSex = asx;
     }
 
@@ -113,7 +113,7 @@ public class LKTLogParserSheet {
      * Return the date of birth of the animal of the current ODS sheet.
      * @return Return the date of birth in format {@link #SUPPORTED_DATE_PATTERN}.
      */
-    public final LocalDate getDateOfBirth() {
+    public LocalDate getDateOfBirth() {
         return this.dateOfBirth;
     }
 
@@ -124,7 +124,7 @@ public class LKTLogParserSheet {
      * @return Error message, if the date does not conform to
      *  format {@link #SUPPORTED_DATE_PATTERN}
      */
-    public final String setDateOfBirth(final String dob) {
+    public String setDateOfBirth(final String dob) {
         String errMsg = "";
         try {
             this.dateOfBirth = LocalDate.parse(dob, this.supportedDate);
@@ -145,7 +145,7 @@ public class LKTLogParserSheet {
      * Return the withdrawal date of the the animal of the current ODS sheet.
      * @return Animal withdrawal date in format {@link #SUPPORTED_DATE_PATTERN}.
      */
-    public final LocalDate getDateOfWithdrawal() {
+    public LocalDate getDateOfWithdrawal() {
         return this.dateOfWithdrawal;
     }
 
@@ -156,7 +156,7 @@ public class LKTLogParserSheet {
      * @return Error message, if the date does not conform to
      *  format {@link #SUPPORTED_DATE_PATTERN}
      */
-    public final String setDateOfWithdrawal(final String dow) {
+    public String setDateOfWithdrawal(final String dow) {
         String errMsg = "";
         try {
             this.dateOfWithdrawal = LocalDate.parse(dow, this.supportedDate);
@@ -177,7 +177,7 @@ public class LKTLogParserSheet {
      * Return the permit number of the animal of the current ODS sheet.
      * @return See description.
      */
-    public final String getPermitNumber() {
+    public String getPermitNumber() {
         return this.permitNumber;
     }
 
@@ -186,7 +186,7 @@ public class LKTLogParserSheet {
      * This entry is required for a sheet to be complete and valid.
      * @param pnr Animal permit number.
      */
-    public final void setPermitNumber(final String pnr) {
+    public void setPermitNumber(final String pnr) {
         this.permitNumber = pnr;
     }
 
@@ -194,7 +194,7 @@ public class LKTLogParserSheet {
      * Returns the common species name of the animal of the current ODS sheet.
      * @return See description.
      */
-    public final String getSpecies() {
+    public String getSpecies() {
         return this.species;
     }
 
@@ -202,7 +202,7 @@ public class LKTLogParserSheet {
      * Sets the common species name of the animal of the current ODS sheet.
      * @param spc Common species animal name.
      */
-    public final void setSpecies(final String spc) {
+    public void setSpecies(final String spc) {
         this.species = spc;
     }
 
@@ -210,7 +210,7 @@ public class LKTLogParserSheet {
      * Returns the scientific species name of the animal of the current ODS sheet.
      * @return See description.
      */
-    public final String getScientificName() {
+    public String getScientificName() {
         return this.scientificName;
     }
 
@@ -218,7 +218,7 @@ public class LKTLogParserSheet {
      * Sets the scientific species name of the animal of the current ODS sheet.
      * @param snm Scientific species animal name.
      */
-    public final void setScientificName(final String snm) {
+    public void setScientificName(final String snm) {
         this.scientificName = snm;
     }
 
@@ -226,7 +226,7 @@ public class LKTLogParserSheet {
      * Returns ArrayList of parsed {@link LKTLogParserEntry} of the current ODS sheet.
      * @return Returns the {@link #entries} array.
      */
-    public final ArrayList<LKTLogParserEntry> getEntries() {
+    public ArrayList<LKTLogParserEntry> getEntries() {
         return this.entries;
     }
 
@@ -234,7 +234,7 @@ public class LKTLogParserSheet {
      * Method adds an ArrayList of {@link LKTLogParserEntry} to the {@link #entries} array.
      * @param ent ArrayList of parsed {@link LKTLogParserEntry}.
      */
-    public final void setEntries(final ArrayList<LKTLogParserEntry> ent) {
+    public void setEntries(final ArrayList<LKTLogParserEntry> ent) {
         this.entries = ent;
     }
 
@@ -242,7 +242,7 @@ public class LKTLogParserSheet {
      * Method adds a single logbook entry to the {@link #entries} array.
      * @param entry Parsed {@link LKTLogParserEntry}.
      */
-    public final void addEntry(final LKTLogParserEntry entry) {
+    public void addEntry(final LKTLogParserEntry entry) {
         this.entries.add(entry);
     }
 
@@ -253,7 +253,7 @@ public class LKTLogParserSheet {
      *  TODO and come up with a good method how to pass the error messages to
      *  TODO the calling instance.
      */
-    public final ArrayList<String> isValidSheet() {
+    public ArrayList<String> isValidSheet() {
 
         final ArrayList<String> validationMessage = new ArrayList<>(0);
 
