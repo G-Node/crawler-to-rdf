@@ -13,6 +13,8 @@ package org.g_node.crawler.LKTLogbook;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.log4j.Logger;
 import org.jopendocument.dom.spreadsheet.Sheet;
 import org.jopendocument.dom.spreadsheet.SpreadSheet;
@@ -329,6 +331,9 @@ public final class LKTLogParser {
      * Method for parsing the experiment entries of an animal sheet.
      * If parsing errors occur, the corresponding message will be added to {@link #parserErrorMessages}.
      * Parsing will continue to collect further possible parser errors.
+     * Use case note: Every entry row is checked for duplicate entries of the field combination
+     * Experiment date, Experimenter, Experiment and Paradigm. If such a duplicate row is detected
+     * a parser error will be created.
      * @param currFileSheet The current sheet of the parsed ODS file.
      * @param currLKTSheet The current {@link LKTLogParserSheet}.
      * @return The current {@link LKTLogParserSheet} containing the parsed
@@ -337,6 +342,9 @@ public final class LKTLogParser {
     private LKTLogParserSheet parseSheetEntries(final Sheet currFileSheet, final LKTLogParserSheet currLKTSheet) {
 
         String parseEntryMessage;
+
+        String checkIdentEntry;
+        final Map<String, Integer> checkEntries = new HashMap<>();
 
         for (int i = LKTLogParser.SHEET_HEADER_LINE + 1; i < currFileSheet.getRowCount(); i = i + 1) {
 
@@ -350,12 +358,31 @@ public final class LKTLogParser {
             parseEntryMessage = currEntry.isValidEntry();
             if (!currEntry.getIsEmptyLine() && parseEntryMessage.isEmpty()) {
                 currLKTSheet.addEntry(currEntry);
+
+                checkIdentEntry = String.join("",
+                        currEntry.getExperimentDate().toString(),
+                        currEntry.getExperimenterName(),
+                        currEntry.getExperiment(),
+                        currEntry.getParadigm());
+
+                if (checkEntries.containsKey(checkIdentEntry)) {
+                    this.parserErrorMessages.add(String.join(
+                            "", "[Parser] sheet ", currFileSheet.getName(), ", rows ",
+                            String.valueOf(checkEntries.get(checkIdentEntry)), " and ", String.valueOf(i),
+                            " contain duplicate entries.",
+                            "\n\tThe fields 'Date', 'Experiment', 'Paradigm' and 'Experimenter' have to be unique."
+                    ));
+                } else {
+                    checkEntries.put(checkIdentEntry, i);
+                }
+
             } else if (!currEntry.getIsEmptyLine() && checkEmptyReqField) {
                 this.parserErrorMessages.add(String.join(
                         "", "[Parser] sheet ", currFileSheet.getName(), " row ",
                         String.valueOf(i), ", missing value: ", parseEntryMessage
                 ));
             }
+
         }
         return currLKTSheet;
     }
