@@ -132,9 +132,9 @@
           <aggregate>true</aggregate>
           <show>private</show>
           <nohelp>true</nohelp>
-          <header>crawler-to-rdf, ${project.version}</header>
-          <footer>crawler-to-rdf, ${project.version}</footer>
-          <doctitle>crawler-to-rdf, ${project.version}</doctitle>
+          <header>${project.name}, ${project.version}</header>
+          <footer>${project.name}, ${project.version}</footer>
+          <doctitle>${project.name}, ${project.version}</doctitle>
         </configuration>
       </plugin>
 
