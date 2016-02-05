@@ -20,7 +20,7 @@ import org.apache.commons.codec.digest.DigestUtils;
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
-public final class Utils {
+public final class AppUtils {
     /**
      * Method converts a List of Strings to upper case, joins the individual entries by a blank space
      * and retrieves a hexadecimal String from the resulting input String using the SHA-1 hash algorithm.
