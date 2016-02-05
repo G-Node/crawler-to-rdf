@@ -109,4 +109,14 @@ public class AppTest {
         currApp.run(helpArgsLong);
         assertThat(this.outStream.toString()).startsWith("usage: Help");
     }
+
+    @Test
+    public void testRunDry() throws Exception {
+        final String[] startCrawlerArgs = new String[3];
+        startCrawlerArgs[0] = "lkt";
+        startCrawlerArgs[1] = "-i";
+        startCrawlerArgs[2] = "file";
+        currApp.run(startCrawlerArgs);
+        assertThat(this.outStream.toString()).contains("[ERROR] Input file file does not exist.");
+    }
 }
