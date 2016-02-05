@@ -56,7 +56,7 @@ public final class CliOptionService {
      * Returns option required to parse a given output file name from the command line.
      * Commandline option shorthand will always be "-o" and "-out-file".
      * @param altDesc Alternative description replacing the default description.
-     * @return CLI option parsing an input file.
+     * @return CLI option parsing an output file.
      */
     public static Option getOutFileOpt(final String altDesc) {
 
@@ -78,7 +78,7 @@ public final class CliOptionService {
      * Returns option required to parse a given output format from the command line.
      * Commandline option shorthand will always be "-f" and "-out-format".
      * @param altDesc Alternative description replacing the default description.
-     * @return CLI option parsing an input file.
+     * @return CLI option parsing an output format.
      */
     public static Option getOutFormatOpt(final String altDesc) {
 
