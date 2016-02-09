@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015, German Neuroinformatics Node (G-Node)
+ * Copyright (c) 2016, German Neuroinformatics Node (G-Node)
  *
  * All rights reserved.
  *
@@ -8,7 +8,7 @@
  * LICENSE file in the root of the Project.
  */
 
-package org.g_node.srv;
+package org.g_node.micro.commons;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.codec.digest.DigestUtils;
 
 /**
- * Class providing various utility methods.
+ * Class providing utility methods to g-node microservice applications.
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
@@ -46,4 +46,5 @@ public final class AppUtils {
 
         return DigestUtils.shaHex(collectListValues);
     }
+
 }

@@ -27,9 +27,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import org.g_node.srv.AppUtils;
-import org.g_node.srv.RDFService;
-import org.g_node.srv.RDFUtils;
+import org.g_node.micro.commons.AppUtils;
+import org.g_node.micro.commons.RDFService;
+import org.g_node.micro.commons.RDFUtils;
 
 /**
  * Class converting parsed data to RDF.
@@ -107,7 +107,7 @@ public final class LKTLogToRDF {
 
         allSheets.stream().forEach(a -> this.addSubject(a, provID));
 
-        RDFService.writeModelToFile(outputFile, this.model, outputFormat);
+        RDFService.saveModelToFile(outputFile, this.model, outputFormat);
     }
 
     /**

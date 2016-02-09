@@ -13,6 +13,8 @@ package org.g_node.srv;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.g_node.micro.commons.FileService;
+import org.g_node.micro.commons.RDFService;
 
 /**
  * Class providing checks common to converters and crawlers implemented in this service.

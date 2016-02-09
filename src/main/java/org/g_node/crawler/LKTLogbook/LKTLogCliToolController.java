@@ -18,21 +18,21 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.log4j.Logger;
-import org.g_node.Controller;
+import org.g_node.micro.commons.CliToolController;
+import org.g_node.micro.commons.RDFService;
 import org.g_node.srv.CliOptionService;
 import org.g_node.srv.CtrlCheckService;
-import org.g_node.srv.RDFService;
 
 /**
  * Command class for the LKT crawler.
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
-public final class LKTLogController implements Controller {
+public final class LKTLogCliToolController implements CliToolController {
     /**
      * Access to the main LOGGER.
      */
-    private static final Logger LOGGER = Logger.getLogger(LKTLogController.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(LKTLogCliToolController.class.getName());
     /**
      * File types that can be processed by this crawler.
      */
@@ -53,7 +53,7 @@ public final class LKTLogController implements Controller {
      * Constructor.
      * @param crl Instance of the {@link LKTLogParser} crawler.
      */
-    public LKTLogController(final LKTLogParser crl) {
+    public LKTLogCliToolController(final LKTLogParser crl) {
         this.crawler = crl;
     }
 
@@ -90,7 +90,7 @@ public final class LKTLogController implements Controller {
             return;
         }
 
-        if (!CtrlCheckService.supportedInFileType(inputFile, LKTLogController.SUPPORTED_INPUT_FILE_TYPES)) {
+        if (!CtrlCheckService.supportedInFileType(inputFile, LKTLogCliToolController.SUPPORTED_INPUT_FILE_TYPES)) {
             return;
         }
 
@@ -108,16 +108,16 @@ public final class LKTLogController implements Controller {
             outputFile = String.join("", outputFile, ".", RDFService.RDF_FORMAT_EXTENSION.get(outputFormat));
         }
 
-        LKTLogController.LOGGER.info("Parsing input file...");
+        LKTLogCliToolController.LOGGER.info("Parsing input file...");
         final ArrayList<LKTLogParserSheet> allSheets = this.crawler.parseFile(inputFile, this.parserErrorMsg);
 
         if (this.parserErrorMsg.size() != 0) {
-            LKTLogController.LOGGER.error("");
-            this.parserErrorMsg.forEach(LKTLogController.LOGGER::error);
+            LKTLogCliToolController.LOGGER.error("");
+            this.parserErrorMsg.forEach(LKTLogCliToolController.LOGGER::error);
             return;
         }
 
-        LKTLogController.LOGGER.info("Converting parsed data to RDF...");
+        LKTLogCliToolController.LOGGER.info("Converting parsed data to RDF...");
         final LKTLogToRDF convRDF = new LKTLogToRDF();
         convRDF.createRDFModel(allSheets, inputFile, outputFile, outputFormat);
     }

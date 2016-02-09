@@ -11,6 +11,7 @@
 package org.g_node.srv;
 
 import org.apache.commons.cli.Option;
+import org.g_node.micro.commons.RDFService;
 
 /**
  * Class provides CLI {@link Option}s that are common
