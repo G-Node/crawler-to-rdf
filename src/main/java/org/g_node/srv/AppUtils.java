@@ -10,6 +10,8 @@
 
 package org.g_node.srv;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -21,6 +23,16 @@ import org.apache.commons.codec.digest.DigestUtils;
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
 public final class AppUtils {
+
+    /**
+     * Return time stamp formatted corresponding to input format pattern.
+     * @param format Input format pattern.
+     * @return Formatted timestamp.
+     */
+    public static String getTimeStamp(final String format) {
+        return LocalDateTime.now().format(DateTimeFormatter.ofPattern(format));
+    }
+
     /**
      * Method converts a List of Strings to upper case, joins the individual entries by a blank space
      * and retrieves a hexadecimal String from the resulting input String using the SHA-1 hash algorithm.
