@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015, German Neuroinformatics Node (G-Node)
+ * Copyright (c) 2016, German Neuroinformatics Node (G-Node)
  *
  * All rights reserved.
  *
@@ -18,7 +18,9 @@ import org.g_node.micro.commons.FileService;
 import org.g_node.micro.commons.RDFService;
 
 /**
- * Class providing checks common to converters and crawlers implemented in this service.
+ * Class providing checks common to tools implemented in this service.
+ *
+ * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
 public final class CtrlCheckService {
     /**
@@ -33,7 +35,9 @@ public final class CtrlCheckService {
     public static boolean existingInputFile(final String inputFile) {
 
         boolean properFile = true;
-        CtrlCheckService.LOGGER.info("Checking input file...");
+        CtrlCheckService.LOGGER.info(
+                String.join("", "Checking file '", inputFile, "'...")
+        );
         if (!FileService.checkFile(inputFile)) {
             CtrlCheckService.LOGGER.error(
                     String.join("", "Input file ", inputFile, " does not exist.")
