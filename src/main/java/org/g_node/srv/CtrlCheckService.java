@@ -12,6 +12,7 @@ package org.g_node.srv;
 
 import java.util.List;
 
+import org.apache.jena.riot.RiotException;
 import org.apache.log4j.Logger;
 import org.g_node.micro.commons.FileService;
 import org.g_node.micro.commons.RDFService;
@@ -86,6 +87,28 @@ public final class CtrlCheckService {
             supportedFormat = false;
         }
         return supportedFormat;
+    }
+
+    /**
+     * Method tries to open a supported file assuming, that it is an RDF file.
+     * If a RiotException occurs it most likely is not a valid RDF file and a
+     * corresponding message is displayed and logged.
+     * @param file Path and filename of the file that is supposed to be checked.
+     * @return True if the file can be opened and the model loaded, false if not.
+     */
+    public static boolean checkValidRdfFile(final String file) {
+        boolean validRdfFile = true;
+        try {
+            RDFService.openModelFromFile(file);
+        } catch (RiotException e) {
+            CtrlCheckService.LOGGER.error(
+                    String.join("",
+                            "Failed to load file '", file, "'. Ensure it is a valid RDF file.",
+                            "\n\t\tActual error message: ", e.getMessage())
+            );
+            validRdfFile = false;
+        }
+        return validRdfFile;
     }
 
 }
