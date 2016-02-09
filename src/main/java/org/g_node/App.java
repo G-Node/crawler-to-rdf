@@ -60,6 +60,9 @@ public class App {
     public static void main(final String[] args) {
 
         App.LOGGER.info(String.join("", AppUtils.getTimeStamp("dd.MM.yyyy HH:mm"), ", Starting RDF crawler logfile."));
+        App.LOGGER.info(
+                String.join("", "Input arguments: '", String.join(" ", args), "'")
+        );
 
         try {
             final App currApp = new App();
