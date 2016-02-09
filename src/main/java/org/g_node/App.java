@@ -10,8 +10,6 @@
 
 package org.g_node;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.cli.CommandLine;
@@ -24,6 +22,7 @@ import org.apache.log4j.Logger;
 import org.g_node.converter.ConvController;
 import org.g_node.crawler.LKTLogbook.LKTLogController;
 import org.g_node.crawler.LKTLogbook.LKTLogParser;
+import org.g_node.srv.AppUtils;
 
 /**
  * Main application class used to parse command line input and pass
@@ -59,8 +58,7 @@ public class App {
      */
     public static void main(final String[] args) {
 
-        final String currDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
-        App.LOGGER.info(String.join("", currDateTime, ", Starting RDF crawler logfile."));
+        App.LOGGER.info(String.join("", AppUtils.getTimeStamp("dd.MM.yyyy HH:mm"), ", Starting RDF crawler logfile."));
 
         try {
             final App currApp = new App();
