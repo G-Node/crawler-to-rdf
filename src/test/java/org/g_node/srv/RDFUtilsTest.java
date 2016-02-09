@@ -16,6 +16,7 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.RDFS;
+import org.g_node.micro.commons.RDFUtils;
 import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 

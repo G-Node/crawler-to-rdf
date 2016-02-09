@@ -19,12 +19,12 @@ import java.nio.file.Paths;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.vocabulary.RDFS;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
+import org.g_node.micro.commons.RDFService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -100,14 +100,14 @@ public class RDFServiceTest {
         final String outFilePath = this.testFileFolder.resolve(outFileName).toString();
         final String outFileFormat = "TTL";
         final String testString = String.join(
-                "", "[INFO ] Writing data to RDF file, ",
-                outFilePath, " using format '", outFileFormat, "'"
+                "", "[INFO ] Writing data to RDF file '",
+                outFilePath, "' using format '", outFileFormat, "'"
         );
 
-        RDFService.writeModelToFile("", model, outFileFormat);
+        RDFService.saveModelToFile("", model, outFileFormat);
         assertThat(this.outStream.toString()).startsWith("[ERROR] Could not open output file");
 
-        RDFService.writeModelToFile(outFilePath, model, outFileFormat);
+        RDFService.saveModelToFile(outFilePath, model, outFileFormat);
         assertThat(this.outStream.toString()).contains(testString);
     }
 

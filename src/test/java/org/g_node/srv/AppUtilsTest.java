@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.g_node.micro.commons.AppUtils;
 import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
