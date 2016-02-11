@@ -72,29 +72,6 @@ public final class CtrlCheckService {
     }
 
     /**
-     * Method checks with {@link RDFService#RDF_FORMAT_MAP} if a user provided
-     * RDF output format is supported by the current tool.
-     * @param outputFormat RDF format provided by the user.
-     * @return True if the provided format is supported by the tool, false if not.
-     */
-    public static boolean isSupportedOutputFormat(final String outputFormat) {
-
-        boolean supportedFormat = true;
-        CtrlCheckService.LOGGER.info("Checking output format...");
-        if (!RDFService.RDF_FORMAT_MAP.containsKey(outputFormat)) {
-            CtrlCheckService.LOGGER.error(
-                    String.join("",
-                            "Unsupported output format: '", outputFormat, "'",
-                            "\n Please use one of the following: ",
-                            RDFService.RDF_FORMAT_MAP.keySet().toString()
-                    )
-            );
-            supportedFormat = false;
-        }
-        return supportedFormat;
-    }
-
-    /**
      * Method checks with the contents of a set, if a provided output file format is supported by the current tool
      * and logs the results of the check.
      * @param outputFormat Format provided by the user.
