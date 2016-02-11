@@ -35,7 +35,6 @@ public final class CtrlCheckService {
      */
     public static boolean isExistingFile(final String inputFile) {
 
-        boolean properFile = true;
         CtrlCheckService.LOGGER.info(
                 String.join("", "Checking file '", inputFile, "'...")
         );
@@ -43,9 +42,9 @@ public final class CtrlCheckService {
             CtrlCheckService.LOGGER.error(
                     String.join("", "Input file ", inputFile, " does not exist.")
             );
-            properFile = false;
+            return false;
         }
-        return properFile;
+        return true;
     }
 
     /**
@@ -56,7 +55,6 @@ public final class CtrlCheckService {
      */
     public static boolean isSupportedInFileType(final String inputFile, final List<String> checkExtension) {
 
-        boolean supportedType = true;
         CtrlCheckService.LOGGER.info("Checking input format...");
         if (!FileService.checkFileType(inputFile, checkExtension)) {
             CtrlCheckService.LOGGER.error(
@@ -66,9 +64,9 @@ public final class CtrlCheckService {
                             checkExtension.toString()
                     )
             );
-            supportedType = false;
+            return false;
         }
-        return supportedType;
+        return true;
     }
 
     /**
@@ -125,7 +123,7 @@ public final class CtrlCheckService {
      * @return True if the file can be opened and the model loaded, false if not.
      */
     public static boolean isValidRdfFile(final String file) {
-        boolean validRdfFile = true;
+
         try {
             RDFService.openModelFromFile(file);
         } catch (RiotException e) {
@@ -134,9 +132,9 @@ public final class CtrlCheckService {
                             "Failed to load file '", file, "'. Ensure it is a valid RDF file.",
                             "\n\t\tActual error message: ", e.getMessage())
             );
-            validRdfFile = false;
+            return false;
         }
-        return validRdfFile;
+        return true;
     }
 
 }
