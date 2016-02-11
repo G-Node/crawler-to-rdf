@@ -134,11 +134,11 @@ public class CtrlCheckServiceTest {
      */
     @Test
     public void testSupportedOutputFormat() throws Exception {
-        assertThat(CtrlCheckService.isSupportedOutputFormat("txt")).isFalse();
-        assertThat(CtrlCheckService.isSupportedOutputFormat("TTL")).isTrue();
-        assertThat(CtrlCheckService.isSupportedOutputFormat("NTRIPLES")).isTrue();
-        assertThat(CtrlCheckService.isSupportedOutputFormat("RDF/XML")).isTrue();
-        assertThat(CtrlCheckService.isSupportedOutputFormat("JSON-LD")).isTrue();
+        assertThat(CtrlCheckService.isSupportedOutputFormat("txt", RDFService.RDF_FORMAT_MAP.keySet())).isFalse();
+        assertThat(CtrlCheckService.isSupportedOutputFormat("TTL", RDFService.RDF_FORMAT_MAP.keySet())).isTrue();
+        assertThat(CtrlCheckService.isSupportedOutputFormat("NTRIPLES", RDFService.RDF_FORMAT_MAP.keySet())).isTrue();
+        assertThat(CtrlCheckService.isSupportedOutputFormat("RDF/XML", RDFService.RDF_FORMAT_MAP.keySet())).isTrue();
+        assertThat(CtrlCheckService.isSupportedOutputFormat("JSON-LD", RDFService.RDF_FORMAT_MAP.keySet())).isTrue();
     }
 
 }
