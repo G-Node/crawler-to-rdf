@@ -86,16 +86,16 @@ public final class LKTLogCliToolController implements CliToolController {
     public void run(final CommandLine cmd) {
 
         final String inputFile = cmd.getOptionValue("i");
-        if (!CtrlCheckService.existingInputFile(inputFile)) {
+        if (!CtrlCheckService.isExistingFile(inputFile)) {
             return;
         }
 
-        if (!CtrlCheckService.supportedInFileType(inputFile, LKTLogCliToolController.SUPPORTED_INPUT_FILE_TYPES)) {
+        if (!CtrlCheckService.isSupportedInFileType(inputFile, LKTLogCliToolController.SUPPORTED_INPUT_FILE_TYPES)) {
             return;
         }
 
         final String outputFormat = cmd.getOptionValue("f", "TTL").toUpperCase(Locale.ENGLISH);
-        if (!CtrlCheckService.supportedOutputFormat(outputFormat)) {
+        if (!CtrlCheckService.isSupportedOutputFormat(outputFormat)) {
             return;
         }
 

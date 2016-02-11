@@ -32,7 +32,7 @@ public final class CtrlCheckService {
      * @param inputFile Path and filename of the file that is supposed to be checked for existence.
      * @return True in case the file exists, false in case it does not.
      */
-    public static boolean existingInputFile(final String inputFile) {
+    public static boolean isExistingFile(final String inputFile) {
 
         boolean properFile = true;
         CtrlCheckService.LOGGER.info(
@@ -53,7 +53,7 @@ public final class CtrlCheckService {
      * @param checkExtension List containing all supported file types for the provided input file.
      * @return True in case the file type is supported, false in case it is not.
      */
-    public static boolean supportedInFileType(final String inputFile, final List<String> checkExtension) {
+    public static boolean isSupportedInFileType(final String inputFile, final List<String> checkExtension) {
 
         boolean supportedType = true;
         CtrlCheckService.LOGGER.info("Checking input format...");
@@ -76,7 +76,7 @@ public final class CtrlCheckService {
      * @param outputFormat RDF format provided by the user.
      * @return True if the provided format is supported by the tool, false if not.
      */
-    public static boolean supportedOutputFormat(final String outputFormat) {
+    public static boolean isSupportedOutputFormat(final String outputFormat) {
 
         boolean supportedFormat = true;
         CtrlCheckService.LOGGER.info("Checking output format...");
@@ -100,7 +100,7 @@ public final class CtrlCheckService {
      * @param file Path and filename of the file that is supposed to be checked.
      * @return True if the file can be opened and the model loaded, false if not.
      */
-    public static boolean checkValidRdfFile(final String file) {
+    public static boolean isValidRdfFile(final String file) {
         boolean validRdfFile = true;
         try {
             RDFService.openModelFromFile(file);

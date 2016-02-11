@@ -63,7 +63,7 @@ public class ConvCliToolController implements CliToolController {
     public final void run(final CommandLine cmd) {
 
         final String inputFile = cmd.getOptionValue("i");
-        if (!CtrlCheckService.existingInputFile(inputFile)) {
+        if (!CtrlCheckService.isExistingFile(inputFile)) {
             return;
         }
 
@@ -71,12 +71,12 @@ public class ConvCliToolController implements CliToolController {
                 .stream()
                 .map(c->c.toUpperCase(Locale.ENGLISH))
                 .collect(Collectors.toList());
-        if (!CtrlCheckService.supportedInFileType(inputFile, checkExtension)) {
+        if (!CtrlCheckService.isSupportedInFileType(inputFile, checkExtension)) {
             return;
         }
 
         final String outputFormat = cmd.getOptionValue("f", "TTL").toUpperCase(Locale.ENGLISH);
-        if (!CtrlCheckService.supportedOutputFormat(outputFormat)) {
+        if (!CtrlCheckService.isSupportedOutputFormat(outputFormat)) {
             return;
         }
 
