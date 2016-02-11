@@ -12,6 +12,7 @@ package org.g_node.srv;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import org.apache.jena.riot.RiotException;
 import org.apache.log4j.Logger;
 import org.g_node.micro.commons.FileService;
@@ -91,6 +92,27 @@ public final class CtrlCheckService {
             supportedFormat = false;
         }
         return supportedFormat;
+    }
+
+    /**
+     * Method checks with the contents of a set, if a provided output file format is supported by the current tool
+     * and logs the results of the check.
+     * @param outputFormat Format provided by the user.
+     * @param supportedOutFormats Set of supported output formats by this tool, the entries are all upper case.
+     * @return True if the provided format is supported by the tool, false if not.
+     */
+    public static boolean isSupportedOutputFormat(final String outputFormat,
+                                                  final Set<String> supportedOutFormats) {
+        CtrlCheckService.LOGGER.info(String.join("", "Checking output format...\t\t(", outputFormat, ")"));
+        if (!supportedOutFormats.contains(outputFormat.toUpperCase(Locale.ENGLISH))) {
+            CtrlCheckService.LOGGER.error(
+                    String.join("",
+                            "Unsupported output format: '", outputFormat, "'",
+                            "\n\t\tPlease use one of the following: ", supportedOutFormats.toString())
+            );
+            return false;
+        }
+        return true;
     }
 
     /**
