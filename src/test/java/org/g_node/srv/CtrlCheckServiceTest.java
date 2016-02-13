@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.g_node.micro.commons.RDFService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -69,14 +70,14 @@ public class CtrlCheckServiceTest {
                         .resolve("IdoNotExist")
                         .toAbsolutePath().normalize().toString();
 
-        assertThat(CtrlCheckService.existingInputFile(testNonExistingFilePath)).isFalse();
+        assertThat(CtrlCheckService.isExistingFile(testNonExistingFilePath)).isFalse();
 
         final String testExistingFilePath =
                 this.testFileFolder
                         .resolve(this.testFileName)
                         .toAbsolutePath().normalize().toString();
 
-        assertThat(CtrlCheckService.existingInputFile(testExistingFilePath)).isTrue();
+        assertThat(CtrlCheckService.isExistingFile(testExistingFilePath)).isTrue();
     }
 
 
@@ -100,7 +101,7 @@ public class CtrlCheckServiceTest {
         final List<String> testFileTypes = Collections.singletonList("TXT");
 
         assertThat(
-                CtrlCheckService.supportedInFileType(
+                CtrlCheckService.isSupportedInFileType(
                         this.testFileFolder
                                 .resolve(testFileType)
                                 .toAbsolutePath().normalize().toString(),
@@ -108,7 +109,7 @@ public class CtrlCheckServiceTest {
         ).isFalse();
 
         assertThat(
-                CtrlCheckService.supportedInFileType(
+                CtrlCheckService.isSupportedInFileType(
                         this.testFileFolder
                                 .resolve(testFileTypeExt)
                                 .toAbsolutePath().normalize().toString(),
@@ -116,7 +117,7 @@ public class CtrlCheckServiceTest {
         ).isFalse();
 
         assertThat(
-                CtrlCheckService.supportedInFileType(
+                CtrlCheckService.isSupportedInFileType(
                         this.testFileFolder
                                 .resolve(this.testFileName)
                                 .toAbsolutePath().normalize().toString(),
@@ -133,11 +134,11 @@ public class CtrlCheckServiceTest {
      */
     @Test
     public void testSupportedOutputFormat() throws Exception {
-        assertThat(CtrlCheckService.supportedOutputFormat("txt")).isFalse();
-        assertThat(CtrlCheckService.supportedOutputFormat("TTL")).isTrue();
-        assertThat(CtrlCheckService.supportedOutputFormat("NTRIPLES")).isTrue();
-        assertThat(CtrlCheckService.supportedOutputFormat("RDF/XML")).isTrue();
-        assertThat(CtrlCheckService.supportedOutputFormat("JSON-LD")).isTrue();
+        assertThat(CtrlCheckService.isSupportedOutputFormat("txt", RDFService.RDF_FORMAT_MAP.keySet())).isFalse();
+        assertThat(CtrlCheckService.isSupportedOutputFormat("TTL", RDFService.RDF_FORMAT_MAP.keySet())).isTrue();
+        assertThat(CtrlCheckService.isSupportedOutputFormat("NTRIPLES", RDFService.RDF_FORMAT_MAP.keySet())).isTrue();
+        assertThat(CtrlCheckService.isSupportedOutputFormat("RDF/XML", RDFService.RDF_FORMAT_MAP.keySet())).isTrue();
+        assertThat(CtrlCheckService.isSupportedOutputFormat("JSON-LD", RDFService.RDF_FORMAT_MAP.keySet())).isTrue();
     }
 
 }

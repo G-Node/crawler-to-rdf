@@ -27,9 +27,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import org.g_node.srv.RDFService;
-import org.g_node.srv.RDFUtils;
-import org.g_node.srv.Utils;
+import org.g_node.micro.commons.AppUtils;
+import org.g_node.micro.commons.RDFService;
+import org.g_node.micro.commons.RDFUtils;
 
 /**
  * Class converting parsed data to RDF.
@@ -83,7 +83,7 @@ public final class LKTLogToRDF {
      * Data specific notes:
      * This method creates an RDF Provenance class instance, using a hash ID as identifier. This hash ID is
      * created using the filename of the input file and the current date (XSDDateTime format).
-     * The hash ID is created using the {@link Utils#getHashSHA} method.
+     * The hash ID is created using the {@link AppUtils#getHashSHA} method.
      * @param allSheets Data from the parsed ODS sheets.
      * @param inputFile Name and path of the input file
      * @param outputFile Name and path of the designated output file.
@@ -93,7 +93,7 @@ public final class LKTLogToRDF {
                                 final String outputFile, final String outputFormat) {
 
         final String provDateTime = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-        final String provID = Utils.getHashSHA(new ArrayList<>(Arrays.asList(inputFile, provDateTime)));
+        final String provID = AppUtils.getHashSHA(new ArrayList<>(Arrays.asList(inputFile, provDateTime)));
 
         this.createInst(provID)
                 .addProperty(RDF.type, this.mainRes("Provenance"))
@@ -107,7 +107,7 @@ public final class LKTLogToRDF {
 
         allSheets.stream().forEach(a -> this.addSubject(a, provID));
 
-        RDFService.writeModelToFile(outputFile, this.model, outputFormat);
+        RDFService.saveModelToFile(outputFile, this.model, outputFormat);
     }
 
     /**
@@ -118,7 +118,7 @@ public final class LKTLogToRDF {
      * date of birth (XSDDate format).
      * The method creates an RDF Permit class instance, using a hash ID as identifier. The hash ID is created
      * using the permit number parsed from the current sheet.
-     * The hash IDs are created using the {@link Utils#getHashSHA} method.
+     * The hash IDs are created using the {@link AppUtils#getHashSHA} method.
      * @param currSheet Data from the current sheet.
      * @param provID ID of the current provenance resource.
      */
@@ -133,10 +133,10 @@ public final class LKTLogToRDF {
                             currSheet.getSubjectID(),
                             currSheet.getDateOfBirth().toString()));
 
-            this.subjectList.put(subjectID, Utils.getHashSHA(subjListID));
+            this.subjectList.put(subjectID, AppUtils.getHashSHA(subjListID));
         }
 
-        final String permitHashID = Utils.getHashSHA(Collections.singletonList(currSheet.getPermitNumber()));
+        final String permitHashID = AppUtils.getHashSHA(Collections.singletonList(currSheet.getPermitNumber()));
 
         final Resource permit = this.createInst(permitHashID)
                 .addProperty(this.mainProp("hasProvenance"), this.fetchInstance(provID))
@@ -171,7 +171,7 @@ public final class LKTLogToRDF {
      * created using the provided project name value of the current entry.
      * The method creates an RDF Experimenter class instance, using a hash ID as identifier. The hash ID is created
      * using the full name of a person parsed from the current entry.
-     * The hash IDs are created using the {@link Utils#getHashSHA} method.
+     * The hash IDs are created using the {@link AppUtils#getHashSHA} method.
      * @param currEntry Data from the current ODS line entry.
      * @param subject Resource from the main RDF model containing the information about
      *  the test subject this entry is associated with.
@@ -186,7 +186,7 @@ public final class LKTLogToRDF {
         // Add RDF Project instance only once to the RDF model.
         if (!this.projectList.containsKey(project)) {
 
-            final String projectHashID = Utils.getHashSHA(Collections.singletonList(project));
+            final String projectHashID = AppUtils.getHashSHA(Collections.singletonList(project));
             this.projectList.put(project, projectHashID);
 
             this.createInst(projectHashID)
@@ -203,7 +203,7 @@ public final class LKTLogToRDF {
 
             // TODO Problem: This will be the name as entered,
             // TODO there is no control over the order of first and last name.
-            this.experimenterList.put(experimenter, Utils.getHashSHA(
+            this.experimenterList.put(experimenter, AppUtils.getHashSHA(
                                             Collections.singletonList(experimenter)));
 
             final Property name = this.model.createProperty(String.join("", RDFUtils.RDF_NS_FOAF, "name"));
@@ -242,7 +242,7 @@ public final class LKTLogToRDF {
 
     /**
      * Create RDF Experiment instance. A hash ID is created as identifier for this instance
-     * using the {@link Utils#getHashSHA} method.
+     * using the {@link AppUtils#getHashSHA} method.
      * The Hash ID of an RDF Experiment instance uses primary key: SubjectID, Paradigm, Experiment,
      *      Experimenter, DateTime (XSDDateTime format)
      * Rational: an experimenter could potentially run two different experiments at the same time with the same
@@ -258,7 +258,7 @@ public final class LKTLogToRDF {
                 subjectID, currEntry.getParadigm(), currEntry.getExperiment(),
                 currEntry.getExperimenterName(), expDate));
 
-        final Resource experiment = this.createInst(Utils.getHashSHA(experimentList))
+        final Resource experiment = this.createInst(AppUtils.getHashSHA(experimentList))
                 .addProperty(RDF.type, this.mainRes("Experiment"))
                 .addLiteral(
                         this.mainProp("startedAt"),
@@ -276,7 +276,7 @@ public final class LKTLogToRDF {
 
     /**
      * Create RDF SubjectLogEntry instance. A hash ID is created as identifier for this instance
-     * using the {@link Utils#getHashSHA} method.
+     * using the {@link AppUtils#getHashSHA} method.
      * Hash ID of an RDF SubjectLogEntry instance uses primary key:
      *      SubjectID, Experimenter, DateTime (XSDDateTime format)
      * Problem: same as with the Hash ID created for Experimenter, the name used here has to be in the
@@ -292,7 +292,7 @@ public final class LKTLogToRDF {
         final ArrayList<String> subjLogList =
                 new ArrayList<>(Arrays.asList(subjectID, currEntry.getExperimenterName(), logDate));
 
-        final Resource res = this.createInst(Utils.getHashSHA(subjLogList))
+        final Resource res = this.createInst(AppUtils.getHashSHA(subjLogList))
                 .addProperty(RDF.type, this.mainRes("SubjectLogEntry"))
                 .addLiteral(
                         this.mainProp("startedAt"),

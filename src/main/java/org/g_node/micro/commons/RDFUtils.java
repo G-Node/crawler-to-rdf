@@ -8,7 +8,7 @@
  * LICENSE file in the root of the Project.
  */
 
-package org.g_node.srv;
+package org.g_node.micro.commons;
 
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;

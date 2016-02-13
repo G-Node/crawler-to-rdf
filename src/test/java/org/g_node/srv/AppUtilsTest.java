@@ -15,18 +15,19 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.g_node.micro.commons.AppUtils;
 import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Unit tests for the {@link Utils} class.
+ * Unit tests for the {@link AppUtils} class.
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
-public final class UtilsTest {
+public final class AppUtilsTest {
 
     /**
-     * Method checks that the {@link Utils} getHashSHA method returns
+     * Method checks that the {@link AppUtils} getHashSHA method returns
      * the proper hex hash for a List of String entries.
      */
     @Test
@@ -34,15 +35,15 @@ public final class UtilsTest {
         final String checkHexSHA = "e5c055cdf43af5be8972d5a94c8d0182296de89b";
 
         final ArrayList<String> testHashLower = new ArrayList<>(Arrays.asList("hash", "me"));
-        assertThat(checkHexSHA.equals(Utils.getHashSHA(testHashLower))).isTrue();
+        assertThat(checkHexSHA.equals(AppUtils.getHashSHA(testHashLower))).isTrue();
 
         final ArrayList<String> testHashMixed = new ArrayList<>(Arrays.asList("Hash", "Me"));
-        assertThat(checkHexSHA.equals(Utils.getHashSHA(testHashMixed))).isTrue();
+        assertThat(checkHexSHA.equals(AppUtils.getHashSHA(testHashMixed))).isTrue();
 
         final List<String> testHashSingleEntry = Collections.singletonList("Hash me");
-        assertThat(checkHexSHA.equals(Utils.getHashSHA(testHashSingleEntry))).isTrue();
+        assertThat(checkHexSHA.equals(AppUtils.getHashSHA(testHashSingleEntry))).isTrue();
 
         final List<String> testDiff = Collections.singletonList("hashme");
-        assertThat(checkHexSHA.equals(Utils.getHashSHA(testDiff))).isFalse();
+        assertThat(checkHexSHA.equals(AppUtils.getHashSHA(testDiff))).isFalse();
     }
 }

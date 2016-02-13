@@ -15,9 +15,7 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -33,20 +31,20 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Unit tests for the {@link ConvController} class.
+ * Unit tests for the {@link ConvCliToolController} class.
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
-public class ConvControllerTest {
+public class ConvCliToolControllerTest {
 
-    private ConvController convCont = new ConvController();
+    private ConvCliToolController convCont = new ConvCliToolController();
 
     /**
-     * Ensure a fresh {@link ConvController} at the beginning of each test.
+     * Ensure a fresh {@link ConvCliToolController} at the beginning of each test.
      */
     @Before
     public void provideStuff() {
-        this.convCont = new ConvController();
+        this.convCont = new ConvCliToolController();
     }
 
     /**
@@ -74,7 +72,7 @@ public class ConvControllerTest {
     }
 
     /**
-     * Tests the run method of the {@link ConvController}.
+     * Tests the run method of the {@link ConvCliToolController}.
      * @throws Exception
      */
     @Test
@@ -173,7 +171,7 @@ public class ConvControllerTest {
 
         assertThat(outStream.toString()).contains(
                 String.join("",
-                "[INFO ] Writing data to RDF file, ", testFileFolder.resolve(testTurtleDefaultOutName).toString(), " using format 'TTL'")
+                "[INFO ] Writing data to RDF file '", testFileFolder.resolve(testTurtleDefaultOutName).toString(), "' using format 'TTL'")
         );
         outStream.reset();
 
@@ -201,7 +199,7 @@ public class ConvControllerTest {
 
         assertThat(outStream.toString()).contains(
                 String.join("",
-                        "[INFO ] Writing data to RDF file, ", outFileName, ".jsonld using format 'JSON-LD'")
+                        "[INFO ] Writing data to RDF file '", outFileName, ".jsonld' using format 'JSON-LD'")
         );
         outStream.reset();
 
@@ -217,7 +215,7 @@ public class ConvControllerTest {
 
         assertThat(outStream.toString()).contains(
                 String.join("",
-                        "[INFO ] Writing data to RDF file, ", outFileName, " using format 'TTL'")
+                        "[INFO ] Writing data to RDF file '", outFileName, "' using format 'TTL'")
         );
         outStream.reset();
 

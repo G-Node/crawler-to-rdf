@@ -8,7 +8,7 @@
   <groupId>org.g_node</groupId>
   <artifactId>crawler-to-rdf</artifactId>
   <packaging>jar</packaging>
-  <version>1.02-Beta</version>
+  <version>1.03-Beta</version>
   <name>crawler-to-rdf</name>
   <url>http://maven.apache.org</url>
 
@@ -132,9 +132,9 @@
           <aggregate>true</aggregate>
           <show>private</show>
           <nohelp>true</nohelp>
-          <header>crawler-to-rdf, ${project.version}</header>
-          <footer>crawler-to-rdf, ${project.version}</footer>
-          <doctitle>crawler-to-rdf, ${project.version}</doctitle>
+          <header>${project.name}, ${project.version}</header>
+          <footer>${project.name}, ${project.version}</footer>
+          <doctitle>${project.name}, ${project.version}</doctitle>
         </configuration>
       </plugin>
 
