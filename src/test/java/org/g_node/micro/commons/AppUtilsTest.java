@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015, German Neuroinformatics Node (G-Node)
+ * Copyright (c) 2016, German Neuroinformatics Node (G-Node)
  *
  * All rights reserved.
  *
@@ -8,16 +8,14 @@
  * LICENSE file in the root of the Project.
  */
 
-package org.g_node.srv;
+package org.g_node.micro.commons;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import org.g_node.micro.commons.AppUtils;
-import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Test;
 
 /**
  * Unit tests for the {@link AppUtils} class.
@@ -46,4 +44,5 @@ public final class AppUtilsTest {
         final List<String> testDiff = Collections.singletonList("hashme");
         assertThat(checkHexSHA.equals(AppUtils.getHashSHA(testDiff))).isFalse();
     }
+
 }

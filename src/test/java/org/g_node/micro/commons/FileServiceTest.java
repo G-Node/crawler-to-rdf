@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015, German Neuroinformatics Node (G-Node)
+ * Copyright (c) 2016, German Neuroinformatics Node (G-Node)
  *
  * All rights reserved.
  *
@@ -8,7 +8,7 @@
  * LICENSE file in the root of the Project.
  */
 
-package org.g_node.srv;
+package org.g_node.micro.commons;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -17,11 +17,10 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
-import org.g_node.micro.commons.FileService;
+import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Unit tests for the {@link FileService} class. Output and Error streams are redirected
@@ -33,12 +32,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class FileServiceTest {
 
     private final String tmpRoot = System.getProperty("java.io.tmpdir");
-    private final String testFolderName = "fileservicetest";
+    private final String testFolderName = "fileServiceTest";
     private final String testFileName = "test.txt";
     private final Path testFileFolder = Paths.get(tmpRoot, testFolderName);
 
     /**
-     * Create a testfolder and the main test file in the java temp directory.
+     * Create a test folder and the main test file in the java temp directory.
      * @throws Exception
      */
     @Before
@@ -124,4 +123,5 @@ public class FileServiceTest {
                     testFileTypes)
         ).isTrue();
     }
+
 }

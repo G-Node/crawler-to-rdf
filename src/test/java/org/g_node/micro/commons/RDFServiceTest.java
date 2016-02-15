@@ -8,7 +8,7 @@
  * LICENSE file in the root of the Project.
  */
 
-package org.g_node.srv;
+package org.g_node.micro.commons;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -24,7 +24,6 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import static org.assertj.core.api.Assertions.assertThat;
-import org.g_node.micro.commons.RDFService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
