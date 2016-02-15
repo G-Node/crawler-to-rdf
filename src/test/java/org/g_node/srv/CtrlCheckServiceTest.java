@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015, German Neuroinformatics Node (G-Node)
+ * Copyright (c) 2016, German Neuroinformatics Node (G-Node)
  *
  * All rights reserved.
  *
@@ -16,13 +16,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
-
 import org.apache.commons.io.FileUtils;
+import static org.assertj.core.api.Assertions.assertThat;
 import org.g_node.micro.commons.RDFService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Unit tests for the {@link CtrlCheckService} class.
@@ -32,12 +31,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class CtrlCheckServiceTest {
 
     private final String tmpRoot = System.getProperty("java.io.tmpdir");
-    private final String testFolderName = "ctrlcheckservicetest";
+    private final String testFolderName = "ctrlCheckServiceTest";
     private final String testFileName = "test.txt";
     private final Path testFileFolder = Paths.get(tmpRoot, testFolderName);
 
     /**
-     * Create a testfolder and the main test file in the java temp directory.
+     * Create a test folder and the main test file in the java temp directory.
      * @throws Exception
      */
     @Before
@@ -64,7 +63,7 @@ public class CtrlCheckServiceTest {
      * @throws Exception
      */
     @Test
-    public void testExistingInputFile() throws Exception {
+    public void testExistingFile() throws Exception {
         final String testNonExistingFilePath =
                 this.testFileFolder
                         .resolve("IdoNotExist")
@@ -79,7 +78,6 @@ public class CtrlCheckServiceTest {
 
         assertThat(CtrlCheckService.isExistingFile(testExistingFilePath)).isTrue();
     }
-
 
     /**
      * Check, that a file without a file type extension or a file type extension that
