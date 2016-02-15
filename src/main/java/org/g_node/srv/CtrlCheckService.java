@@ -119,11 +119,15 @@ public final class CtrlCheckService {
      * Method tries to open a supported file assuming, that it is an RDF file.
      * If a RiotException occurs it most likely is not a valid RDF file and a
      * corresponding message is displayed and logged.
+     * NOTE: If the input file has a file extension, that is not supported by
+     * Apache Jena e.g. a file with the file ending "txt", the file will not be
+     * closed properly after the RiotException has been raised. Only after the
+     * program is closed, the file will be available again. Maybe this issue will be
+     * resolved in a later Apache Jena version.
      * @param file Path and filename of the file that is supposed to be checked.
      * @return True if the file can be opened and the model loaded, false if not.
      */
     public static boolean isValidRdfFile(final String file) {
-
         try {
             RDFService.openModelFromFile(file);
         } catch (RiotException e) {
