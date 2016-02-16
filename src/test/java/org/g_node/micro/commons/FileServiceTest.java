@@ -23,9 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Unit tests for the {@link FileService} class. Output and Error streams are redirected
- * from the console to a different PrintStream and reset after tests are finished
- * to avoid mixing tool error messages with actual test error messages.
+ * Unit tests for the {@link FileService} class.
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
@@ -37,7 +35,7 @@ public class FileServiceTest {
     private final Path testFileFolder = Paths.get(tmpRoot, testFolderName);
 
     /**
-     * Create a test folder and the main test file in the java temp directory.
+     * Create a temporary folder and the main test file in the java temp directory.
      * @throws Exception
      */
     @Before
