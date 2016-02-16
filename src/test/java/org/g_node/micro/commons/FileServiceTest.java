@@ -81,46 +81,42 @@ public class FileServiceTest {
     }
 
     /**
-     * Check, that a file without a file type or a file type that
-     * is not supported returns false and test that a file with a supported
-     * file type returns true. This test creates two additional files
+     * Check, that a file without a file extension or a file extension that
+     * is not supported, returns false and test that a file with a supported
+     * file extension returns true. This test creates two additional files.
      * @throws Exception
      */
     @Test
-    public void testCheckFileType() throws Exception {
-        final String testFileType = "test";
-        final String testFileTypeExt = "test.tex";
+    public void testCheckFileExtensionList() throws Exception {
+        final String testFileNoExtension = "test";
+        final String testFileUnsupportedExtension = "test.tex";
 
-        final File currTestFileType = this.testFileFolder.resolve(testFileType).toFile();
-        final File currTestFileTypeExt = this.testFileFolder.resolve(testFileTypeExt).toFile();
+        final File currTestFileNoExtension = this.testFileFolder.resolve(testFileNoExtension).toFile();
+        final File currTestFileUnsuppExt = this.testFileFolder.resolve(testFileUnsupportedExtension).toFile();
 
-        FileUtils.write(currTestFileType, "This is a normal test file");
-        FileUtils.write(currTestFileTypeExt, "This is a normal test file");
+        FileUtils.write(currTestFileNoExtension, "This is a normal test file");
+        FileUtils.write(currTestFileUnsuppExt, "This is a normal test file");
 
-        final List<String> testFileTypes = Collections.singletonList("TXT");
-
-        assertThat(
-            FileService.checkFileExtension(
-                    this.testFileFolder
-                            .resolve(testFileType)
-                            .toAbsolutePath().normalize().toString(),
-                    testFileTypes)
-            ).isFalse();
+        final List<String> testFileExtensions = Collections.singletonList("TXT");
 
         assertThat(
-            FileService.checkFileExtension(
-                    this.testFileFolder
-                            .resolve(testFileTypeExt)
-                            .toAbsolutePath().normalize().toString(),
-                    testFileTypes)
+                FileService.checkFileExtension(
+                        currTestFileNoExtension.getAbsolutePath(),
+                        testFileExtensions)
         ).isFalse();
 
         assertThat(
-            FileService.checkFileExtension(
-                    this.testFileFolder
-                            .resolve(this.testFileName)
-                            .toAbsolutePath().normalize().toString(),
-                    testFileTypes)
+                FileService.checkFileExtension(
+                        currTestFileUnsuppExt.getAbsolutePath(),
+                        testFileExtensions)
+        ).isFalse();
+
+        assertThat(
+                FileService.checkFileExtension(
+                        this.testFileFolder
+                                .resolve(this.testFileName)
+                                .toAbsolutePath().normalize().toString(),
+                        testFileExtensions)
         ).isTrue();
     }
 
