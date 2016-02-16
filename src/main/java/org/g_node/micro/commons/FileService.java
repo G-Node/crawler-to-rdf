@@ -37,7 +37,7 @@ public final class FileService {
      * Method for validating that the provided file is of a supported file extension.
      * @param checkFile Filename of the provided file.
      * @param fileExtensions List containing all supported file extensions.
-     * @return True if the file contains the supported file extension, false otherwise.
+     * @return True if the file ends with a supported file extension, false otherwise.
      */
     public static boolean checkFileExtension(final String checkFile, final List<String> fileExtensions) {
 
@@ -51,4 +51,24 @@ public final class FileService {
 
         return correctFileType;
     }
+
+    /**
+     * Method for validating that the provided file is of a supported file extension.
+     * @param checkFile Filename of the provided file.
+     * @param fileExtension String containing the supported file extension.
+     * @return True if the file end with the supported file extension, false otherwise.
+     */
+    public static boolean checkFileExtension(final String checkFile, final String fileExtension) {
+
+        boolean correctFileType = false;
+
+        final int i = checkFile.lastIndexOf('.');
+        if (i > 0) {
+            final String checkExtension = checkFile.substring(i + 1);
+            correctFileType = fileExtension.equals(checkExtension.toUpperCase(Locale.ENGLISH));
+        }
+
+        return correctFileType;
+    }
+
 }
