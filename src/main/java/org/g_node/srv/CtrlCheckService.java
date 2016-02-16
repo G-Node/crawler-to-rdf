@@ -56,7 +56,7 @@ public final class CtrlCheckService {
     public static boolean isSupportedInFileType(final String inputFile, final List<String> checkExtension) {
 
         CtrlCheckService.LOGGER.info("Checking input format...");
-        if (!FileService.checkFileType(inputFile, checkExtension)) {
+        if (!FileService.checkFileExtension(inputFile, checkExtension)) {
             CtrlCheckService.LOGGER.error(
                     String.join("",
                             "Input RDF file ", inputFile, " cannot be read.",

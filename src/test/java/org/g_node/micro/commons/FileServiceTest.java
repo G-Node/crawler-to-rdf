@@ -100,7 +100,7 @@ public class FileServiceTest {
         final List<String> testFileTypes = Collections.singletonList("TXT");
 
         assertThat(
-            FileService.checkFileType(
+            FileService.checkFileExtension(
                     this.testFileFolder
                             .resolve(testFileType)
                             .toAbsolutePath().normalize().toString(),
@@ -108,7 +108,7 @@ public class FileServiceTest {
             ).isFalse();
 
         assertThat(
-            FileService.checkFileType(
+            FileService.checkFileExtension(
                     this.testFileFolder
                             .resolve(testFileTypeExt)
                             .toAbsolutePath().normalize().toString(),
@@ -116,7 +116,7 @@ public class FileServiceTest {
         ).isFalse();
 
         assertThat(
-            FileService.checkFileType(
+            FileService.checkFileExtension(
                     this.testFileFolder
                             .resolve(this.testFileName)
                             .toAbsolutePath().normalize().toString(),
