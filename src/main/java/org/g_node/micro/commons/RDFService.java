@@ -10,6 +10,8 @@
 
 package org.g_node.micro.commons;
 
+import com.hp.hpl.jena.query.ResultSet;
+import com.hp.hpl.jena.query.ResultSetFormatter;
 import com.hp.hpl.jena.rdf.model.Model;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -126,6 +128,39 @@ public final class RDFService {
             }
         } catch (FileNotFoundException exc) {
             exc.printStackTrace();
+        }
+    }
+
+    /**
+     * Helper method saving an RDF result set to a CSV file.
+     * @param result RDF result set that will be saved to a CSV file.
+     * @param fileName String containing Path and Name of the file the results are written to.
+     */
+    public static void saveResultsToCsv(final ResultSet result, final String fileName) {
+
+        String outFile = fileName;
+
+        if (!FileService.checkFileExtension(outFile, "CSV")) {
+            outFile = String.join("", outFile, ".csv");
+        }
+
+        try {
+            RDFService.LOGGER.info(String.join("", "Write query to file...\t\t(", outFile, ")"));
+
+            final File file = new File(outFile);
+
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+
+            final FileOutputStream fop = new FileOutputStream(file);
+
+            ResultSetFormatter.outputAsCSV(fop, result);
+            fop.flush();
+            fop.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
