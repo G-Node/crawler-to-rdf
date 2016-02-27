@@ -15,7 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
-import java.util.List;
+import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.g_node.micro.commons.RDFService;
@@ -96,7 +96,7 @@ public class CtrlCheckServiceTest {
         FileUtils.write(currTestFileType, "This is a normal test file");
         FileUtils.write(currTestFileTypeExt, "This is a normal test file");
 
-        final List<String> testFileTypes = Collections.singletonList("TXT");
+        final Set<String> testFileTypes = Collections.singleton("TXT");
 
         assertThat(
                 CtrlCheckService.isSupportedInFileType(

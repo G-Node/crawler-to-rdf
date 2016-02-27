@@ -15,7 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
-import java.util.List;
+import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.After;
@@ -96,7 +96,7 @@ public class FileServiceTest {
         FileUtils.write(currTestFileNoExtension, "This is a normal test file");
         FileUtils.write(currTestFileUnsuppExt, "This is a normal test file");
 
-        final List<String> testFileExtensions = Collections.singletonList("TXT");
+        final Set<String> testFileExtensions = Collections.singleton("TXT");
 
         assertThat(
                 FileService.checkFileExtension(
