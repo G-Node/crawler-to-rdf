@@ -10,12 +10,15 @@
 
 package org.g_node.srv;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.g_node.micro.commons.RDFService;
@@ -30,6 +33,9 @@ import org.junit.Test;
  */
 public class CtrlCheckServiceTest {
 
+    private ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+    private PrintStream stdout;
+
     private final String tmpRoot = System.getProperty("java.io.tmpdir");
     private final String testFolderName = "ctrlCheckServiceTest";
     private final String testFileName = "test.txt";
@@ -41,6 +47,10 @@ public class CtrlCheckServiceTest {
      */
     @Before
     public void setUp() throws Exception {
+        this.stdout = System.out;
+        this.outStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(this.outStream));
+
         final File currTestFile = this.testFileFolder.resolve(this.testFileName).toFile();
         FileUtils.write(currTestFile, "This is a normal test file");
     }
@@ -51,6 +61,8 @@ public class CtrlCheckServiceTest {
      */
     @After
     public void tearDown() throws Exception {
+        System.setOut(this.stdout);
+
         if (Files.exists(this.testFileFolder)) {
             FileUtils.deleteDirectory(this.testFileFolder.toFile());
         }
@@ -80,47 +92,35 @@ public class CtrlCheckServiceTest {
     }
 
     /**
-     * Check, that a file without a file type extension or a file type extension that
-     * is not supported returns false and test that a file with a supported
-     * file type extension returns true.
+     * Test that the method prints the correct error message if a given String is not
+     * found in a given Set.
      * @throws Exception
      */
     @Test
     public void testSupportedInFileType() throws Exception {
-        final String testFileType = "test";
-        final String testFileTypeExt = "test.tex";
+        final Set<String> test = Stream.of("TXT", "TTL").collect(Collectors.toSet());
 
-        final File currTestFileType = this.testFileFolder.resolve(testFileType).toFile();
-        final File currTestFileTypeExt = this.testFileFolder.resolve(testFileTypeExt).toFile();
+        final String supportedFileType = "/some/path/someFile.txt";
+        final String unsupportedFileType = "/some/path/someFile.tex";
+        final String unsupportedMissingFileType = "/some/path/someFile";
+        final String unsupportedLastEndingIsUsed = "/some/path/someFile.txt.tex";
 
-        FileUtils.write(currTestFileType, "This is a normal test file");
-        FileUtils.write(currTestFileTypeExt, "This is a normal test file");
+        final String errorMessage = " cannot be read.";
 
-        final Set<String> testFileTypes = Collections.singleton("TXT");
+        assertThat(CtrlCheckService.isSupportedInFileType(supportedFileType, test)).isTrue();
 
-        assertThat(
-                CtrlCheckService.isSupportedInFileType(
-                        this.testFileFolder
-                                .resolve(testFileType)
-                                .toAbsolutePath().normalize().toString(),
-                        testFileTypes)
-        ).isFalse();
-
-        assertThat(
-                CtrlCheckService.isSupportedInFileType(
-                        this.testFileFolder
-                                .resolve(testFileTypeExt)
-                                .toAbsolutePath().normalize().toString(),
-                        testFileTypes)
-        ).isFalse();
-
-        assertThat(
-                CtrlCheckService.isSupportedInFileType(
-                        this.testFileFolder
-                                .resolve(this.testFileName)
-                                .toAbsolutePath().normalize().toString(),
-                        testFileTypes)
-        ).isTrue();
+        assertThat(CtrlCheckService.isSupportedInFileType(unsupportedFileType, test)).isFalse();
+        assertThat(this.outStream.toString().contains(
+                String.join("", unsupportedFileType, errorMessage)
+        ));
+        assertThat(CtrlCheckService.isSupportedInFileType(unsupportedMissingFileType, test)).isFalse();
+        assertThat(this.outStream.toString().contains(
+                String.join("", unsupportedMissingFileType, errorMessage)
+        ));
+        assertThat(CtrlCheckService.isSupportedInFileType(unsupportedLastEndingIsUsed, test)).isFalse();
+        assertThat(this.outStream.toString().contains(
+                String.join("", unsupportedLastEndingIsUsed, errorMessage)
+        ));
     }
 
     /**
