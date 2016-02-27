@@ -10,7 +10,6 @@
 
 package org.g_node.srv;
 
-import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import org.apache.jena.riot.RiotException;
@@ -91,23 +90,23 @@ public final class CtrlCheckService {
     }
 
     /**
-     * Method checks if the upper case of a String value is contained within a list of String values.
-     * @param cliArgValue Input value that is checked against a list of values.
-     * @param argValList List of supported values.
+     * Method checks if the upper case of a String value is contained within a set of String values.
+     * @param cliArgValue Input value that is checked against a set of values.
+     * @param argValSet Set of supported values.
      * @param cliArgDesc Description of the checked CLI argument value; required for proper logging
      *                   the details of the check.
-     * @return True if the input value is contained within the list, false if not.
+     * @return True if the input value is contained within the set, false if not.
      */
     public static boolean isSupportedCliArgValue(final String cliArgValue,
-                                                 final List<String> argValList,
+                                                 final Set<String> argValSet,
                                                  final String cliArgDesc) {
         CtrlCheckService.LOGGER.info(String.join("", "Checking value of command line option '", cliArgDesc, "'..."));
-        if (!argValList.contains(cliArgValue.toUpperCase(Locale.ENGLISH))) {
+        if (!argValSet.contains(cliArgValue.toUpperCase(Locale.ENGLISH))) {
             CtrlCheckService.LOGGER.error(
                     String.join("",
                             "'", cliArgValue, "' is not a supported value of command line option '", cliArgDesc, "'.",
                             "\n\t\t Please use one of the following: ",
-                            String.join(" ", argValList)
+                            String.join(" ", argValSet)
                     )
             );
             return false;

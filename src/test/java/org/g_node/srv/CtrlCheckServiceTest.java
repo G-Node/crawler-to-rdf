@@ -143,6 +143,26 @@ public class CtrlCheckServiceTest {
     }
 
     /**
+     * Test that a value is contained within a provided Set. Return true if it is contained, false otherwise.
+     * Test that a correct error message is displayed, if a value is not contained within the set.
+     * @throws Exception
+     */
+    @Test
+    public void testIsSupportedCliArgValue() throws Exception {
+        final Set<String> values = Stream.of("VALUEONE", "VALUETWO").collect(Collectors.toSet());
+        final String validValue = "valueOne";
+        final String inValidValue = "IdoNotExist";
+        final String errorMessage = "' is not a supported value of command line option '";
+
+        assertThat(CtrlCheckService.isSupportedCliArgValue(validValue, values, "")).isTrue();
+
+        assertThat(CtrlCheckService.isSupportedCliArgValue(inValidValue, values, "")).isFalse();
+        assertThat(this.outStream.toString().contains(
+                String.join("", inValidValue, errorMessage)
+        ));
+    }
+
+    /**
      * Test that the method checks that the method returns true in case of valid RDF files and false of
      * files that are not RDF files. Test, that the method returns proper error messages in
      * case of invalid RDF files.
