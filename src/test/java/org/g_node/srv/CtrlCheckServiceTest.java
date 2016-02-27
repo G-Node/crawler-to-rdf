@@ -124,19 +124,22 @@ public class CtrlCheckServiceTest {
     }
 
     /**
-     * Test that the method returns true if it is provided with a string
-     * contained as key in {@link RDFService#RDF_FORMAT_MAP} and false if
-     * it is not. It will also test all currently implemented keys from
-     * {@link RDFService#RDF_FORMAT_MAP}.
+     * Test that the method returns true if a value is contained within a provided set.
+     * Test that the method returns false if value is not contained within a provided set
+     * and check that the correct error message is displayed.
      * @throws Exception
      */
     @Test
     public void testSupportedOutputFormat() throws Exception {
-        assertThat(CtrlCheckService.isSupportedOutputFormat("txt", RDFService.RDF_FORMAT_MAP.keySet())).isFalse();
-        assertThat(CtrlCheckService.isSupportedOutputFormat("TTL", RDFService.RDF_FORMAT_MAP.keySet())).isTrue();
-        assertThat(CtrlCheckService.isSupportedOutputFormat("NTRIPLES", RDFService.RDF_FORMAT_MAP.keySet())).isTrue();
-        assertThat(CtrlCheckService.isSupportedOutputFormat("RDF/XML", RDFService.RDF_FORMAT_MAP.keySet())).isTrue();
-        assertThat(CtrlCheckService.isSupportedOutputFormat("JSON-LD", RDFService.RDF_FORMAT_MAP.keySet())).isTrue();
+        final Set<String> formats = Stream.of("TTL", "XML").collect(Collectors.toSet());
+        final String errorMessage = "Unsupported output format: '";
+
+        assertThat(CtrlCheckService.isSupportedOutputFormat("txt", formats)).isFalse();
+        assertThat(this.outStream.toString().contains(
+                String.join("", errorMessage, "txt")
+        ));
+
+        assertThat(CtrlCheckService.isSupportedOutputFormat("TTL", formats)).isTrue();
     }
 
     /**
