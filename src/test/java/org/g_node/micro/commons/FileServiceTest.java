@@ -141,4 +141,22 @@ public class FileServiceTest {
         ).isTrue();
     }
 
+    /**
+     * Check that a file copy of a given file is created using the proper timestamp as part of the filename.
+     * @throws Exception
+     */
+    @Test
+    public void testCreateTimeStampBackupFile() throws Exception {
+        final String timeStamp = "yyyyMMddHH";
+        final Path mainPath = this.testFileFolder.resolve(this.testFileName);
+        assertThat(FileService.createTimeStampBackupFile(mainPath.toString(), timeStamp))
+                .isTrue();
+
+        final String fileName = mainPath.getFileName().toString();
+        final String backupName = String.join("", AppUtils.getTimeStamp(timeStamp), "_backup_", fileName);
+        final String backupPath = mainPath.toString().replaceFirst(fileName, backupName);
+
+        assertThat(Files.exists(Paths.get(backupPath).toAbsolutePath())).isTrue();
+    }
+
 }
