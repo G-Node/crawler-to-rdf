@@ -12,8 +12,8 @@ package org.g_node.crawler.LKTLogbook;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -36,7 +36,7 @@ public final class LKTLogCliToolController implements CliToolController {
     /**
      * File types that can be processed by this crawler.
      */
-    private static final List<String> SUPPORTED_INPUT_FILE_TYPES = Collections.singletonList("ODS");
+    private static final Set<String> SUPPORTED_INPUT_FILE_TYPES = Collections.singleton("ODS");
     /**
      * ArrayList containing all messages that occurred while parsing the input file(s).
      * All parser errors connected to missing values or incorrect value formats should

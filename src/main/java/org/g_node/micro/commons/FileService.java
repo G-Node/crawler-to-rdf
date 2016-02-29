@@ -14,8 +14,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * Main service class for dealing with files.
@@ -38,10 +38,10 @@ public final class FileService {
     /**
      * Method for validating that the provided file is of a supported file extension.
      * @param checkFile Filename of the provided file.
-     * @param fileExtensions List containing all supported file extensions.
+     * @param fileExtensions Set containing all supported file extensions.
      * @return True if the file ends with a supported file extension, false otherwise.
      */
-    public static boolean checkFileExtension(final String checkFile, final List<String> fileExtensions) {
+    public static boolean checkFileExtension(final String checkFile, final Set<String> fileExtensions) {
 
         boolean correctFileType = false;
 

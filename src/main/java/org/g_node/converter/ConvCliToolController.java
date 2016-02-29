@@ -12,8 +12,8 @@ package org.g_node.converter;
 
 import com.hp.hpl.jena.rdf.model.Model;
 
-import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -67,10 +67,10 @@ public class ConvCliToolController implements CliToolController {
             return;
         }
 
-        final List<String> checkExtension = RDFService.RDF_FORMAT_EXTENSION.values()
+        final Set<String> checkExtension = RDFService.RDF_FORMAT_EXTENSION.values()
                 .stream()
                 .map(c->c.toUpperCase(Locale.ENGLISH))
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
         if (!CtrlCheckService.isSupportedInFileType(inputFile, checkExtension)) {
             return;
         }

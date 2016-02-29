@@ -10,12 +10,15 @@
 
 package org.g_node.srv;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.g_node.micro.commons.RDFService;
@@ -30,6 +33,9 @@ import org.junit.Test;
  */
 public class CtrlCheckServiceTest {
 
+    private ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+    private PrintStream stdout;
+
     private final String tmpRoot = System.getProperty("java.io.tmpdir");
     private final String testFolderName = "ctrlCheckServiceTest";
     private final String testFileName = "test.txt";
@@ -41,6 +47,10 @@ public class CtrlCheckServiceTest {
      */
     @Before
     public void setUp() throws Exception {
+        this.stdout = System.out;
+        this.outStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(this.outStream));
+
         final File currTestFile = this.testFileFolder.resolve(this.testFileName).toFile();
         FileUtils.write(currTestFile, "This is a normal test file");
     }
@@ -51,6 +61,8 @@ public class CtrlCheckServiceTest {
      */
     @After
     public void tearDown() throws Exception {
+        System.setOut(this.stdout);
+
         if (Files.exists(this.testFileFolder)) {
             FileUtils.deleteDirectory(this.testFileFolder.toFile());
         }
@@ -80,63 +92,102 @@ public class CtrlCheckServiceTest {
     }
 
     /**
-     * Check, that a file without a file type extension or a file type extension that
-     * is not supported returns false and test that a file with a supported
-     * file type extension returns true.
+     * Test that the method prints the correct error message if a given String is not
+     * found in a given Set.
      * @throws Exception
      */
     @Test
     public void testSupportedInFileType() throws Exception {
-        final String testFileType = "test";
-        final String testFileTypeExt = "test.tex";
+        final Set<String> test = Stream.of("TXT", "TTL").collect(Collectors.toSet());
 
-        final File currTestFileType = this.testFileFolder.resolve(testFileType).toFile();
-        final File currTestFileTypeExt = this.testFileFolder.resolve(testFileTypeExt).toFile();
+        final String supportedFileType = "/some/path/someFile.txt";
+        final String unsupportedFileType = "/some/path/someFile.tex";
+        final String unsupportedMissingFileType = "/some/path/someFile";
+        final String unsupportedLastEndingIsUsed = "/some/path/someFile.txt.tex";
 
-        FileUtils.write(currTestFileType, "This is a normal test file");
-        FileUtils.write(currTestFileTypeExt, "This is a normal test file");
+        final String errorMessage = " cannot be read.";
 
-        final List<String> testFileTypes = Collections.singletonList("TXT");
+        assertThat(CtrlCheckService.isSupportedInFileType(supportedFileType, test)).isTrue();
 
-        assertThat(
-                CtrlCheckService.isSupportedInFileType(
-                        this.testFileFolder
-                                .resolve(testFileType)
-                                .toAbsolutePath().normalize().toString(),
-                        testFileTypes)
-        ).isFalse();
-
-        assertThat(
-                CtrlCheckService.isSupportedInFileType(
-                        this.testFileFolder
-                                .resolve(testFileTypeExt)
-                                .toAbsolutePath().normalize().toString(),
-                        testFileTypes)
-        ).isFalse();
-
-        assertThat(
-                CtrlCheckService.isSupportedInFileType(
-                        this.testFileFolder
-                                .resolve(this.testFileName)
-                                .toAbsolutePath().normalize().toString(),
-                        testFileTypes)
-        ).isTrue();
+        assertThat(CtrlCheckService.isSupportedInFileType(unsupportedFileType, test)).isFalse();
+        assertThat(this.outStream.toString().contains(
+                String.join("", unsupportedFileType, errorMessage)
+        ));
+        assertThat(CtrlCheckService.isSupportedInFileType(unsupportedMissingFileType, test)).isFalse();
+        assertThat(this.outStream.toString().contains(
+                String.join("", unsupportedMissingFileType, errorMessage)
+        ));
+        assertThat(CtrlCheckService.isSupportedInFileType(unsupportedLastEndingIsUsed, test)).isFalse();
+        assertThat(this.outStream.toString().contains(
+                String.join("", unsupportedLastEndingIsUsed, errorMessage)
+        ));
     }
 
     /**
-     * Test that the method returns true if it is provided with a string
-     * contained as key in {@link RDFService#RDF_FORMAT_MAP} and false if
-     * it is not. It will also test all currently implemented keys from
-     * {@link RDFService#RDF_FORMAT_MAP}.
+     * Test that the method returns true if a value is contained within a provided set.
+     * Test that the method returns false if value is not contained within a provided set
+     * and check that the correct error message is displayed.
      * @throws Exception
      */
     @Test
     public void testSupportedOutputFormat() throws Exception {
-        assertThat(CtrlCheckService.isSupportedOutputFormat("txt", RDFService.RDF_FORMAT_MAP.keySet())).isFalse();
-        assertThat(CtrlCheckService.isSupportedOutputFormat("TTL", RDFService.RDF_FORMAT_MAP.keySet())).isTrue();
-        assertThat(CtrlCheckService.isSupportedOutputFormat("NTRIPLES", RDFService.RDF_FORMAT_MAP.keySet())).isTrue();
-        assertThat(CtrlCheckService.isSupportedOutputFormat("RDF/XML", RDFService.RDF_FORMAT_MAP.keySet())).isTrue();
-        assertThat(CtrlCheckService.isSupportedOutputFormat("JSON-LD", RDFService.RDF_FORMAT_MAP.keySet())).isTrue();
+        final Set<String> formats = Stream.of("TTL", "XML").collect(Collectors.toSet());
+        final String errorMessage = "Unsupported output format: '";
+
+        assertThat(CtrlCheckService.isSupportedOutputFormat("txt", formats)).isFalse();
+        assertThat(this.outStream.toString().contains(
+                String.join("", errorMessage, "txt")
+        ));
+
+        assertThat(CtrlCheckService.isSupportedOutputFormat("TTL", formats)).isTrue();
+    }
+
+    /**
+     * Test that a value is contained within a provided Set. Return true if it is contained, false otherwise.
+     * Test that a correct error message is displayed, if a value is not contained within the set.
+     * @throws Exception
+     */
+    @Test
+    public void testIsSupportedCliArgValue() throws Exception {
+        final Set<String> values = Stream.of("VALUEONE", "VALUETWO").collect(Collectors.toSet());
+        final String validValue = "valueOne";
+        final String inValidValue = "IdoNotExist";
+        final String errorMessage = "' is not a supported value of command line option '";
+
+        assertThat(CtrlCheckService.isSupportedCliArgValue(validValue, values, "")).isTrue();
+
+        assertThat(CtrlCheckService.isSupportedCliArgValue(inValidValue, values, "")).isFalse();
+        assertThat(this.outStream.toString().contains(
+                String.join("", inValidValue, errorMessage)
+        ));
+    }
+
+    /**
+     * Test that the method checks that the method returns true in case of valid RDF files and false of
+     * files that are not RDF files. Test, that the method returns proper error messages in
+     * case of invalid RDF files.
+     * @throws Exception
+     */
+    @Test
+    public void testIsValidRdfFile() throws Exception {
+        final String miniTTL = "@prefix foaf: <http://xmlns.com/foaf/0.1/> .\n\n_:a foaf:name\t\"TestName\"";
+        final File validRdfFile = this.testFileFolder.resolve("test.ttl").toFile();
+        FileUtils.write(validRdfFile, miniTTL);
+
+        final String errorMessage = "Failed to load file '";
+
+        assertThat(CtrlCheckService.isValidRdfFile(validRdfFile.getAbsolutePath())).isTrue();
+
+        final File inValidRdfFile = this.testFileFolder.resolve("test.ttl").toFile();
+        FileUtils.write(inValidRdfFile, "Invalid RDF file");
+
+        assertThat(CtrlCheckService.isValidRdfFile(inValidRdfFile.getAbsolutePath())).isFalse();
+        assertThat(this.outStream.toString().contains(
+                String.join("", errorMessage, inValidRdfFile.getAbsolutePath())));
+
+        assertThat(CtrlCheckService.isValidRdfFile(this.testFileName)).isFalse();
+        assertThat(this.outStream.toString().contains(
+                String.join("", errorMessage, this.testFileName)));
     }
 
 }
