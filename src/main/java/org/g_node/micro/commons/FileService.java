@@ -10,7 +10,9 @@
 
 package org.g_node.micro.commons;
 
+import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Locale;
@@ -69,6 +71,28 @@ public final class FileService {
         }
 
         return correctFileType;
+    }
+
+    /**
+     * Creates a backup file with a timestamp and the string "backup" in its name.
+     * @param file Name of the file that is to be copied.
+     * @param dateTimeFormatPattern Format of the timestamp, use DateTimeFormatter pattern conventions.
+     * @return True if the file was successfully created, false, if something failed.
+     */
+    public static boolean createTimeStampBackupFile(final String file, final String dateTimeFormatPattern) {
+        final Path mainPath = Paths.get(file);
+        final String fileName = mainPath.getFileName().toString();
+        final String ts = AppUtils.getTimeStamp(dateTimeFormatPattern);
+        final String backupName = String.join("", ts, "_backup_", fileName);
+        final String backupPath = mainPath.toString().replaceFirst(fileName, backupName);
+
+        try {
+            Files.copy(mainPath, Paths.get(backupPath));
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
 }
