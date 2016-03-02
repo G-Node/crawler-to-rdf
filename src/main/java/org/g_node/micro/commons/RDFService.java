@@ -19,6 +19,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
@@ -144,35 +145,50 @@ public final class RDFService {
     }
 
     /**
-     * Helper method saving an RDF result set to a CSV file.
-     * @param result RDF result set that will be saved to a CSV file.
+     * Helper method saving a JENA RDF {@link ResultSet} to an output file in a specified output format.
+     * @param result JENA RDF {@link ResultSet} that will be saved.
+     * @param resultFileFormat String containing a {@link #QUERY_RESULT_FILE_FORMATS} entry.
      * @param fileName String containing Path and Name of the file the results are written to.
      */
-    public static void saveResultsToCsv(final ResultSet result, final String fileName) {
+    public static void saveResultsToSupportedFile(final ResultSet result,
+                                                  final String resultFileFormat,
+                                                  final String fileName) {
 
-        String outFile = fileName;
+        final String resFileFormat = resultFileFormat.toUpperCase(Locale.ENGLISH);
 
-        if (!FileService.checkFileExtension(outFile, "CSV")) {
-            outFile = String.join("", outFile, ".csv");
-        }
+        if (QUERY_RESULT_FILE_FORMATS.containsKey(resFileFormat)) {
 
-        try {
-            RDFService.LOGGER.info(String.join("", "Write query to file...\t\t(", outFile, ")"));
+            final String fileExt = QUERY_RESULT_FILE_FORMATS.get(resFileFormat);
+            final String outFile = !FileService.checkFileExtension(fileName, fileExt.toUpperCase(Locale.ENGLISH))
+                    ? String.join("", fileName, ".", fileExt) : fileName;
 
-            final File file = new File(outFile);
+            try {
+                final File file = new File(outFile);
 
-            if (!file.exists()) {
-                file.createNewFile();
+                if (!file.exists()) {
+                    file.createNewFile();
+                }
+
+                final FileOutputStream fop = new FileOutputStream(file);
+
+                RDFService.LOGGER.info(String.join("", "Write query to file...\t\t(", outFile, ")"));
+
+                if ("CSV".equals(resFileFormat)) {
+                    ResultSetFormatter.outputAsCSV(fop, result);
+                }
+
+                fop.flush();
+                fop.close();
+
+            } catch (IOException e) {
+                RDFService.LOGGER.error(String.join("", "Cannot write to file...\t\t(", outFile, ")"));
+                RDFService.LOGGER.error(e.getMessage());
+                e.printStackTrace();
             }
-
-            final FileOutputStream fop = new FileOutputStream(file);
-
-            ResultSetFormatter.outputAsCSV(fop, result);
-            fop.flush();
-            fop.close();
-
-        } catch (IOException e) {
-            e.printStackTrace();
+        } else {
+            RDFService.LOGGER.error(
+                    String.join("", "Output file format ", resultFileFormat, " is not supported by this service.")
+            );
         }
     }
 
