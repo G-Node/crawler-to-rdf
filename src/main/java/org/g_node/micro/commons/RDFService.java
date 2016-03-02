@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFFormat;
 import org.apache.log4j.Logger;
@@ -55,6 +56,12 @@ public final class RDFService {
                     put("JSON-LD", "jsonld");
                 }
             });
+
+    /**
+     * Query results of this RDFService can be saved to these file formats.
+     * Entries should always be upper case.
+     */
+    public static final Set<String> QUERY_RESULT_FILE_FORMATS = Collections.singleton("CSV");
 
     /**
      * Access to the main LOGGER.
