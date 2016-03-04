@@ -10,8 +10,6 @@
 
 package org.g_node;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.cli.CommandLine;
@@ -21,9 +19,11 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.log4j.Logger;
-import org.g_node.converter.ConvController;
-import org.g_node.crawler.LKTLogbook.LKTLogController;
+import org.g_node.converter.ConvCliToolController;
+import org.g_node.crawler.LKTLogbook.LKTLogCliToolController;
 import org.g_node.crawler.LKTLogbook.LKTLogParser;
+import org.g_node.micro.commons.AppUtils;
+import org.g_node.micro.commons.CliToolController;
 
 /**
  * Main application class used to parse command line input and pass
@@ -43,7 +43,7 @@ public class App {
     /**
      * Registry containing all crawlers and RDF to RDF converters implemented and available to this application.
      */
-    private final Map<String, Controller> tools;
+    private final Map<String, CliToolController> tools;
 
     /**
      * Constructor.
@@ -59,8 +59,10 @@ public class App {
      */
     public static void main(final String[] args) {
 
-        final String currDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
-        App.LOGGER.info(String.join("", currDateTime, ", Starting RDF crawler logfile."));
+        App.LOGGER.info(String.join("", AppUtils.getTimeStamp("dd.MM.yyyy HH:mm"), ", Starting RDF crawler logfile."));
+        App.LOGGER.info(
+                String.join("", "Input arguments: '", String.join(" ", args), "'")
+        );
 
         try {
             final App currApp = new App();
@@ -76,8 +78,8 @@ public class App {
      * The short hand is required to select and run the intended crawler or RDF to RDF converter.
      */
     public final void register() {
-        this.tools.put("lkt", new LKTLogController(new LKTLogParser()));
-        this.tools.put("conv", new ConvController());
+        this.tools.put("lkt", new LKTLogCliToolController(new LKTLogParser()));
+        this.tools.put("conv", new ConvCliToolController());
     }
 
     /**
@@ -102,7 +104,7 @@ public class App {
 
             final HelpFormatter printHelp = new HelpFormatter();
             final CommandLineParser parser = new DefaultParser();
-            final Controller currCrawlerController = this.tools.get(args[0]);
+            final CliToolController currCrawlerCliToolController = this.tools.get(args[0]);
             final Options useOptions = this.tools.get(args[0]).options();
 
             try {
@@ -111,7 +113,7 @@ public class App {
                     printHelp.printHelp("Help", useOptions);
                     return;
                 }
-                currCrawlerController.run(cmd);
+                currCrawlerCliToolController.run(cmd);
 
             } catch (final ParseException exp) {
                 printHelp.printHelp("Help", useOptions);

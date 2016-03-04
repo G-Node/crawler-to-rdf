@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015, German Neuroinformatics Node (G-Node)
+ * Copyright (c) 2016, German Neuroinformatics Node (G-Node)
  *
  * All rights reserved.
  *
@@ -8,27 +8,25 @@
  * LICENSE file in the root of the Project.
  */
 
-package org.g_node.srv;
+package org.g_node.micro.commons;
 
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.vocabulary.RDFS;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
+import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Unit tests for the {@link RDFService} class. Output and Error streams are redirected
@@ -39,13 +37,12 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class RDFServiceTest {
 
-    private final String tmpRoot = System.getProperty("java.io.tmpdir");
-    private final String testFolderName = "tdfservicetest";
-    private final String testFileName = "test.txt";
-    private final Path testFileFolder = Paths.get(tmpRoot, testFolderName);
-
     private ByteArrayOutputStream outStream = new ByteArrayOutputStream();
     private PrintStream stdout;
+
+    private final String tmpRoot = System.getProperty("java.io.tmpdir");
+    private final String testFolderName = "rdfServiceTest";
+    private final Path testFileFolder = Paths.get(tmpRoot, testFolderName);
 
     /**
      * Redirect Out stream and create a test folder and the main
@@ -67,7 +64,8 @@ public class RDFServiceTest {
                 )
         );
 
-        final File currTestFile = this.testFileFolder.resolve(this.testFileName).toFile();
+        final String testFileName = "test.txt";
+        final File currTestFile = this.testFileFolder.resolve(testFileName).toFile();
         FileUtils.write(currTestFile, "This is a normal test file");
     }
 
@@ -91,23 +89,22 @@ public class RDFServiceTest {
      * @throws Exception
      */
     @Test
-    public void testWriteModelToFile() throws Exception {
+    public void testSaveModelToFile() throws Exception {
 
-        final Model model = ModelFactory.createDefaultModel();
-        final Resource modelEntry = model.createResource();
-
-        final String outFileName = "testrdf.ttl";
+        final String outFileName = "testRdf.ttl";
         final String outFilePath = this.testFileFolder.resolve(outFileName).toString();
         final String outFileFormat = "TTL";
         final String testString = String.join(
-                "", "[INFO ] Writing data to RDF file, ",
-                outFilePath, " using format '", outFileFormat, "'"
+                "", "[INFO ] Writing data to RDF file '",
+                outFilePath, "' using format '", outFileFormat, "'"
         );
 
-        RDFService.writeModelToFile("", model, outFileFormat);
+        final Model model = ModelFactory.createDefaultModel();
+
+        RDFService.saveModelToFile("", model, outFileFormat);
         assertThat(this.outStream.toString()).startsWith("[ERROR] Could not open output file");
 
-        RDFService.writeModelToFile(outFilePath, model, outFileFormat);
+        RDFService.saveModelToFile(outFilePath, model, outFileFormat);
         assertThat(this.outStream.toString()).contains(testString);
     }
 
@@ -130,4 +127,5 @@ public class RDFServiceTest {
         Model m = RDFService.openModelFromFile(currTestFile.toString());
         assertThat(m.isEmpty()).isFalse();
     }
+
 }

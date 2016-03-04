@@ -12,29 +12,29 @@ package org.g_node.converter;
 
 import com.hp.hpl.jena.rdf.model.Model;
 
-import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.jena.riot.RiotException;
 import org.apache.log4j.Logger;
-import org.g_node.Controller;
+import org.g_node.micro.commons.CliToolController;
+import org.g_node.micro.commons.RDFService;
 import org.g_node.srv.CliOptionService;
 import org.g_node.srv.CtrlCheckService;
-import org.g_node.srv.RDFService;
 
 /**
  * Controller class for the RDF to RDF converter.
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
-public class ConvController implements Controller {
+public class ConvCliToolController implements CliToolController {
     /**
      * Access to the main LOGGER.
      */
-    private static final Logger LOGGER = Logger.getLogger(ConvController.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(ConvCliToolController.class.getName());
     /**
      * Method returning the commandline options of the RDF to RDF converter.
      * @return Available commandline options.
@@ -63,20 +63,20 @@ public class ConvController implements Controller {
     public final void run(final CommandLine cmd) {
 
         final String inputFile = cmd.getOptionValue("i");
-        if (!CtrlCheckService.existingInputFile(inputFile)) {
+        if (!CtrlCheckService.isExistingFile(inputFile)) {
             return;
         }
 
-        final List<String> checkExtension = RDFService.RDF_FORMAT_EXTENSION.values()
+        final Set<String> checkExtension = RDFService.RDF_FORMAT_EXTENSION.values()
                 .stream()
                 .map(c->c.toUpperCase(Locale.ENGLISH))
-                .collect(Collectors.toList());
-        if (!CtrlCheckService.supportedInFileType(inputFile, checkExtension)) {
+                .collect(Collectors.toSet());
+        if (!CtrlCheckService.isSupportedInFileType(inputFile, checkExtension)) {
             return;
         }
 
         final String outputFormat = cmd.getOptionValue("f", "TTL").toUpperCase(Locale.ENGLISH);
-        if (!CtrlCheckService.supportedOutputFormat(outputFormat)) {
+        if (!CtrlCheckService.isSupportedOutputFormat(outputFormat, RDFService.RDF_FORMAT_MAP.keySet())) {
             return;
         }
 
@@ -91,17 +91,17 @@ public class ConvController implements Controller {
         Model convData;
 
         try {
-            ConvController.LOGGER.info("Reading input file...");
+            ConvCliToolController.LOGGER.info("Reading input file...");
             convData = RDFService.openModelFromFile(inputFile);
 
         } catch (RiotException e) {
-            ConvController.LOGGER.error(e.getMessage());
+            ConvCliToolController.LOGGER.error(e.getMessage());
             // TODO find out how to print stacktrace to log4j logfile
             e.printStackTrace();
             return;
         }
 
-        RDFService.writeModelToFile(outputFile, convData, outputFormat);
+        RDFService.saveModelToFile(outputFile, convData, outputFormat);
     }
 
 }

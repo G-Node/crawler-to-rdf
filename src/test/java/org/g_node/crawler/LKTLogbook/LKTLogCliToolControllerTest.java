@@ -17,9 +17,6 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 import javax.swing.table.DefaultTableModel;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -38,13 +35,13 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Unit tests for the {@link LKTLogController} class.
+ * Unit tests for the {@link LKTLogCliToolController} class.
  *
  * @author Michael Sonntag (sonntag@bio.lmu.de)
  */
-public class LKTLogControllerTest {
+public class LKTLogCliToolControllerTest {
 
-    private LKTLogController logCtrl;
+    private LKTLogCliToolController logCtrl;
     private PrintStream stdout;
     private ByteArrayOutputStream outStream;
     private Logger rootLogger;
@@ -53,13 +50,13 @@ public class LKTLogControllerTest {
     private File currTestFile;
 
     /**
-     * Ensure a fresh {@link LKTLogController} at the beginning of each test.
+     * Ensure a fresh {@link LKTLogCliToolController} at the beginning of each test.
      * Set up Logger and tmp folder.
      * @throws Exception
      */
     @Before
     public void setUp() throws Exception {
-        this.logCtrl = new LKTLogController(new LKTLogParser());
+        this.logCtrl = new LKTLogCliToolController(new LKTLogParser());
 
         this.stdout = System.out;
         this.outStream = new ByteArrayOutputStream();
@@ -120,7 +117,7 @@ public class LKTLogControllerTest {
     }
 
     /**
-     * Tests the run method of the {@link LKTLogController}.
+     * Tests the run method of the {@link LKTLogCliToolController}.
      * Will test LKTLogParser, LKTLogParserSheet and LKTLogParserEntry as well with an invalid ods sheet.
      * @throws Exception
      */
@@ -208,7 +205,7 @@ public class LKTLogControllerTest {
     }
 
     /**
-     * Tests the run method of the {@link LKTLogController} with a valid ods file.
+     * Tests the run method of the {@link LKTLogCliToolController} with a valid ods file.
      * Will test LKTLogParser, LKTLogParserSheet, LKTLogParserEntry and LKTLogToRDF as well.
      * @throws Exception
      */
@@ -234,9 +231,9 @@ public class LKTLogControllerTest {
 
         assertThat(this.outStream.toString())
                 .contains(
-                        String.join("", "Writing data to RDF file, ",
+                        String.join("", "Writing data to RDF file '",
                                 this.testFileFolder.resolve("out.ttl").toString(),
-                                " using format 'TTL'")
+                                "' using format 'TTL'")
                 );
         this.outStream.reset();
     }

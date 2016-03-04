@@ -186,7 +186,7 @@ public final class LKTLogParser {
      * This method will create a backup file of the original ODS file.
      * @param inputFile ODS file specific to Kay Thurleys usecase.
      * @param parserErrMsg ArrayList collecting all parserErrorMessages in the corresponding
-     *                     {@link LKTLogController}.
+     *                     {@link LKTLogCliToolController}.
      * @return Array list containing all data from all parsed ODS sheets.
      */
     public ArrayList<LKTLogParserSheet> parseFile(final String inputFile,

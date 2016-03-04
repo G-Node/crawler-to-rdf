@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015, German Neuroinformatics Node (G-Node)
+ * Copyright (c) 2016, German Neuroinformatics Node (G-Node)
  *
  * All rights reserved.
  *
@@ -8,7 +8,7 @@
  * LICENSE file in the root of the Project.
  */
 
-package org.g_node.srv;
+package org.g_node.micro.commons;
 
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
@@ -16,8 +16,8 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.RDFS;
-import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Test;
 
 /**
  * Unit tests for the {@link RDFUtils} class.
